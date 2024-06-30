@@ -39,7 +39,7 @@ export const MovingText = ({ text, animationThreshold, style }: MovingTextProps)
 
 		return () => {
 			cancelAnimation(translateX)
-			translateX.value = 0
+			translateX.value = 0//useEffect 钩子函数的返回值是一个清理函数（cleanup function），它在以下情况下执行：组件卸载时。依赖项（dependency array）中的某个值在重新渲染时发生变化时。
 		}
 	}, [translateX, text, animationThreshold, shouldAnimate, textWidth])
 

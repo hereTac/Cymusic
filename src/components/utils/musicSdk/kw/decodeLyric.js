@@ -1,6 +1,7 @@
-const { inflate } = require('pako')
-const iconv = require('iconv-lite')
+import { inflate } from 'pako'
 
+import iconv from 'iconv-lite'
+import { Buffer } from 'buffer';
 const handleInflate = data => new Promise((resolve, reject) => {
   resolve(Buffer.from(inflate(data)))
 })

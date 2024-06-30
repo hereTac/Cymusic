@@ -9,18 +9,18 @@ export const useTrackPlayerFavorite = () => {
 
 	const isFavorite = favorites.find((track) => track.url === activeTrack?.url)?.rating === 1
 
-	// we're updating both the track player internal state and application internal state
+	// 我们正在更新轨道播放器内部状态和应用程序内部状态
 	const toggleFavorite = useCallback(async () => {
 		const id = await TrackPlayer.getActiveTrackIndex()
 
 		if (id == null) return
 
-		// update track player internal state
+		// 更新轨道播放器内部状态
 		await TrackPlayer.updateMetadataForTrack(id, {
 			rating: isFavorite ? 0 : 1,
 		})
 
-		// update the app internal state
+		// 更新应用内部状态
 		if (activeTrack) {
 			toggleTrackFavorite(activeTrack)
 		}

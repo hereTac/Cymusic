@@ -1,9 +1,10 @@
 // import BackgroundTimer from 'react-native-background-timer'
 // import { httpGet, httpFetch } from '../../request'
 import { toMD5 } from '../utils'
-import { aesEncryptSync, aesDecryptSync, AES_MODE } from '@/utils/nativeModules/crypto'
+import { AES_MODE } from '../../nativeModules/crypto'
 export { default as decodeLyric } from './decodeLyric'
-
+import { Buffer } from 'buffer';
+import { aesDecrypt,aesEncrypt } from '../wy/utils/crypto'
 // const kw_token = {
 //   token: null,
 //   isGetingToken: false,
@@ -197,25 +198,23 @@ export const wbdCrypto = {
   aesKey: 'cFcnPcf6Kb85RC1y3V6M5A==',
   aesIv: '',
   appId: 'y67sprxhhpws',
-  decodeData(base64Result) {
-    // const data = Buffer.from(decodeURIComponent(base64Result), 'base64')
-    // return JSON.parse(createAesDecrypt(data, this.aesMode, this.aesKey, this.aesIv).toString())
+  async decodeData(base64Result) {
+
     const data = decodeURIComponent(base64Result)
-    return JSON.parse(aesDecryptSync(data, this.aesKey, this.aesIv, AES_MODE.ECB_128_NoPadding))
+    // console.log("123123:::" + await aesDecrypt(data, this.aesKey, this.aesIv, 'aes-128-ecb'))
+    return JSON.parse(await aesDecrypt(data, this.aesKey, this.aesIv,'aes-128-ecb'))
   },
   createSign(data, time) {
     const str = `${this.appId}${data}${time}`
     return toMD5(str).toUpperCase()
   },
-  buildParam(jsonData) {
-    // const data = Buffer.from(JSON.stringify(jsonData))
-    // const time = Date.now()
+  async buildParam(jsonData) {
 
-    // const encodeData = createAesEncrypt(data, this.aesMode, this.aesKey, this.aesIv).toString('base64')
     const data = Buffer.from(JSON.stringify(jsonData)).toString('base64')
     const time = Date.now()
 
-    const encodeData = aesEncryptSync(data, this.aesKey, this.aesIv, AES_MODE.ECB_128_NoPadding)
+    const encodeData = await aesEncrypt(data, this.aesKey, this.aesIv, 'aes-128-ecb')
+       //console.log("123123encodeData" + encodeData.toString()+`data=${encodeURIComponent(encodeData)}&time=${time}&appId=${this.appId}&sign=${sign}`)
     const sign = this.createSign(encodeData, time)
 
     return `data=${encodeURIComponent(encodeData)}&time=${time}&appId=${this.appId}&sign=${sign}`

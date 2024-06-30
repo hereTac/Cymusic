@@ -1,10 +1,9 @@
-// import needle from 'needle'
-// import progress from 'request-progress'
+
 import BackgroundTimer from 'react-native-background-timer'
 import { requestMsg } from './message'
 import { bHh } from './musicSdk/options'
-import { deflateRaw } from 'pako'
-
+//import { deflateRaw } from 'pako'
+import { Buffer } from 'buffer';
 const defaultHeaders = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
 }
@@ -87,7 +86,7 @@ const fetchWithTimeout = (resource, options) => {
 
 
 const handleDeflateRaw = data => new Promise((resolve, reject) => {
-  resolve(Buffer.from(deflateRaw(data)))
+  //resolve(Buffer.from(deflateRaw(data)))
   // deflateRaw(data, (err, buf) => {
   //   if (err) return reject(err)
   //   resolve(buf)

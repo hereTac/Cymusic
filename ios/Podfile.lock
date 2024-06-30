@@ -131,6 +131,7 @@ PODS:
   - NVActivityIndicatorView (5.1.1):
     - NVActivityIndicatorView/Base (= 5.1.1)
   - NVActivityIndicatorView/Base (5.1.1)
+  - OpenSSL-Universal (3.1.5004)
   - RCT-Folly (2022.05.16.00):
     - boost
     - DoubleConversion
@@ -1002,13 +1003,29 @@ PODS:
   - React-Mapbuffer (0.73.6):
     - glog
     - React-debug
+  - react-native-background-timer (2.4.1):
+    - React-Core
   - react-native-loader-kit (2.0.8):
     - NVActivityIndicatorView (= 5.1.1)
     - React-Core
   - react-native-menu (0.9.1):
     - React
+  - react-native-quick-base64 (2.1.2):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+  - react-native-quick-crypto (0.7.0):
+    - glog
+    - OpenSSL-Universal
+    - RCT-Folly (= 2022.05.16.00)
+    - React
+    - React-Core
+  - react-native-quick-md5 (3.0.6):
+    - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
+  - react-native-simple-crypto (0.2.15):
+    - React
   - react-native-track-player (4.1.1):
     - React-Core
     - SwiftAudioEx (= 1.1.0)
@@ -1255,9 +1272,14 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - react-native-background-timer (from `../node_modules/react-native-background-timer`)
   - react-native-loader-kit (from `../node_modules/react-native-loader-kit`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
+  - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
+  - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
+  - react-native-quick-md5 (from `../node_modules/react-native-quick-md5`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-simple-crypto (from `../node_modules/react-native-simple-crypto`)
   - react-native-track-player (from `../node_modules/react-native-track-player`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -1291,6 +1313,7 @@ SPEC REPOS:
     - libevent
     - libwebp
     - NVActivityIndicatorView
+    - OpenSSL-Universal
     - SDWebImage
     - SDWebImageWebPCoder
     - SocketRocket
@@ -1388,12 +1411,22 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-background-timer:
+    :path: "../node_modules/react-native-background-timer"
   react-native-loader-kit:
     :path: "../node_modules/react-native-loader-kit"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
+  react-native-quick-base64:
+    :path: "../node_modules/react-native-quick-base64"
+  react-native-quick-crypto:
+    :path: "../node_modules/react-native-quick-crypto"
+  react-native-quick-md5:
+    :path: "../node_modules/react-native-quick-md5"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-simple-crypto:
+    :path: "../node_modules/react-native-simple-crypto"
   react-native-track-player:
     :path: "../node_modules/react-native-track-player"
   React-nativeconfig:
@@ -1476,6 +1509,7 @@ SPEC CHECKSUMS:
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
+  OpenSSL-Universal: 0db2e81615ad95efc90ce13a638986858da38c0d
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
   RCTRequired: ca1d7414aba0b27efcfa2ccd37637edb1ab77d96
   RCTTypeSafety: 678e344fb976ff98343ca61dc62e151f3a042292
@@ -1497,9 +1531,14 @@ SPEC CHECKSUMS:
   React-jsinspector: 85583ef014ce53d731a98c66a0e24496f7a83066
   React-logger: 3eb80a977f0d9669468ef641a5e1fabbc50a09ec
   React-Mapbuffer: 84ea43c6c6232049135b1550b8c60b2faac19fab
+  react-native-background-timer: 17ea5e06803401a379ebf1f20505b793ac44d0fe
   react-native-loader-kit: ed18c8ce83b69083211912326897d8286f37d797
   react-native-menu: 9728f90160c36b9a75481fc76e05354b99d54c59
+  react-native-quick-base64: e1ea036b3dec44c6da2439bd62881a09de614b23
+  react-native-quick-crypto: a289ec9498d55221106016f0f68c4a1123a22b36
+  react-native-quick-md5: 9a4cb8201cd0b1866e374ac19d530da0964c0aed
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
+  react-native-simple-crypto: 499ddd9f317932677e50393e58e7a72bca2a86e1
   react-native-track-player: 82ef1756ffeea61140fea17519ecd6d64ec3cf3e
   React-nativeconfig: b4d4e9901d4cabb57be63053fd2aa6086eb3c85f
   React-NativeModulesApple: cd26e56d56350e123da0c1e3e4c76cb58a05e1ee

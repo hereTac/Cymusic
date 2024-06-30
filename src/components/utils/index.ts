@@ -1,6 +1,6 @@
 import { dateFormat } from './common'
 
-export { tranditionalize as langS2T } from '@/utils/simplify-chinese-main'
+export { tranditionalize as langS2T } from '@/components/utils/simplify-chinese-main'
 
 export * from './common'
 

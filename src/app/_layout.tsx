@@ -19,7 +19,7 @@ const App = () => {
 	}, [])
 
 	useSetupTrackPlayer({
-		onLoad: handleTrackPlayerLoaded,
+		onLoad: handleTrackPlayerLoaded, //播放器初始化后调用这个回调函数。这里先传过去。
 	})
 
 	useLogTrackPlayerState()
@@ -36,6 +36,7 @@ const App = () => {
 
 const RootNavigation = () => {
 	return (
+		//每个 Stack.Screen 组件定义了一个可导航的屏幕
 		<Stack>
 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 

@@ -5,7 +5,7 @@ import { colors, fontSize } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
 import { Entypo, Ionicons } from '@expo/vector-icons'
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
-import FastImage from 'react-native-fast-image'//导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
+import FastImage from 'react-native-fast-image' //导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
 import LoaderKit from 'react-native-loader-kit'
 import { Track, useActiveTrack, useIsPlaying } from 'react-native-track-player'
 
@@ -20,7 +20,7 @@ export type TracksListItemProps = {
 // 这个定义通常用于为组件的 props 提供类型检查和自动完成提示，确保在使用组件时传递的 props 符合预期的类型。
 export const TracksListItem = ({
 	track,
-	onTrackSelect: handleTrackSelect,
+	onTrackSelect: handleTrackSelect, //解构赋值：通过解构赋值从 props 对象中提取 track 和 onTrackSelect 属性，并将 onTrackSelect 重新命名为 handleTrackSelect。
 }: TracksListItemProps) => {
 	const { playing } = useIsPlaying()
 
@@ -37,7 +37,7 @@ export const TracksListItem = ({
 						}}
 						style={{
 							...styles.trackArtworkImage,
-							opacity: isActiveTrack ? 0.6 : 1,
+							opacity: isActiveTrack ? 0.6 : 1, //激活时候的透明度0.6
 						}}
 					/>
 
@@ -84,7 +84,7 @@ export const TracksListItem = ({
 							</Text>
 						)}
 					</View>
-
+					{/* 阻止触摸事件冒泡到父组件。 */}
 					<StopPropagation>
 						<TrackShortcutsMenu track={track}>
 							<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />

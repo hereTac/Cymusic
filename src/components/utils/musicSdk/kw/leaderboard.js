@@ -197,17 +197,21 @@ export default {
     }
   },
 
-  getList(id, page, retryNum = 0) {
-    if (++retryNum > 3) return Promise.reject(new Error('try max num'))
+ async getList(id, page, retryNum = 0) {
+    if (++retryNum >  3) return Promise.reject(new Error('try max num'))
 
     const requestBody = { uid: '', devId: '', sFrom: 'kuwo_sdk', user_type: 'AP', carSource: 'kwplayercar_ar_6.0.1.0_apk_keluze.apk', id, pn: page - 1, rn: this.limit }
-    const requestUrl = `https://wbd.kuwo.cn/api/bd/bang/bang_info?${wbdCrypto.buildParam(requestBody)}`
+    const requestUrl = `https://wbd.kuwo.cn/api/bd/bang/bang_info?${await wbdCrypto.buildParam(requestBody)}`
+    console.log(requestUrl)
     const request = httpFetch(requestUrl, { cache: 'default' }).promise
 
-    return request.then(({ statusCode, body }) => {
-      const rawData = wbdCrypto.decodeData(body)
-      // console.log(rawData)
+    return request.then(async ({ statusCode, body }) => {
+
+      const rawData = await wbdCrypto.decodeData(body)
+
+      console.log("kw:::" + statusCode +JSON.stringify(rawData.data))
       const data = rawData.data
+
       if (statusCode !== 200 || rawData.code != 200 || !data.musiclist) return this.getList(id, page, retryNum)
 
       const total = parseInt(data.total)
@@ -220,10 +224,9 @@ export default {
         page,
         source: 'kw',
       }
+    }).catch((err) => {
+      console.log("kw:::"+err)
     })
   },
 
-  // getDetailPageUrl(id) {
-  //   return `http://www.kuwo.cn/rankList/${id}`
-  // },
 }

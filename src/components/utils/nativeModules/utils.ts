@@ -1,5 +1,5 @@
 import { AppState, NativeEventEmitter, NativeModules } from 'react-native'
-import RNExitApp from 'react-native-exit-app';
+
 const { UtilsModule } = NativeModules
 
 export const exitApp = UtilsModule.exitApp

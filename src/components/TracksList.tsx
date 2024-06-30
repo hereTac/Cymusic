@@ -8,7 +8,7 @@ import FastImage from 'react-native-fast-image'
 import TrackPlayer, { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 
-export type TracksListProps = Partial<FlatListProps<Track>> & {
+export type TracksListProps = Partial<FlatListProps<Track>> & {//以及所有来自 FlatListProps 的属性，且这些属性都是可选的。
 	id: string
 	tracks: Track[]
 	hideQueueControls?: boolean
@@ -16,7 +16,12 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 
 const ItemDivider = () => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
-)
+)//const ItemDivider = () => {
+// 	return (
+// 		<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
+// 	);
+// };等价的写法，括号箭头函数花括号。如果是小括号就是直接return小括号的内容
+
 
 export const TracksList = ({
 	id,
@@ -82,7 +87,7 @@ export const TracksList = ({
 				</View>
 			}
 			renderItem={({ item: track }) => (
-				<TracksListItem track={track} onTrackSelect={handleTrackSelect} />
+				<TracksListItem track={track} onTrackSelect={handleTrackSelect} />//将 track 和 handleTrackSelect 作为 props 传递给它。
 			)}
 			{...flatlistProps}
 		/>
