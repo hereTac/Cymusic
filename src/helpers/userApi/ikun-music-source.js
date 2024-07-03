@@ -7,6 +7,8 @@
  */
 
 // 是否开启开发模式
+
+
 const DEV_ENABLE = false
 // 是否开启更新提醒
 const UPDATE_ENABLE = true
@@ -24,27 +26,27 @@ MUSIC_SOURCE.push('local')
 /**
  * 下面的东西就不要修改了
  */
-const { EVENT_NAMES, request, on, send, utils, env, version } = globalThis.lx
-
+ //const {  utils, env, version } = globalThis.lxu
+const env= 'mobile'
+ const version='2.0.0'
 // MD5值,用来检查更新
 const SCRIPT_MD5 = '0b8560f99ab8c529ca220797246ff76a'
 
-/**
- * URL请求
- *
- * @param {string} url - 请求的地址
- * @param {object} options - 请求的配置文件
- * @return {Promise} 携带响应体的Promise对象
- */
-const httpFetch = (url, options = { method: 'GET' }) => {
-  return new Promise((resolve, reject) => {
-    console.log('--- start --- ' + url)
-    request(url, options, (err, resp) => {
-      if (err) return reject(err)
-      console.log('API Response: ', resp)
-      resolve(resp)
-    })
-  })
+async function httpFetch(url, options) {
+  try {
+    console.log(url);
+    console.log(options);
+    const response = await fetch(url, options);
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
 }
 
 /**
@@ -53,11 +55,19 @@ const httpFetch = (url, options = { method: 'GET' }) => {
  * @param {type} data - the data to be encoded
  * @return {string} the base64 encoded string
  */
+// const handleBase64Encode = (data) => {
+//   var data = utils.buffer.from(data, 'utf-8')
+//   return utils.buffer.bufToString(data, 'base64')
+// }
 const handleBase64Encode = (data) => {
-  var data = utils.buffer.from(data, 'utf-8')
-  return utils.buffer.bufToString(data, 'base64')
-}
+  // 将字符串转换为 Uint8Array
+  const utf8Array = new TextEncoder().encode(data);
 
+  // 将 Uint8Array 转换为 Base64 字符串
+  const base64String = btoa(String.fromCharCode(...utf8Array));
+
+  return base64String;
+};
 /**
  * 
  * @param {string} source - 音源
@@ -66,35 +76,10 @@ const handleBase64Encode = (data) => {
  * @returns {Promise<string>} 歌曲播放链接
  * @throws {Error} - 错误消息
  */
-const handleGetMusicUrl = async (source, musicInfo, quality) => {
-  if (source == 'local') {
-    if (!musicInfo.songmid.startsWith('server_')) throw new Error('upsupported local file')
-    const songId = musicInfo.songmid
-    const requestBody = {
-      p: songId.replace('server_', ''),
-    }
-    var t = 'c'
-    var b = handleBase64Encode(JSON.stringify(requestBody)) /* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
-    const targetUrl = `${API_URL}/local/${t}?q=${b}`
-    const request = await httpFetch(targetUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`,
-        'X-Request-Key': API_KEY,
-      },
-      follow_max: 5,
-    })
-    const { body } = request
-    if (body.code == 0 && body.data && body.data.file) {
-      var t = 'u'
-      var b = handleBase64Encode(JSON.stringify(requestBody)) /* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
-      return `${API_URL}/local/${t}?q=${b}`
-    }
-    throw new Error('404 Not Found')
-  }
+export const handleGetMusicUrl = async (source, musicInfo, quality) => {
 
-  const songId = musicInfo.hash ?? musicInfo.songmid
+  console.log(musicInfo.id)
+  const songId = musicInfo.hash ?? musicInfo.id
 
   const request = await httpFetch(`${API_URL}/url/${source}/${songId}/${quality}`, {
     method: 'GET',
@@ -103,10 +88,10 @@ const handleGetMusicUrl = async (source, musicInfo, quality) => {
       'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`,
       'X-Request-Key': API_KEY,
     },
-    follow_max: 5,
   })
+  console.log('request'+request)
   const { body } = request
-
+   console.log('body'+body)
   if (!body || isNaN(Number(body.code))) throw new Error('unknow error')
   if (env != 'mobile') console.groupEnd()
   switch (body.code) {
@@ -136,7 +121,7 @@ const handleGetMusicUrl = async (source, musicInfo, quality) => {
 
 const handleGetMusicPic = async (source, musicInfo) => {
   switch (source) {
-    case 'local':
+    case 'local': {
       // 先从服务器检查是否有对应的类型，再响应链接
       if (!musicInfo.songmid.startsWith('server_')) throw new Error('upsupported local file')
       const songId = musicInfo.songmid
@@ -150,17 +135,18 @@ const handleGetMusicPic = async (source, musicInfo) => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`
+          'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`,
         },
         follow_max: 5,
-      })
+      }).promise
       const { body } = request
       if (body.code === 0 && body.data.cover) {
-        var t = 'p'
-        var b = handleBase64Encode(JSON.stringify(requestBody))/* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
-        return `${API_URL}/local/${t}?q=${b}`
+        var t2 = 'p'
+        var b2 = handleBase64Encode(JSON.stringify(requestBody))/* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
+        return `${API_URL}/local/${t2}?q=${b2}`
       }
       throw new Error('get music pic failed')
+    }
     default:
       throw new Error('action(pic) does not support source(' + source + ')')
   }
@@ -168,7 +154,7 @@ const handleGetMusicPic = async (source, musicInfo) => {
 
 const handleGetMusicLyric = async (source, musicInfo) => {
   switch (source) {
-    case 'local':
+    case 'local': {
       if (!musicInfo.songmid.startsWith('server_')) throw new Error('upsupported local file')
       const songId = musicInfo.songmid
       const requestBody = {
@@ -181,57 +167,58 @@ const handleGetMusicLyric = async (source, musicInfo) => {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`
+          'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`,
         },
         follow_max: 5,
-      })
+      }).promise
       const { body } = request
       if (body.code === 0 && body.data.lyric) {
-        var t = 'l'
-        var b = handleBase64Encode(JSON.stringify(requestBody))/* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
-        const request2 = await httpFetch(`${API_URL}/local/${t}?q=${b}`, {
+        var t2 = 'l'
+        var b2 = handleBase64Encode(JSON.stringify(requestBody))/* url safe*/.replace(/\+/g, '-').replace(/\//g, '_')
+        const request2 = await httpFetch(`${API_URL}/local/${t2}?q=${b2}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`
+            'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`,
           },
           follow_max: 5,
-        })
+        }).promise
         if (request2.body.code === 0) {
           return {
-            lyric: request2.body.data ?? "",
-            tlyric: "",
-            rlyric: "",
-            lxlyric: ""
+            lyric: request2.body.data ?? '',
+            tlyric: '',
+            rlyric: '',
+            lxlyric: '',
           }
         }
         throw new Error('get music lyric failed')
       }
       throw new Error('get music lyric failed')
+    }
     default:
       throw new Error('action(lyric) does not support source(' + source + ')')
   }
 }
 
 // 检查源脚本是否有更新
-const checkUpdate = async () => {
-  const request = await httpFetch(`${API_URL}/script?key=${API_KEY}&checkUpdate=${SCRIPT_MD5}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`
-    },
-  })
-  const { body } = request
-
-  if (!body || body.code !== 0) console.log('checkUpdate failed')
-  else {
-    console.log('checkUpdate success')
-    if (body.data != null) {
-      globalThis.lx.send(lx.EVENT_NAMES.updateAlert, { log: body.data.updateMsg, updateUrl: body.data.updateUrl })
-    }
-  }
-}
+// const checkUpdate = async () => {
+//   const request = await httpFetch(`${API_URL}/script?key=${API_KEY}&checkUpdate=${SCRIPT_MD5}`, {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'User-Agent': `${env ? `lx-music-${env}/${version}` : `lx-music-request/${version}`}`
+//     },
+//   })
+//   const { body } = request
+//
+//   if (!body || body.code !== 0) console.log('checkUpdate failed')
+//   else {
+//     console.log('checkUpdate success')
+//     if (body.data != null) {
+//       globalThis.lx.send(lx.EVENT_NAMES.updateAlert, { log: body.data.updateMsg, updateUrl: body.data.updateUrl })
+//     }
+//   }
+// }
 
 // 生成歌曲信息
 const musicSources = {}
@@ -245,38 +232,38 @@ MUSIC_SOURCE.forEach(item => {
 })
 
 // 监听 LX Music 请求事件
-on(EVENT_NAMES.request, ({ action, source, info }) => {
-  switch (action) {
-    case 'musicUrl':
-      if (env != 'mobile') {
-        console.group(`Handle Action(musicUrl)`)
-        console.log('source', source)
-        console.log('quality', info.type)
-        console.log('musicInfo', info.musicInfo)
-      } else {
-        console.log(`Handle Action(musicUrl)`)
-        console.log('source', source)
-        console.log('quality', info.type)
-        console.log('musicInfo', info.musicInfo)
-      }
-      return handleGetMusicUrl(source, info.musicInfo, info.type)
-        .then(data => Promise.resolve(data))
-        .catch(err => Promise.reject(err))
-    case 'pic':
-      return handleGetMusicPic(source, info.musicInfo)
-        .then(data => Promise.resolve(data))
-        .catch(err => Promise.reject(err))
-    case 'lyric':
-      return handleGetMusicLyric(source, info.musicInfo)
-        .then(data => Promise.resolve(data))
-        .catch(err => Promise.reject(err))
-    default:
-      console.error(`action(${action}) not support`)
-      return Promise.reject('action not support')
-  }
-})
-
-// 检查更新
-if (UPDATE_ENABLE) checkUpdate()
-// 向 LX Music 发送初始化成功事件
-send(EVENT_NAMES.inited, { status: true, openDevTools: DEV_ENABLE, sources: musicSources })
+// on(EVENT_NAMES.request, ({ action, source, info }) => {
+//   switch (action) {
+//     case 'musicUrl':
+//       if (env != 'mobile') {
+//         console.group(`Handle Action(musicUrl)`)
+//         console.log('source', source)
+//         console.log('quality', info.type)
+//         console.log('musicInfo', info.musicInfo)
+//       } else {
+//         console.log(`Handle Action(musicUrl)`)
+//         console.log('source', source)
+//         console.log('quality', info.type)
+//         console.log('musicInfo', info.musicInfo)
+//       }
+//       return handleGetMusicUrl(source, info.musicInfo, info.type)
+//         .then(data => Promise.resolve(data))
+//         .catch(err => Promise.reject(err))
+//     case 'pic':
+//       return handleGetMusicPic(source, info.musicInfo)
+//         .then(data => Promise.resolve(data))
+//         .catch(err => Promise.reject(err))
+//     case 'lyric':
+//       return handleGetMusicLyric(source, info.musicInfo)
+//         .then(data => Promise.resolve(data))
+//         .catch(err => Promise.reject(err))
+//     default:
+//       console.error(`action(${action}) not support`)
+//       return Promise.reject('action not support')
+//   }
+// })
+//
+// // 检查更新
+// if (UPDATE_ENABLE) checkUpdate()
+// // 向 LX Music 发送初始化成功事件
+// send(EVENT_NAMES.inited, { status: true, openDevTools: DEV_ENABLE, sources: musicSources })

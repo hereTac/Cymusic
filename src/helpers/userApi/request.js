@@ -104,7 +104,9 @@ export const fetchData = (url, { timeout = 15000, ...options }) => {
         } else {
           try {
             resp.body = JSON.parse(resp.body)
-          } catch {}
+          } catch {
+            console.error(resp)
+          }
           return resp
         }
       }).catch(err => {

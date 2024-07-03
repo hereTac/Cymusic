@@ -11,7 +11,7 @@ interface LibraryState {
   addToPlaylist: (track: Track, playlistName: string) => void
   fetchTracks: () => Promise<void>
 }
-const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; albumName: any; genre: any; releaseDate: any; img: any; interval: any }) => {
+const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; albumName: any; genre: any; releaseDate: any; img: any; interval: any; singerImg: any  }) => {
   return {
     id: track.songmid, // 假设你的 track 对象有 id 属性
     url: track.url, // 歌曲的 URL
@@ -22,6 +22,7 @@ const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; album
     date: track.releaseDate, // 发布日期
     artwork: track.img, // 封面图片的 URL
     duration: track.interval, // 歌曲时长（秒）
+    singerImg: track.singerImg,
   };
 };
 export const useLibraryStore = create<LibraryState>((set) => ({
@@ -54,8 +55,8 @@ export const useLibraryStore = create<LibraryState>((set) => ({
     })),
   fetchTracks: async () => {
     try {
-      const data = await musicSdk["kw"].leaderboard.getList(16, 1)
-      // console.log("list"+JSON.stringify(data.list))
+      const data = await musicSdk["tx"].leaderboard.getList(26, 1)
+       // console.log("list"+JSON.stringify(data.list))
       const tracks = data.list.map(mapTrack);
       set({ tracks})
     } catch (error) {
@@ -93,6 +94,7 @@ export const useArtists = () =>
         acc.push({
           name: track.artist ?? 'Unknown',
           tracks: [track],
+          singerImg:track.singerImg
         })
       }
 
@@ -113,6 +115,7 @@ export const usePlaylists = () => {
             name: playlistName,
             tracks: [track],
             artworkPreview: track.artwork ?? unknownTrackImageUri,
+            singerImg: track.singerImg
           })
         }
       })

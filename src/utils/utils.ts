@@ -1,6 +1,7 @@
 import musicSdk from '@/components/utils/musicSdk'
 import { requestMsg } from '@/components/utils/message'
-import { toOldMusicInfo } from '@/components/utils/index'
+import { toOldMusicInfo } from '@/components/utils'
+import player from '@/app/player'
 
 export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggleSource, isRefresh, retryedSource = [] }: {
   musicInfos: LX.Music.MusicInfoOnline[]
@@ -22,8 +23,9 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
   while (musicInfo = (musicInfos.shift()!)) {
     if (retryedSource.includes(musicInfo.source)) continue
     retryedSource.push(musicInfo.source)
-    if (!assertApiSupport(musicInfo.source)) continue
-    itemQuality = quality ?? getPlayQuality(settingState.setting['player.isPlayHighQuality'], musicInfo)
+    //if (!assertApiSupport(musicInfo.source)) continue
+    //  itemQuality = quality ?? 'getPlayQuality(settingState.setting['player.isPlayHighQuality'], musicInfo)'
+    itemQuality = quality ?? '128k'
     if (!musicInfo.meta._qualitys[itemQuality]) continue
 
     console.log('try toggle to: ', musicInfo.source, musicInfo.name, musicInfo.singer, musicInfo.interval)
@@ -31,9 +33,9 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
     break
   }
   if (!musicInfo || !itemQuality) throw new Error(global.i18n.t('toggle_source_failed'))
-
-  const cachedUrl = await getStoreMusicUrl(musicInfo, itemQuality)
-  if (cachedUrl && !isRefresh) return { url: cachedUrl, musicInfo, quality: itemQuality, isFromCache: true }
+  //todo cache
+  // const cachedUrl = await getStoreMusicUrl(musicInfo, itemQuality)
+  // if (cachedUrl && !isRefresh) return { url: cachedUrl, musicInfo, quality: itemQuality, isFromCache: true }
 
   let reqPromise
   try {

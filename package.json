@@ -8,7 +8,9 @@
 		"lint": "eslint ."
 	},
 	"dependencies": {
+		"@react-native-async-storage/async-storage": "^1.23.1",
 		"@react-native-menu/menu": "^0.9.1",
+		"axios": "^1.7.2",
 		"crypto-js": "^4.2.0",
 		"expo": "~50.0.14",
 		"expo-blur": "~12.9.2",
@@ -19,6 +21,7 @@
 		"expo-router": "~3.4.8",
 		"expo-status-bar": "~1.11.1",
 		"iconv-lite": "^0.6.3",
+		"install": "^0.13.0",
 		"pako": "^2.1.0",
 		"react": "18.2.0",
 		"react-native": "0.73.6",

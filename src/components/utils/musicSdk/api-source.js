@@ -13,7 +13,6 @@ import apiSourceInfo from './api-source-info'
 // import direct_api_wy from './wy/api-direct'
 // import direct_api_mg from './mg/api-direct'
 
-// import settingState from '@/store/setting/state'
 
 
 const apiList = {
@@ -45,12 +44,13 @@ for (const api of apiSourceInfo) {
 }
 
 // const getAPI = source => apiList[`${settingState.setting['common.apiSource']}_api_${source}`]
-//
-// const apis = source => {
-//   if (/^user_api/.test(settingState.setting['common.apiSource'])) return global.lx.apis[source]
-//   const api = getAPI(source)
-//   if (api) return api
-//   throw new Error('Api is not found')
-// }
 
-export {  supportQuality }
+const apis = source => {
+  // if (/^user_api/.test(settingState.setting['common.apiSource'])) return global.lx.apis[source]
+  // const api = getAPI(source)
+  // if (api) return api
+  // throw new Error('Api is not found')
+   return global.lx.apis[source]
+}
+
+export { apis, supportQuality }

@@ -8,7 +8,14 @@ import FastImage from 'react-native-fast-image'
 import TrackPlayer, { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 
-export type TracksListProps = Partial<FlatListProps<Track>> & {//以及所有来自 FlatListProps 的属性，且这些属性都是可选的。
+import axios from 'axios'
+import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
+
+
+
+
+export type TracksListProps = Partial<FlatListProps<Track>> & {
+	//以及所有来自 FlatListProps 的属性，且这些属性都是可选的。
 	id: string
 	tracks: Track[]
 	hideQueueControls?: boolean
@@ -16,12 +23,11 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {//以及所有来
 
 const ItemDivider = () => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
-)//const ItemDivider = () => {
+) //const ItemDivider = () => {
 // 	return (
 // 		<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
 // 	);
 // };等价的写法，括号箭头函数花括号。如果是小括号就是直接return小括号的内容
-
 
 export const TracksList = ({
 	id,
@@ -30,11 +36,16 @@ export const TracksList = ({
 	...flatlistProps
 }: TracksListProps) => {
 	const queueOffset = useRef(0)
+
 	const { activeQueueId, setActiveQueueId } = useQueue()
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
-		const trackIndex = tracks.findIndex((track) => track.url === selectedTrack.url)
 
+
+		const resp =await api_ikun.getMusicUrl(selectedTrack, '128k')
+
+		selectedTrack.url = resp.url
+		const trackIndex = tracks.findIndex((track) => track.url === selectedTrack.url)
 		if (trackIndex === -1) return
 
 		const isChangingQueue = id !== activeQueueId
@@ -87,7 +98,7 @@ export const TracksList = ({
 				</View>
 			}
 			renderItem={({ item: track }) => (
-				<TracksListItem track={track} onTrackSelect={handleTrackSelect} />//将 track 和 handleTrackSelect 作为 props 传递给它。
+				<TracksListItem track={track} onTrackSelect={handleTrackSelect} /> //将 track 和 handleTrackSelect 作为 props 传递给它。
 			)}
 			{...flatlistProps}
 		/>

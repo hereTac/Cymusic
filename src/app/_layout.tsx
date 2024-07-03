@@ -4,10 +4,13 @@ import { useLogTrackPlayerState } from '@/hooks/useLogTrackPlayerState'
 import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
 import { SplashScreen, Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
+import { addUserApi } from '@/helpers/userApiHelper'
+import { INTERNAL_API_KEY, storageDataPrefix } from '@/constants/constant'
+
 
 SplashScreen.preventAutoHideAsync()
 
@@ -21,7 +24,15 @@ const App = () => {
 	useSetupTrackPlayer({
 		onLoad: handleTrackPlayerLoaded, //播放器初始化后调用这个回调函数。这里先传过去。
 	})
-
+  // addUserApi(INTERNAL_API_KEY).then(async r => {
+	// 	console.log('111123233231')
+	// 	const keys = [storageDataPrefix.userApi];
+  // const data = await getDataMultiple(keys as const);
+	//
+  // data.forEach(([key, value]) => {
+  //   console.log(`Key: ${key}, Value:`, value);
+  // });
+	// })
 	useLogTrackPlayerState()
 
 	return (
