@@ -5,6 +5,7 @@ import { Track } from 'react-native-track-player'
 import { create } from 'zustand'
 import { useEffect } from 'react'
 import musicSdk from '@/components/utils/musicSdk'
+import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
 interface LibraryState {
   tracks: TrackWithPlaylist[]
   toggleTrackFavorite: (track: Track) => void
@@ -13,16 +14,16 @@ interface LibraryState {
 }
 const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; albumName: any; genre: any; releaseDate: any; img: any; interval: any; singerImg: any  }) => {
   return {
-    id: track.songmid, // 假设你的 track 对象有 id 属性
-    url: track.url, // 歌曲的 URL
-    title: track.name, // 歌曲的名称
-    artist: track.singer, // 艺术家的名字
-    album: track.albumName, // 专辑名称
-    genre: track.genre, // 流派
-    date: track.releaseDate, // 发布日期
-    artwork: track.img, // 封面图片的 URL
-    duration: track.interval, // 歌曲时长（秒）
-    singerImg: track.singerImg,
+   id: track.songmid || 'default_songmid',   // 如果 songmid 为 undefined 或 null，设置默认值 'default_songmid'
+   url: track.url || 'Unknown',   // 如果 url 为 undefined 或 null，设置默认值 'http://example.com/default.mp3'
+   title: track.name || 'Untitled Song',   // 如果 name 为 undefined 或 null，设置默认值 'Untitled Song'
+   artist: track.singer || 'Unknown Artist',   // 如果 singer 为 undefined 或 null，设置默认值 'Unknown Artist'
+   album: track.albumName || 'Unknown Album',   // 如果 albumName 为 undefined 或 null，设置默认值 'Unknown Album'
+   genre: track.genre || 'Unknown Genre',   // 如果 genre 为 undefined 或 null，设置默认值 'Unknown Genre'
+   date: track.releaseDate || 'Unknown Release Date',   // 如果 releaseDate 为 undefined 或 null，设置默认值 'Unknown Release Date'
+   artwork: track.img || 'http://example.com/default.jpg',   // 如果 img 为 undefined 或 null，设置默认值 'http://example.com/default.jpg'
+   duration:  0,   // 如果 interval 为 undefined 或 null，设置默认值 0
+   singerImg: track.singerImg || 'http://example.com/default_artist.jpg'
   };
 };
 export const useLibraryStore = create<LibraryState>((set) => ({
@@ -57,7 +58,11 @@ export const useLibraryStore = create<LibraryState>((set) => ({
     try {
       const data = await musicSdk["tx"].leaderboard.getList(26, 1)
        // console.log("list"+JSON.stringify(data.list))
-      const tracks = data.list.map(mapTrack);
+      let tracks = data.list.map(mapTrack);
+
+      tracks= tracks.slice(0, 10);
+      // console.log(tracks);
+
       set({ tracks})
     } catch (error) {
       console.error('Failed to fetch tracks:', error)

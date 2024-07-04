@@ -230,7 +230,7 @@ export default {
     return p.then(period => {
       return this.listDetailRequest(bangid, period, this.limit).then(resp => {
         if (resp.body.code !== 0) return this.getList(bangid, page, retryNum)
-        console.log(resp.body.toplist.data.songInfoList)
+        //console.log(resp.body.toplist.data.songInfoList)
         return {
           total: resp.body.toplist.data.songInfoList.length,
           list: this.filterData(resp.body.toplist.data.songInfoList),

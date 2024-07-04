@@ -24,15 +24,7 @@ const App = () => {
 	useSetupTrackPlayer({
 		onLoad: handleTrackPlayerLoaded, //播放器初始化后调用这个回调函数。这里先传过去。
 	})
-  // addUserApi(INTERNAL_API_KEY).then(async r => {
-	// 	console.log('111123233231')
-	// 	const keys = [storageDataPrefix.userApi];
-  // const data = await getDataMultiple(keys as const);
-	//
-  // data.forEach(([key, value]) => {
-  //   console.log(`Key: ${key}, Value:`, value);
-  // });
-	// })
+
 	useLogTrackPlayerState()
 
 	return (

@@ -8,7 +8,6 @@ import FastImage from 'react-native-fast-image'
 import TrackPlayer, { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 
-import axios from 'axios'
 import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
 
 
@@ -23,12 +22,7 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 
 const ItemDivider = () => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
-) //const ItemDivider = () => {
-// 	return (
-// 		<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
-// 	);
-// };等价的写法，括号箭头函数花括号。如果是小括号就是直接return小括号的内容
-
+)
 export const TracksList = ({
 	id,
 	tracks,
@@ -41,10 +35,11 @@ export const TracksList = ({
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
+	if(selectedTrack.url=='Unknown') {
+	const res = await api_ikun.getMusicUrl(selectedTrack, '128k')
+	selectedTrack.url = res.url
 
-		const resp =await api_ikun.getMusicUrl(selectedTrack, '128k')
-
-		selectedTrack.url = resp.url
+	}
 		const trackIndex = tracks.findIndex((track) => track.url === selectedTrack.url)
 		if (trackIndex === -1) return
 
@@ -53,26 +48,33 @@ export const TracksList = ({
 		if (isChangingQueue) {
 			const beforeTracks = tracks.slice(0, trackIndex)
 			const afterTracks = tracks.slice(trackIndex + 1)
-
 			await TrackPlayer.reset()
 
 			// we construct the new queue
 			await TrackPlayer.add(selectedTrack)
-			await TrackPlayer.add(afterTracks)
-			await TrackPlayer.add(beforeTracks)
+			// await TrackPlayer.add(afterTracks)
+			// await TrackPlayer.add(beforeTracks)
 
 			await TrackPlayer.play()
 
 			queueOffset.current = trackIndex
 			setActiveQueueId(id)
 		} else {
-			const nextTrackIndex =
-				trackIndex - queueOffset.current < 0
-					? tracks.length + trackIndex - queueOffset.current
-					: trackIndex - queueOffset.current
-
-			await TrackPlayer.skip(nextTrackIndex)
-			TrackPlayer.play()
+			// const nextTrackIndex =
+			// 	trackIndex - queueOffset.current < 0
+			// 		? tracks.length + trackIndex - queueOffset.current
+			// 		: trackIndex - queueOffset.current
+			//await TrackPlayer.updateMetadataForTrack(nextTrackIndex,selectedTrack)
+			// const q =await  TrackPlayer.getQueue()
+      // await TrackPlayer.reset()
+      // await TrackPlayer.add(q)
+			// const a =	await TrackPlayer.getTrack(nextTrackIndex)
+			// console.log('a-----'+JSON.stringify(a))
+			// await TrackPlayer.add(a)
+      // await TrackPlayer.skip(nextTrackIndex)
+      await TrackPlayer.load(selectedTrack)
+			// await TrackPlayer.skipToNext()
+			// TrackPlayer.play()
 		}
 	}
 

@@ -11,7 +11,7 @@ const api_ikun = {
 			family: 4,
 		})
 		requestObj.promise = requestObj.promise.then(({ body }) => {
-			console.log('body.code::'+JSON.stringify(body));
+			// console.log('body.code::'+JSON.stringify(body));
 			return body.code === 0
 				? Promise.resolve({ type, url: body.data })
 				: Promise.reject(new Error(requestMsg.fail))
