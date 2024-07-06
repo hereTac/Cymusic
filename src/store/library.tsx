@@ -1,18 +1,37 @@
-import library from '@/assets/data/library.json'
+
 import { unknownTrackImageUri } from '@/constants/images'
 import { Artist, Playlist, TrackWithPlaylist } from '@/helpers/types'
 import { Track } from 'react-native-track-player'
 import { create } from 'zustand'
 import { useEffect } from 'react'
 import musicSdk from '@/components/utils/musicSdk'
-import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
+
+import { setTrackViewList } from '@/store/trackViewList'
+
 interface LibraryState {
   tracks: TrackWithPlaylist[]
   toggleTrackFavorite: (track: Track) => void
   addToPlaylist: (track: Track, playlistName: string) => void
   fetchTracks: () => Promise<void>
+  // setPlayList: (newPlayList: IMusic.IMusicItem[], shouldSave?: boolean) => void
+  // getMusicIndex: (musicItem?: IMusic.IMusicItem | null) => number
+  // isInPlayList: (musicItem?: IMusic.IMusicItem | null) => boolean
+  // getPlayListMusicAt: (index: number) => IMusic.IMusicItem | null
+  // isPlayListEmpty: () => boolean
 }
-const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; albumName: any; genre: any; releaseDate: any; img: any; interval: any; singerImg: any  }) => {
+
+const mapTrack = (track: {
+  songmid: any
+  url: any
+  name: any
+  singer: any
+  albumName: any
+  genre: any
+  releaseDate: any
+  img: any
+  interval: any
+  singerImg: any
+}): TrackWithPlaylist=> {
   return {
    id: track.songmid || 'default_songmid',   // 如果 songmid 为 undefined 或 null，设置默认值 'default_songmid'
    url: track.url || 'Unknown',   // 如果 url 为 undefined 或 null，设置默认值 'http://example.com/default.mp3'
@@ -28,6 +47,7 @@ const mapTrack = (track: { songmid: any; url: any; name: any; singer: any; album
 };
 export const useLibraryStore = create<LibraryState>((set) => ({
   tracks: [],
+  // playListIndexMap: {},
   toggleTrackFavorite: (track) =>
     set((state) => ({
       tracks: state.tracks.map((currentTrack) => {
@@ -37,7 +57,6 @@ export const useLibraryStore = create<LibraryState>((set) => ({
             rating: currentTrack.rating === 1 ? 0 : 1,
           }
         }
-
         return currentTrack
       }),
     })),
@@ -50,59 +69,104 @@ export const useLibraryStore = create<LibraryState>((set) => ({
             playlist: [...(currentTrack.playlist ?? []), playlistName],
           }
         }
-
         return currentTrack
       }),
     })),
   fetchTracks: async () => {
     try {
-      const data = await musicSdk["tx"].leaderboard.getList(26, 1)
-       // console.log("list"+JSON.stringify(data.list))
-      let tracks = data.list.map(mapTrack);
+      const data = await musicSdk['tx'].leaderboard.getList(26, 1)
+      platform = data.source;
+      let tracks = data.list.map(mapTrack)
+      tracks = tracks.slice(0, 100)
 
-      tracks= tracks.slice(0, 10);
-      // console.log(tracks);
-
-      set({ tracks})
+      set({ tracks })
     } catch (error) {
       console.error('Failed to fetch tracks:', error)
     }
   },
+  // setPlayList: (newPlayList, shouldSave = true) => {
+  //   const newIndexMap: Record<string, Record<string, number>> = {}
+  //   newPlayList.forEach((item, index) => {
+  //     if (!newIndexMap[item.platform]) {
+  //       newIndexMap[item.platform] = {
+  //         [item.id]: index,
+  //       }
+  //     } else {
+  //       newIndexMap[item.platform][item.id] = index
+  //     }
+  //   })
+  //   set({
+  //     tracks: newPlayList,
+  //     playListIndexMap: newIndexMap,
+  //   })
+  //
+  // },
+  // getMusicIndex: (musicItem) => {
+  //   if (!musicItem) {
+  //     return -1
+  //   }
+  //   const { playListIndexMap } = useLibraryStore.getState()
+  //   return playListIndexMap[musicItem.platform]?.[musicItem.id] ?? -1
+  // },
+  // isInPlayList: (musicItem) => {
+  //   if (!musicItem) {
+  //     return false
+  //   }
+  //   const { playListIndexMap } = useLibraryStore.getState()
+  //   return playListIndexMap[musicItem.platform]?.[musicItem.id] > -1
+  // },
+  // getPlayListMusicAt: (index) => {
+  //   const { tracks } = useLibraryStore.getState()
+  //   const len = tracks.length
+  //   if (len === 0) {
+  //     return null
+  //   }
+  //   return tracks[(index + len) % len]
+  // },
+  // isPlayListEmpty: () => {
+  //   const { tracks } = useLibraryStore.getState()
+  //   return tracks.length === 0
+  // },
 }))
 
 export const useTracks = () => {
   const { tracks, fetchTracks } = useLibraryStore()
   useEffect(() => {
-    fetchTracks()
+     fetchTracks()
   }, [fetchTracks])
   return tracks
 }
+// export const useSetPlayList = () => {
+//   const { tracks, setPlayList } = useLibraryStore()
+//   useEffect(() => {
+//      setPlayList(tracks)
+//   }, [setPlayList])
+//   return tracks
+// }
 
 export const useFavorites = () => {
-  const favorites = useLibraryStore((state) => state.tracks.filter((track) => track.rating === 1))
+  const favorites = useLibraryStore((state) =>
+    state.tracks.filter((track) => track.rating === 1)
+  )
   const toggleTrackFavorite = useLibraryStore((state) => state.toggleTrackFavorite)
-
   return {
     favorites,
     toggleTrackFavorite,
   }
 }
-
 export const useArtists = () =>
   useLibraryStore((state) => {
     return state.tracks.reduce((acc, track) => {
       const existingArtist = acc.find((artist) => artist.name === track.artist)
-
       if (existingArtist) {
         existingArtist.tracks.push(track)
       } else {
         acc.push({
           name: track.artist ?? 'Unknown',
           tracks: [track],
-          singerImg:track.singerImg
+          singerImg: track.singerImg,
         })
       }
-
       return acc
     }, [] as Artist[])
   })
@@ -112,7 +176,6 @@ export const usePlaylists = () => {
     return state.tracks.reduce((acc, track) => {
       track.playlist?.forEach((playlistName) => {
         const existingPlaylist = acc.find((playlist) => playlist.name === playlistName)
-
         if (existingPlaylist) {
           existingPlaylist.tracks.push(track)
         } else {
@@ -120,11 +183,10 @@ export const usePlaylists = () => {
             name: playlistName,
             tracks: [track],
             artworkPreview: track.artwork ?? unknownTrackImageUri,
-            singerImg: track.singerImg
+            singerImg: track.singerImg,
           })
         }
       })
-
       return acc
     }, [] as Playlist[])
   })

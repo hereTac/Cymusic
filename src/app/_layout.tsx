@@ -9,7 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
 import { addUserApi } from '@/helpers/userApiHelper'
-import { INTERNAL_API_KEY, storageDataPrefix } from '@/constants/constant'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 
 
 SplashScreen.preventAutoHideAsync()
@@ -26,6 +26,7 @@ const App = () => {
 	})
 
 	useLogTrackPlayerState()
+	// myTrackPlayer.setupTrackPlayer()
 
 	return (
 		<SafeAreaProvider>

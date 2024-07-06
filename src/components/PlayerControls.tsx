@@ -2,9 +2,9 @@ import { colors } from '@/constants/tokens'
 import { FontAwesome6 } from '@expo/vector-icons'
 import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native'
 import TrackPlayer, { useIsPlaying } from 'react-native-track-player'
-import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
-import { awaitExpression } from '@babel/types'
+
 import { useLibraryStore } from '@/store/library'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 
 type PlayerControlsProps = {
 	style?: ViewStyle
@@ -51,39 +51,19 @@ export const SkipToNextButton = ({ iconSize = 30 }: PlayerButtonProps) => {
     tracks: state.tracks,
     fetchTracks: state.fetchTracks,
   }))
- const mySkipToNext = async () => {
-		// console.log('SkipToNextButton')
-    const currentTrackId = await TrackPlayer.getTrack(await TrackPlayer.getCurrentTrack())
-    const currentTrackIndex = tracks.findIndex(track => track.id === currentTrackId.id)
-    if (currentTrackIndex !== -1 && currentTrackIndex < tracks.length - 1) {
-			// console.log('currentTrackIndex'+currentTrackIndex)
-			// console.log(JSON.stringify(await TrackPlayer.getQueue()))
-      const nextTrack = tracks[currentTrackIndex + 1]//如果是随机播放呢？
-			if(nextTrack.url=='Unknown') {
-				nextTrack.url = await api_ikun.getMusicUrl(nextTrack,'128k').then((re)=>re.url)
-			}
-      await TrackPlayer.load(nextTrack)
-
-    }else if(currentTrackIndex === tracks.length - 1){
-			if(tracks[0].url=='Unknown'){
-				tracks[0].url = await api_ikun.getMusicUrl(tracks[0],'128k').then((re)=>re.url)
-			}
-      await TrackPlayer.load(tracks[0])
-		} else {
-      console.log('No more tracks to skip to.')
-    }
-  }
 
 	return (
-		<TouchableOpacity activeOpacity={0.7} onPress={mySkipToNext}>
+		<TouchableOpacity activeOpacity={0.7} onPress={myTrackPlayer.skipToNext}>
 			<FontAwesome6 name="forward" size={iconSize} color={colors.text} />
 		</TouchableOpacity>
 	)
 }
 
 export const SkipToPreviousButton = ({ iconSize = 30 }: PlayerButtonProps) => {
+
+
 	return (
-		<TouchableOpacity activeOpacity={0.7} onPress={() => TrackPlayer.skipToPrevious()}>
+		<TouchableOpacity activeOpacity={0.7} onPress={myTrackPlayer.skipToPrevious}>
 			<FontAwesome6 name={'backward'} size={iconSize} color={colors.text} />
 		</TouchableOpacity>
 	)

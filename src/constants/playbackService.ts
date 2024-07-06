@@ -1,4 +1,5 @@
 import TrackPlayer, { Event } from 'react-native-track-player'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 
 export const playbackService = async () => {
 	TrackPlayer.addEventListener(Event.RemotePlay, () => {
@@ -14,10 +15,10 @@ export const playbackService = async () => {
 	})
 
 	TrackPlayer.addEventListener(Event.RemoteNext, () => {
-		TrackPlayer.skipToNext()
+     myTrackPlayer.skipToNext()
 	})
 
 	TrackPlayer.addEventListener(Event.RemotePrevious, () => {
-		TrackPlayer.skipToPrevious()
+		myTrackPlayer.skipToPrevious()
 	})
 }

@@ -2,7 +2,6 @@
 import { btoa } from 'react-native-quick-base64'
 import { rsaEncryptSync, AES_MODE, RSA_PADDING } from '../../../nativeModules/crypto'
 import { toMD5 } from '../../utils'
- import crypto from 'react-native-quick-crypto'
 import { createCipheriv, createDecipheriv, publicEncrypt, randomBytes, createHash } from 'react-native-quick-crypto'
 const iv = btoa('0102030405060708')
 const presetKey = btoa('0CoJUm6Qyw8W8jud')

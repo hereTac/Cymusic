@@ -9,6 +9,7 @@ import TrackPlayer, { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 
 import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 
 
 
@@ -38,43 +39,46 @@ export const TracksList = ({
 	if(selectedTrack.url=='Unknown') {
 	const res = await api_ikun.getMusicUrl(selectedTrack, '128k')
 	selectedTrack.url = res.url
-
 	}
-		const trackIndex = tracks.findIndex((track) => track.url === selectedTrack.url)
-		if (trackIndex === -1) return
 
+
+		// const trackIndex = tracks.findIndex((track) => track.url === selectedTrack.url)
+		// if (trackIndex === -1) return
+		//
 		const isChangingQueue = id !== activeQueueId
-
+		//
 		if (isChangingQueue) {
-			const beforeTracks = tracks.slice(0, trackIndex)
-			const afterTracks = tracks.slice(trackIndex + 1)
-			await TrackPlayer.reset()
-
-			// we construct the new queue
-			await TrackPlayer.add(selectedTrack)
-			// await TrackPlayer.add(afterTracks)
-			// await TrackPlayer.add(beforeTracks)
-
-			await TrackPlayer.play()
-
-			queueOffset.current = trackIndex
-			setActiveQueueId(id)
+		await myTrackPlayer.playWithReplacePlayList(selectedTrack as IMusic.IMusicItem, tracks as IMusic.IMusicItem[])
+		// 	const beforeTracks = tracks.slice(0, trackIndex)
+		// 	const afterTracks = tracks.slice(trackIndex + 1)
+		// 	await TrackPlayer.reset()
+		//
+		// 	// we construct the new queue
+		// 	await TrackPlayer.add(selectedTrack)
+		// 	// await TrackPlayer.add(afterTracks)
+		// 	// await TrackPlayer.add(beforeTracks)
+		//
+		// 	await TrackPlayer.play()
+		//
+		//queueOffset.current = trackIndex
+		setActiveQueueId(id)
 		} else {
-			// const nextTrackIndex =
-			// 	trackIndex - queueOffset.current < 0
-			// 		? tracks.length + trackIndex - queueOffset.current
-			// 		: trackIndex - queueOffset.current
-			//await TrackPlayer.updateMetadataForTrack(nextTrackIndex,selectedTrack)
-			// const q =await  TrackPlayer.getQueue()
-      // await TrackPlayer.reset()
-      // await TrackPlayer.add(q)
-			// const a =	await TrackPlayer.getTrack(nextTrackIndex)
-			// console.log('a-----'+JSON.stringify(a))
-			// await TrackPlayer.add(a)
-      // await TrackPlayer.skip(nextTrackIndex)
-      await TrackPlayer.load(selectedTrack)
-			// await TrackPlayer.skipToNext()
-			// TrackPlayer.play()
+		await 	myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
+		// 	// const nextTrackIndex =
+		// 	// 	trackIndex - queueOffset.current < 0
+		// 	// 		? tracks.length + trackIndex - queueOffset.current
+		// 	// 		: trackIndex - queueOffset.current
+		// 	//await TrackPlayer.updateMetadataForTrack(nextTrackIndex,selectedTrack)
+		// 	// const q =await  TrackPlayer.getQueue()
+    //   // await TrackPlayer.reset()
+    //   // await TrackPlayer.add(q)
+		// 	// const a =	await TrackPlayer.getTrack(nextTrackIndex)
+		// 	// console.log('a-----'+JSON.stringify(a))
+		// 	// await TrackPlayer.add(a)
+    //   // await TrackPlayer.skip(nextTrackIndex)
+    //   await TrackPlayer.load(selectedTrack)
+		// 	// await TrackPlayer.skipToNext()
+		// 	// TrackPlayer.play()
 		}
 	}
 
