@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { MovingText } from '@/components/MovingText';
 import { PlayerControls } from '@/components/PlayerControls';
 import { PlayerProgressBar } from '@/components/PlayerProgressbar';
@@ -15,28 +15,51 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useActiveTrack } from 'react-native-track-player';
+import usePlayerStore from '@/store/usePlayerStore';
 
 const PlayerScreen = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [prevTrack, setPrevTrack] = useState(null);
-  const activeTrack = useActiveTrack();
-  const { imageColors } = usePlayerBackground(activeTrack?.artwork ?? unknownTrackImageUri);
   const { top, bottom } = useSafeAreaInsets();
   const { isFavorite, toggleFavorite } = useTrackPlayerFavorite();
 
+  const {
+    isLoading,
+    isInitialized,
+    prevTrack,
+    activeTrack,
+    setLoading,
+    setInitialized,
+    setPrevTrack,
+    setActiveTrack,
+  } = usePlayerStore();
+
+  const currentActiveTrack = useActiveTrack();
+  const { imageColors } = usePlayerBackground(currentActiveTrack?.artwork ?? unknownTrackImageUri);
+
   useEffect(() => {
+
     const checkTrackLoading = async () => {
-      if (!activeTrack) {
-        setIsLoading(true);
-      } else {
+      if (!isInitialized) {
+        setInitialized(true);
+        setActiveTrack(currentActiveTrack);
+        setPrevTrack(currentActiveTrack);
+      } else if (!currentActiveTrack && !prevTrack) {
+         // console.log('prevTrack new ', prevTrack);
+        setLoading(true);
+      } else if (currentActiveTrack && currentActiveTrack.id !== prevTrack.id) {
+            console.log('prevTrack 12312new ');
+        setLoading(true);
         // Simulate a delay to ensure track is fully loaded
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setIsLoading(false);
-        setPrevTrack(activeTrack); // Update previous track when the new track is fully loaded
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        setLoading(false);
+        setPrevTrack(currentActiveTrack); // Update previous track when the new track is fully loaded
       }
+      setActiveTrack(currentActiveTrack);
     };
-    checkTrackLoading();
-  }, [activeTrack]);
+    if (currentActiveTrack !== undefined) {
+      console.log('currentActiveTrack new :::::', currentActiveTrack);
+      checkTrackLoading();
+    }
+  }, [currentActiveTrack]);
 
   const trackToDisplay = activeTrack || prevTrack; // Use previous track if active track is null
 
@@ -164,14 +187,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     height: '45%',
-		backgroundColor:'transparent',
+    borderRadius: 12,
+    backgroundColor: '#9ca3af',
   },
   artworkImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
     borderRadius: 12,
-		backgroundColor:'transparent',
+    backgroundColor: 'transparent',
   },
   trackTitleContainer: {
     flex: 1,

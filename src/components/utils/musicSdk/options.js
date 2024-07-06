@@ -5,4 +5,4 @@ export const headers = {
 	[bHh]: [bHh],
 }
 
-export const timeout = 15000
+export const timeout = 4000

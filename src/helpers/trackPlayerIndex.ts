@@ -42,6 +42,7 @@ import { info } from 'expo/build/devtools/logger'
 import { useTrackPlayerRepeatMode } from '@/hooks/useTrackPlayerRepeatMode'
 import { Image } from 'react-native'
 import TrackPlayer from 'react-native-track-player'
+import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
 
 
 /** 当前播放 */
@@ -615,7 +616,7 @@ const play = async (
             // 5.4 没有返回源
             if (!source && musicItem.url=='Unknown') {
                 // 没有源。没有url
-                const resp =await api_ikun.getMusicUrl(musicItem,'128k')
+                const resp =await myGetMusicUrl(musicItem,'128k')
 
                  source = {
                     url: resp.url,
@@ -680,7 +681,7 @@ const play = async (
 
         console.log('获取音源成功：', track);
         // 9. 设置音源
-         await ReactNativeTrackPlayer.reset();
+         //await ReactNativeTrackPlayer.reset();
          await setTrackSource(track as Track);
 
         // 10. 获取补充信息
@@ -765,7 +766,6 @@ const playWithReplacePlayList = async (
 };
 
 const skipToNext = async () => {
-
     if (isPlayListEmpty()) {
         setCurrentMusic(null);
         return;
@@ -800,27 +800,27 @@ const changeQuality = async (newQuality: IMusic.IQualityKey) => {
         return false;
     }
     try {
-        const progress = await ReactNativeTrackPlayer.getProgress();
-        const plugin =await apiIkun.getMusicUrl(musicItem);
-        const newSource = await plugin?.methods?.getMediaSource(
-            musicItem,
-            newQuality,
-        );
-        if (!newSource?.url) {
-            throw new Error(PlayFailReason.INVALID_SOURCE);
-        }
-        if (isCurrentMusic(musicItem)) {
-            const playingState = (
-                await ReactNativeTrackPlayer.getPlaybackState()
-            ).state;
-            await setTrackSource(
-                mergeProps(musicItem, newSource) as unknown as Track,
-                !musicIsPaused(playingState),
-            );
-
-            await ReactNativeTrackPlayer.seekTo(progress.position ?? 0);
-            setQuality(newQuality);
-        }
+        // const progress = await ReactNativeTrackPlayer.getProgress();
+        // const plugin =await apiIkun.getMusicUrl(musicItem);
+        // const newSource = await plugin?.methods?.getMediaSource(
+        //     musicItem,
+        //     newQuality,
+        // );
+        // if (!newSource?.url) {
+        //     throw new Error(PlayFailReason.INVALID_SOURCE);
+        // }
+        // if (isCurrentMusic(musicItem)) {
+        //     const playingState = (
+        //         await ReactNativeTrackPlayer.getPlaybackState()
+        //     ).state;
+        //     await setTrackSource(
+        //         mergeProps(musicItem, newSource) as unknown as Track,
+        //         !musicIsPaused(playingState),
+        //     );
+        //
+        //     await ReactNativeTrackPlayer.seekTo(progress.position ?? 0);
+        //     setQuality(newQuality);
+        // }
         return true;
     } catch {
         // 修改失败

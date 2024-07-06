@@ -10,6 +10,7 @@ import { QueueControls } from './QueueControls'
 
 import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
 
 
 
@@ -37,7 +38,7 @@ export const TracksList = ({
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
 	if(selectedTrack.url=='Unknown') {
-	const res = await api_ikun.getMusicUrl(selectedTrack, '128k')
+	const res = await myGetMusicUrl(selectedTrack, '128k')
 	selectedTrack.url = res.url
 	}
 

@@ -5,6 +5,7 @@ import { getMediaSource } from '@/helpers/userApi/xiaoqiu'
 
 const api_ikun = {
 	getMusicUrl(songInfo, type) {
+    console.log('ikun>????s')
 		const requestObj = httpFetch(`http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`, {
 			method: 'get',
 			timeout,

@@ -442,7 +442,6 @@ const qualityLevels = {
  export async function getMediaSource(musicItem, quality) {
        console.log(`https://render.niuma666bet.buzz/url/tx/${musicItem.id}/${quality}`)
     const res = (
-
         await axios.default.get(`https://render.niuma666bet.buzz/url/tx/${musicItem.id}/${quality}`, {
             headers: {
                 "X-Request-Key": "share-v2"
