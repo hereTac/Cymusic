@@ -3,13 +3,15 @@ import { unknownTrackImageUri } from '@/constants/images'
 import { Artist, Playlist, TrackWithPlaylist } from '@/helpers/types'
 import { Track } from 'react-native-track-player'
 import { create } from 'zustand'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import musicSdk from '@/components/utils/musicSdk'
 
 import { setTrackViewList } from '@/store/trackViewList'
+import PersistStatus from '@/store/PersistStatus'
 
 interface LibraryState {
   tracks: TrackWithPlaylist[]
+  favorites: IMusic.IMusicItem[]
   toggleTrackFavorite: (track: Track) => void
   addToPlaylist: (track: Track, playlistName: string) => void
   fetchTracks: () => Promise<void>
@@ -47,19 +49,27 @@ const mapTrack = (track: {
 };
 export const useLibraryStore = create<LibraryState>((set) => ({
   tracks: [],
+  favorites: PersistStatus.get('music.favorites') || [],
   // playListIndexMap: {},
-  toggleTrackFavorite: (track) =>
-    set((state) => ({
-      tracks: state.tracks.map((currentTrack) => {
-        if (currentTrack.url === track.url) {
-          return {
-            ...currentTrack,
-            rating: currentTrack.rating === 1 ? 0 : 1,
-          }
-        }
-        return currentTrack
-      }),
-    })),
+ toggleTrackFavorite: (track: Track) => {
+    set((state) => {
+      let favorites = [...state.favorites];
+      const index = favorites.findIndex((fav) => fav.id === track.id);
+
+      if (index !== -1) {
+        // 如果存在，则从数组中删除
+        favorites.splice(index, 1);
+      } else {
+        // 如果不存在，则添加到数组中
+        favorites.push(track as IMusic.IMusicItem);
+      }
+      // 更新持久化存储中的favorites
+      PersistStatus.set('music.favorites', favorites);
+
+      // 返回新的状态
+      return { favorites };
+    });
+  },
   addToPlaylist: (track, playlistName) =>
     set((state) => ({
       tracks: state.tracks.map((currentTrack) => {
@@ -146,9 +156,9 @@ export const useTracks = () => {
 
 export const useFavorites = () => {
   const favorites = useLibraryStore((state) =>
-    state.tracks.filter((track) => track.rating === 1)
+    state.favorites
   )
-  const toggleTrackFavorite = useLibraryStore((state) => state.toggleTrackFavorite)
+const toggleTrackFavorite = useLibraryStore((state) => state.toggleTrackFavorite);
   return {
     favorites,
     toggleTrackFavorite,

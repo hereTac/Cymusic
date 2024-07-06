@@ -11,6 +11,7 @@ import { QueueControls } from './QueueControls'
 import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
+import { setPlayList } from '@/store/playList'
 
 
 
@@ -25,14 +26,12 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 const ItemDivider = () => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
 )
-export const TracksList = ({
+export const SearchList = ({
 	id,
 	tracks,
 	hideQueueControls = false,
 	...flatlistProps
 }: TracksListProps) => {
-	const queueOffset = useRef(0)
-
 	const { activeQueueId, setActiveQueueId } = useQueue()
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
@@ -41,57 +40,21 @@ export const TracksList = ({
 	const res = await myGetMusicUrl(selectedTrack, '128k')
 	selectedTrack.url = res.url
 	}
-		const isChangingQueue = id !== activeQueueId
-		//
-		if (isChangingQueue) {
-		await myTrackPlayer.playWithReplacePlayList(selectedTrack as IMusic.IMusicItem, tracks as IMusic.IMusicItem[])
-		// 	const beforeTracks = tracks.slice(0, trackIndex)
-		// 	const afterTracks = tracks.slice(trackIndex + 1)
-		// 	await TrackPlayer.reset()
-		//
-		// 	// we construct the new queue
-		// 	await TrackPlayer.add(selectedTrack)
-		// 	// await TrackPlayer.add(afterTracks)
-		// 	// await TrackPlayer.add(beforeTracks)
-		//
-		// 	await TrackPlayer.play()
-		//
-		//queueOffset.current = trackIndex
-		setActiveQueueId(id)
-		} else {
-		await 	myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
-		// 	// const nextTrackIndex =
-		// 	// 	trackIndex - queueOffset.current < 0
-		// 	// 		? tracks.length + trackIndex - queueOffset.current
-		// 	// 		: trackIndex - queueOffset.current
-		// 	//await TrackPlayer.updateMetadataForTrack(nextTrackIndex,selectedTrack)
-		// 	// const q =await  TrackPlayer.getQueue()
-    //   // await TrackPlayer.reset()
-    //   // await TrackPlayer.add(q)
-		// 	// const a =	await TrackPlayer.getTrack(nextTrackIndex)
-		// 	// console.log('a-----'+JSON.stringify(a))
-		// 	// await TrackPlayer.add(a)
-    //   // await TrackPlayer.skip(nextTrackIndex)
-    //   await TrackPlayer.load(selectedTrack)
-		// 	// await TrackPlayer.skipToNext()
-		// 	// TrackPlayer.play()
-		}
+		setPlayList([selectedTrack] as unknown as IMusic.IMusicItem[])
+		await TrackPlayer.load(selectedTrack)
+		TrackPlayer.play()
 	}
 
 	return (
 		<FlatList
 			data={tracks}
 			contentContainerStyle={{ paddingTop: 10, paddingBottom: 128 }}
-			ListHeaderComponent={
-				!hideQueueControls ? (
-					<QueueControls tracks={tracks} style={{ paddingBottom: 20 }} />
-				) : undefined
-			}
+
 			ListFooterComponent={ItemDivider}
 			ItemSeparatorComponent={ItemDivider}
 			ListEmptyComponent={
 				<View>
-					<Text style={utilsStyles.emptyContentText}>No songs found</Text>
+					<Text style={utilsStyles.emptyContentText}>Search for songs</Text>
 
 					<FastImage
 						source={{ uri: unknownTrackImageUri, priority: FastImage.priority.normal }}

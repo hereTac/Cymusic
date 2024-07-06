@@ -12,6 +12,7 @@ interface IPersistConfig {
     'music.progress': number;
     'music.repeatMode': string;
     'music.playList': IMusic.IMusicItem[];
+    'music.favorites': IMusic.IMusicItem[];
     'music.rate': number;
     'music.quality': IMusic.IQualityKey;
     'app.skipVersion': string;

@@ -9,8 +9,8 @@ function formatMusicItem(_) {
     const albummid = _.albummid || ((_b = _.album) === null || _b === void 0 ? void 0 : _b.mid);
     const albumname = _.albumname || ((_c = _.album) === null || _c === void 0 ? void 0 : _c.title);
     return {
-        id: _.id || _.songid,
-        songmid: _.mid || _.songmid,
+        id: _.mid || _.songid,
+        songmid: _.id || _.songmid,
         title: _.title || _.songname,
         artist: _.singer.map((s) => s.name).join(", "),
         artwork: albummid
@@ -20,6 +20,7 @@ function formatMusicItem(_) {
         lrc: _.lyric || undefined,
         albumid: albumid,
         albummid: albummid,
+        url: 'Unknown',
     };
 }
 function formatAlbumItem(_) {
@@ -59,7 +60,7 @@ const headers = {
     Cookie: "uin=",
 };
 async function searchBase(query, page, type) {
-    const res = (await (0, axios_1.default)({
+    const res = (await (0, axios.default)({
         url: "https://u.y.qq.com/cgi-bin/musicu.fcg",
         method: "POST",
         data: {
@@ -83,7 +84,7 @@ async function searchBase(query, page, type) {
         data: res.req_1.data.body[searchTypeMap[type]].list,
     };
 }
-async function searchMusic(query, page) {
+export async function searchMusic(query, page) {
     const songs = await searchBase(query, page, 0);
     return {
         isEnd: songs.isEnd,
@@ -487,6 +488,7 @@ module.exports = {
     },
     getMediaSource,
     getLyric,
+    searchMusic,
     getAlbumInfo,
     getArtistWorks,
     importMusicSheet,

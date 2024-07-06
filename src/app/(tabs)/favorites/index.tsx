@@ -7,21 +7,22 @@ import { useFavorites } from '@/store/library'
 import { defaultStyles } from '@/styles'
 import { useMemo } from 'react'
 import { ScrollView, View } from 'react-native'
+import { Track } from 'react-native-track-player'
 
 const FavoritesScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in songs',
+			placeholder: 'Find in favorites',
 		},
 	})
 
-	const favoritesTracks = useFavorites().favorites
+	const { favorites } = useFavorites()
 
 	const filteredFavoritesTracks = useMemo(() => {
-		if (!search) return favoritesTracks
+		if (!search) return favorites as Track[]
 
-		return favoritesTracks.filter(trackTitleFilter(search))
-	}, [search, favoritesTracks])
+		return favorites.filter(trackTitleFilter(search)) as  Track[]
+	}, [search, favorites])
 
 	return (
 		<View style={defaultStyles.container}>

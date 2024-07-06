@@ -56,7 +56,7 @@ const PlayerScreen = () => {
       setActiveTrack(currentActiveTrack);
     };
     if (currentActiveTrack !== undefined) {
-      console.log('currentActiveTrack new :::::', currentActiveTrack);
+      // console.log('currentActiveTrack new :::::', currentActiveTrack);
       checkTrackLoading();
     }
   }, [currentActiveTrack]);

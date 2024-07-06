@@ -7,18 +7,18 @@ export const useTrackPlayerFavorite = () => {
 
 	const { favorites, toggleTrackFavorite } = useFavorites()
 
-	const isFavorite = favorites.find((track) => track.url === activeTrack?.url)?.rating === 1
+	const isFavorite = favorites.find((track) => track.id === activeTrack?.id)?.id === activeTrack?.id
 
 	// 我们正在更新轨道播放器内部状态和应用程序内部状态
 	const toggleFavorite = useCallback(async () => {
-		const id = await TrackPlayer.getActiveTrackIndex()
-
-		if (id == null) return
+		// const id = await TrackPlayer.getActiveTrackIndex()
+		//
+		// if (id == null) return
 
 		// 更新轨道播放器内部状态
-		await TrackPlayer.updateMetadataForTrack(id, {
-			rating: isFavorite ? 0 : 1,
-		})
+		// await TrackPlayer.updateMetadataForTrack(id, {
+		// 	rating: isFavorite ? 0 : 1,
+		// })
 
 		// 更新应用内部状态
 		if (activeTrack) {

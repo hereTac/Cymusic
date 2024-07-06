@@ -10,20 +10,19 @@ type TrackShortcutsMenuProps = PropsWithChildren<{ track: Track }>
 
 export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps) => {
 	const router = useRouter()
-
-	const isFavorite = track.rating === 1
-
-	const { toggleTrackFavorite } = useFavorites()
+	const { favorites,toggleTrackFavorite } = useFavorites()
+	const isFavorite = favorites.find((trackItem) => trackItem.id === track?.id)?.id === track?.id
 	const { activeQueueId } = useQueue()
 
 	const handlePressAction = (id: string) => {
 		match(id)
 			.with('add-to-favorites', async () => {
+				  console.log('1233333333')
 				toggleTrackFavorite(track)
 
 				// if the tracks is in the favorite queue, add it
 				if (activeQueueId?.startsWith('favorites')) {
-					await TrackPlayer.add(track)
+					//await TrackPlayer.add(track)
 				}
 			})
 			.with('remove-from-favorites', async () => {
@@ -31,17 +30,17 @@ export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps)
 
 				// if the track is in the favorites queue, we need to remove it
 				if (activeQueueId?.startsWith('favorites')) {
-					const queue = await TrackPlayer.getQueue()
-
-					const trackToRemove = queue.findIndex((queueTrack) => queueTrack.url === track.url)
-
-					await TrackPlayer.remove(trackToRemove)
+					// const queue = await TrackPlayer.getQueue()
+					//
+					// const trackToRemove = queue.findIndex((queueTrack) => queueTrack.url === track.url)
+					//
+					// await TrackPlayer.remove(trackToRemove)
 				}
 			})
 			.with('add-to-playlist', () => {
 				// it opens the addToPlaylist modal
-				// @ts-expect-error it should work
-				router.push({ pathname: '(modals)/addToPlaylist', params: { trackUrl: track.url } })
+				//下一首播放？加入播放列表
+				// router.push({ pathname: '(modals)/addToPlaylist', params: { trackUrl: track.url } })
 			})
 			.otherwise(() => console.warn(`Unknown menu action ${id}`))
 	}

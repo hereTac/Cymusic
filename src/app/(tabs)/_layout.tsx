@@ -44,11 +44,11 @@ const TabsNavigation = () => {
 					}}
 				/>
 				<Tabs.Screen
-					name="playlists"
+					name="search"
 					options={{
-						title: 'Playlists',
+						title: 'Search',
 						tabBarIcon: ({ color }) => (
-							<MaterialCommunityIcons name="playlist-play" size={28} color={color} />
+							<MaterialCommunityIcons name="text-search" size={28} color={color} />
 						),
 					}}
 				/>
