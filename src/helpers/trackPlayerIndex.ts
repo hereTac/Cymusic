@@ -36,23 +36,24 @@ import {
 import {createMediaIndexMap} from '@/utils/mediaIndexMap';
 import {musicIsPaused} from '@/utils/trackUtils';
 import PersistStatus from '@/store/PersistStatus';
-import apiIkun from '@/components/utils/musicSdk/tx/api-ikun'
-import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
-import { info } from 'expo/build/devtools/logger'
-import { useTrackPlayerRepeatMode } from '@/hooks/useTrackPlayerRepeatMode'
 import { Image } from 'react-native'
-import TrackPlayer from 'react-native-track-player'
-import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
+
+import { myGetLyric, myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
+
+import axios from 'axios'
+import { useLibraryStore, useNowLyric } from '@/store/library'
 
 
 /** 当前播放 */
 const currentMusicStore = new GlobalState<IMusic.IMusicItem | null>(null);
 
 /** 播放模式 */
-const repeatModeStore = new GlobalState<MusicRepeatMode>(MusicRepeatMode.QUEUE);
+export const repeatModeStore = new GlobalState<MusicRepeatMode>(MusicRepeatMode.QUEUE);
 
 /** 音质 */
 const qualityStore = new GlobalState<IMusic.IQualityKey>('low');
+
+const setNowLyric = useLibraryStore.getState().setNowLyric;
 
 let currentIndex = -1;
 
@@ -421,7 +422,7 @@ const setRepeatMode = (mode: MusicRepeatMode) => {
         if (mode === MusicRepeatMode.SHUFFLE) {
             newPlayList = shuffle(playList);
         } else {
-            newPlayList = sortByTimestampAndIndex(playList, true);
+             newPlayList = sortByTimestampAndIndex(playList, true);
         }
         setPlayList(newPlayList);
     }
@@ -515,9 +516,10 @@ const play = async (
         if (isCurrentMusic(musicItem)) {
             const currentTrack = await ReactNativeTrackPlayer.getTrack(0);
             // 2.1 如果当前有源
+
             if (
                 currentTrack?.url &&
-                isSameMediaItem(musicItem, currentTrack as IMusic.IMusicItem)
+               isSameMediaItem(musicItem, currentTrack as IMusic.IMusicItem)
             ) {
                 const currentActiveIndex =
                     await ReactNativeTrackPlayer.getActiveTrackIndex();
@@ -556,14 +558,9 @@ const play = async (
          //await ReactNativeTrackPlayer.reset();
 
         // 4.1 刷新歌词信息
-        // if (
-        //     !isSameMediaItem(
-        //         LyricManager.getLyricState()?.lyricParser?.getCurrentMusicItem?.(),
-        //         musicItem,
-        //     )
-        // ) {
-        //     DeviceEventEmitter.emit(EDeviceEvents.REFRESH_LYRIC, true);
-        // }
+       const  lyc= await myGetLyric(musicItem);
+       // console.debug(lyc.lyric);
+       setNowLyric(lyc.lyric);
 
         // 5. 获取音源
         let track: IMusic.IMusicItem;
@@ -882,6 +879,7 @@ const myTrackPlayer = {
     getRepeatMode: repeatModeStore.getValue,
     toggleRepeatMode,
     usePlaybackState,
+    setRepeatMode,
     getProgress: ReactNativeTrackPlayer.getProgress,
     useProgress: useProgress,
     seekTo: ReactNativeTrackPlayer.seekTo,

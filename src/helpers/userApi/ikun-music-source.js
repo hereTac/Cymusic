@@ -152,7 +152,7 @@ const handleGetMusicPic = async (source, musicInfo) => {
   }
 }
 
-const handleGetMusicLyric = async (source, musicInfo) => {
+export const handleGetMusicLyric = async (source, musicInfo) => {
   switch (source) {
     case 'local': {
       if (!musicInfo.songmid.startsWith('server_')) throw new Error('upsupported local file')

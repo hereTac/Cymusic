@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D23E1012C33F19B002D048D /* UserApiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D23E0FD2C33F19B002D048D /* UserApiModule.m */; };
-		0D23E1022C33F19B002D048D /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D23E0FF2C33F19B002D048D /* UtilsModule.m */; };
-		0D8970092C3124C400A75CC8 /* CryptoModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D8970082C3124C400A75CC8 /* CryptoModule.m */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -22,12 +19,6 @@
 
 /* Begin PBXFileReference section */
 		04026D180642454D81C3D8C3 /* musicplayer-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "musicplayer-Bridging-Header.h"; path = "musicplayer/musicplayer-Bridging-Header.h"; sourceTree = "<group>"; };
-		0D23E0FA2C33F19B002D048D /* UserApiModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UserApiModule.h; path = musicplayer/UserApiModule.h; sourceTree = "<group>"; };
-		0D23E0FD2C33F19B002D048D /* UserApiModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UserApiModule.m; path = musicplayer/UserApiModule.m; sourceTree = "<group>"; };
-		0D23E0FE2C33F19B002D048D /* UtilsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UtilsModule.h; path = musicplayer/UtilsModule.h; sourceTree = "<group>"; };
-		0D23E0FF2C33F19B002D048D /* UtilsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UtilsModule.m; path = musicplayer/UtilsModule.m; sourceTree = "<group>"; };
-		0D8970072C3124C400A75CC8 /* CryptoModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CryptoModule.h; path = musicplayer/CryptoModule.h; sourceTree = "<group>"; };
-		0D8970082C3124C400A75CC8 /* CryptoModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CryptoModule.m; path = musicplayer/CryptoModule.m; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* musicplayer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = musicplayer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = musicplayer/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = musicplayer/AppDelegate.mm; sourceTree = "<group>"; };
@@ -59,12 +50,6 @@
 		13B07FAE1A68108700A75B9A /* musicplayer */ = {
 			isa = PBXGroup;
 			children = (
-				0D8970072C3124C400A75CC8 /* CryptoModule.h */,
-				0D23E0FA2C33F19B002D048D /* UserApiModule.h */,
-				0D23E0FD2C33F19B002D048D /* UserApiModule.m */,
-				0D23E0FE2C33F19B002D048D /* UtilsModule.h */,
-				0D23E0FF2C33F19B002D048D /* UtilsModule.m */,
-				0D8970082C3124C400A75CC8 /* CryptoModule.m */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -333,10 +318,7 @@
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */,
-				0D8970092C3124C400A75CC8 /* CryptoModule.m in Sources */,
-				0D23E1012C33F19B002D048D /* UserApiModule.m in Sources */,
 				7659D409E5E54449AAF4EE6F /* noop-file.swift in Sources */,
-				0D23E1022C33F19B002D048D /* UtilsModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

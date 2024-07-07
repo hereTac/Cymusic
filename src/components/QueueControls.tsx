@@ -4,6 +4,9 @@ import { Ionicons } from '@expo/vector-icons'
 import { StyleSheet, Text, View, ViewProps } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import TrackPlayer, { Track } from 'react-native-track-player'
+import myTrackPlayer, { MusicRepeatMode, repeatModeStore } from '@/helpers/trackPlayerIndex'
+import { getPlayList, setPlayList } from '@/store/playList'
+import shuffle from 'lodash.shuffle'
 
 type QueueControlsProps = {
 	tracks: Track[]
@@ -11,15 +14,16 @@ type QueueControlsProps = {
 
 export const QueueControls = ({ tracks, style, ...viewProps }: QueueControlsProps) => {
 	const handlePlay = async () => {
-		await TrackPlayer.setQueue(tracks)
-		await TrackPlayer.play()
+		await myTrackPlayer.playWithReplacePlayList(tracks[0] as IMusic.IMusicItem,tracks as IMusic.IMusicItem[])
+		myTrackPlayer.setRepeatMode(MusicRepeatMode.QUEUE)
 	}
 
 	const handleShufflePlay = async () => {
-		const shuffledTracks = [...tracks].sort(() => Math.random() - 0.5)
+	const shuffledTracks =shuffle(tracks)
+		setPlayList(shuffledTracks as IMusic.IMusicItem[])
+		repeatModeStore.setValue(MusicRepeatMode.SHUFFLE)
+		await myTrackPlayer.playWithReplacePlayList(shuffledTracks[1] as IMusic.IMusicItem, shuffledTracks as IMusic.IMusicItem[])
 
-		await TrackPlayer.setQueue(shuffledTracks)
-		await TrackPlayer.play()
 	}
 
 	return (

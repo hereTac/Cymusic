@@ -121,7 +121,7 @@ async function searchMusicSheet(query, page) {
         })),
     };
 }
-async function searchLyric(query, page) {
+export  async function searchLyric(query, page) {
     const songs = await searchBase(query, page, 7);
     return {
         isEnd: songs.isEnd,
@@ -487,8 +487,8 @@ module.exports = {
         }
     },
     getMediaSource,
-    getLyric,
     searchMusic,
+    searchLyric,
     getAlbumInfo,
     getArtistWorks,
     importMusicSheet,

@@ -11,13 +11,13 @@ type TrackShortcutsMenuProps = PropsWithChildren<{ track: Track }>
 export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps) => {
 	const router = useRouter()
 	const { favorites,toggleTrackFavorite } = useFavorites()
-	const isFavorite = favorites.find((trackItem) => trackItem.id === track?.id)?.id === track?.id
+	const isFavorite = favorites.find((trackItem) => trackItem.id === track?.id)
 	const { activeQueueId } = useQueue()
 
 	const handlePressAction = (id: string) => {
 		match(id)
 			.with('add-to-favorites', async () => {
-				  console.log('1233333333')
+				console.log('1233333333')
 				toggleTrackFavorite(track)
 
 				// if the tracks is in the favorite queue, add it
@@ -49,16 +49,17 @@ export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps)
 		<MenuView
 			onPressAction={({ nativeEvent: { event } }) => handlePressAction(event)}
 			actions={[
-				{
-					id: isFavorite ? 'remove-from-favorites' : 'add-to-favorites',
-					title: isFavorite ? 'Remove from favorites' : 'Add to favorites',
-					image: isFavorite ? 'star.fill' : 'star',
-				},
-				{
+					{
 					id: 'add-to-playlist',
 					title: 'Add to playlist',
 					image: 'plus',
 				},
+				{
+					id: isFavorite ? 'remove-from-favorites' : 'add-to-favorites',
+					title: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+					image: isFavorite ? 'heart.fill' : 'heart',
+				},
+
 			]}
 		>
 			{children}

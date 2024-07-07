@@ -1,8 +1,9 @@
-import { requestMsg } from '@/components/utils/message';
+
 import { httpFetch } from '@/components/utils/request';
 import { headers, timeout } from '@/components/utils/musicSdk/options.js';
-import { getMediaSource } from '@/helpers/userApi/xiaoqiu';
 import { fakeAudioMp3Uri } from '@/constants/images';
+import axios from 'axios'
+import { b64DecodeUnicode, decodeName } from '@/components/utils'
 
 const withTimeout = (promise, ms) => {
   const timeout = new Promise((_, reject) =>
@@ -10,24 +11,69 @@ const withTimeout = (promise, ms) => {
   );
   return Promise.race([promise, timeout]);
 };
+const fetchWithTimeout = (url, options, timeout = 5000) => {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Request timed out'));
+    }, timeout);
 
+    fetch(url, options)
+      .then(response => {
+        clearTimeout(timer);
+        resolve(response);
+      })
+      .catch(error => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+};
 export const myGetMusicUrl = (songInfo, type) => {
-  const fetch1 = withTimeout(httpFetch(`http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`, {
-    method: 'get',
-    timeout,
-    headers,
-    family: 4,
-  }).promise.then(({ body }) => {
+  const url = `http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`;
+const options = {
+  method: 'GET',
+  headers: headers,  // Define your headers object
+  family: 4,
+  credentials: 'include',  // withCredentials: true equivalent in fetch
+};
+return fetchWithTimeout(url, options, 5000)
+  .then((response: Response) => parseResponse(response))
+  .then((body: any) => {
     if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
       console.log('Fetch1 failed with error mp3');
-      return null;
+       return { type, url: fakeAudioMp3Uri };
     }
     console.log('获取成功1：' + body.data);
     return body.code === 0 ? { type, url: body.data } : null;
-  }).catch(error => {
+  })
+  .catch((error: Error) => {
+    if (error.message === 'Request timed out') {
+      console.log('Fetch1 error: Request timed out');
+      return { type, url: fakeAudioMp3Uri };
+    }
     console.log('Fetch1 error:', error);
     return null;
-  }), timeout);
+  });
+	// return  Promise.resolve({ type, url: fakeAudioMp3Uri })
+  // const fetch1 = withTimeout(httpFetch(`http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`, {
+  //   method: 'get',
+  //   timeout,
+  //   headers,
+  //   family: 4,
+  //   xsrfCookieName: "XSRF-TOKEN",
+  //   withCredentials: true,
+  // }).promise.then(({ body }) => {
+  //
+  //   if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
+  //     console.log('Fetch1 failed with error mp3');
+  //     return null;
+  //   }
+  //   console.log('获取成功1：' + body.data);
+  //   return body.code === 0 ? { type, url: body.data } : null;
+  // }).catch(error => {
+  //   console.log('Fetch1 error:', error);
+  //   return null;
+  // }), 5000);
 
   // const fetch2 = withTimeout(getMediaSource(songInfo, '128k').then((resp) => {
   //   if (!resp) {
@@ -66,24 +112,24 @@ export const myGetMusicUrl = (songInfo, type) => {
   //   return null;
   // }), timeout);
 
-  const raceToNonNull = (promises) => {
-    return Promise.race(promises).then(result => {
-      if (result === null) {
-        const index = promises.indexOf(Promise.resolve(result));
-        if (index > -1) {
-          promises.splice(index, 1);
-        }
-        if (promises.length > 0) {
-          return raceToNonNull(promises);
-        } else {
-          return { type, url: fakeAudioMp3Uri };
-        }
-      }
-      return result;
-    });
-  };
-
-  return raceToNonNull([fetch1]);
+  // const raceToNonNull = (promises) => {
+  //   return Promise.race(promises).then(result => {
+  //     if (result === null) {
+  //       const index = promises.indexOf(Promise.resolve(result));
+  //       if (index > -1) {
+  //         promises.splice(index, 1);
+  //       }
+  //       if (promises.length > 0) {
+  //         return raceToNonNull(promises);
+  //       } else {
+  //         return { type, url: fakeAudioMp3Uri };
+  //       }
+  //     }
+  //     return result;
+  //   });
+  // };
+  //
+  // return raceToNonNull([fetch1]);
 };
 const parseResponse = async (response) => {
   try {
@@ -100,3 +146,52 @@ const parseResponse = async (response) => {
     }
   }
 };
+export const  myGetLyric = async (musicItem:IMusic.IMusicItem) => {
+  try {
+      const requestObj = httpFetch(`https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${musicItem.id}&g_tk=5381&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&platform=yqq`, {
+      headers: {
+        Referer: 'https://y.qq.com/portal/player.html',
+      },
+    });
+
+    const { body } = await requestObj.promise;
+    // console.log(body.code ,body.lyric);
+    if (body.code !== 0 || !body.lyric) {
+      throw new Error('Get lyric failed');
+    }
+
+    return {
+      lyric: decodeName(b64DecodeUnicode(body.lyric)),
+      tlyric: decodeName(b64DecodeUnicode(body.trans)),
+    };
+
+    // console.log(` url: \`http://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${musicItem.id}&pcachetime=${new Date().getTime()}&g_tk=5381&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0\`,
+    //         headers: {
+    //             Referer: "https://y.qq.com",
+    //             Cookie: "uin="
+    //         },
+    //         method: "get",
+    //         xsrfCookieName: "XSRF-TOKEN",
+    //         withCredentials: true,`)
+    // const response = await axios({
+    //   url: `https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${musicItem.id}&pcachetime=${new Date().getTime()}&g_tk=5381&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`,
+    //   headers: {
+    //     Referer: "https://y.qq.com",
+    //     Cookie: "uin="
+    //   },
+    //   method: "get",
+    //   xsrfCookieName: "XSRF-TOKEN",
+    //   withCredentials: true,
+    // });
+    //
+    // const result = response.data;
+    // const res = JSON.parse(result.replace(/callback\(|MusicJsonCallback\(|jsonCallback\(|\)$/g, ""));
+    //
+    // return {
+    //   rawLrc: res.lyric,
+    // };
+  } catch (error) {
+    console.error('Error fetching lyrics:', error);
+    throw error;
+  }
+}

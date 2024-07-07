@@ -1,5 +1,5 @@
 // 非业务工具方法
-
+import { Buffer } from 'buffer'
 /**
  * 获取两个数之间的随机整数，大于等于min，小于max
  * @param {*} min

@@ -12,9 +12,11 @@ import PersistStatus from '@/store/PersistStatus'
 interface LibraryState {
   tracks: TrackWithPlaylist[]
   favorites: IMusic.IMusicItem[]
+  nowLyric:string
   toggleTrackFavorite: (track: Track) => void
   addToPlaylist: (track: Track, playlistName: string) => void
   fetchTracks: () => Promise<void>
+  setNowLyric: (lyric: string) => void
   // setPlayList: (newPlayList: IMusic.IMusicItem[], shouldSave?: boolean) => void
   // getMusicIndex: (musicItem?: IMusic.IMusicItem | null) => number
   // isInPlayList: (musicItem?: IMusic.IMusicItem | null) => boolean
@@ -50,10 +52,11 @@ const mapTrack = (track: {
 export const useLibraryStore = create<LibraryState>((set) => ({
   tracks: [],
   favorites: PersistStatus.get('music.favorites') || [],
+  nowLyric:'当前无歌词',
   // playListIndexMap: {},
  toggleTrackFavorite: (track: Track) => {
     set((state) => {
-      let favorites = [...state.favorites];
+      const favorites = [...state.favorites];
       const index = favorites.findIndex((fav) => fav.id === track.id);
 
       if (index !== -1) {
@@ -94,6 +97,9 @@ export const useLibraryStore = create<LibraryState>((set) => ({
       console.error('Failed to fetch tracks:', error)
     }
   },
+  setNowLyric:(nowLyric:string)=>{
+    set({ nowLyric: nowLyric });
+  }
   // setPlayList: (newPlayList, shouldSave = true) => {
   //   const newIndexMap: Record<string, Record<string, number>> = {}
   //   newPlayList.forEach((item, index) => {
@@ -163,6 +169,14 @@ const toggleTrackFavorite = useLibraryStore((state) => state.toggleTrackFavorite
     favorites,
     toggleTrackFavorite,
   }
+}
+export const useNowLyric= () => {
+  const nowLyric = useLibraryStore((state) =>
+    state.nowLyric
+  )
+   const setNowLyric = useLibraryStore((state) => state.setNowLyric)
+  return { nowLyric,setNowLyric };
+
 }
 export const useArtists = () =>
   useLibraryStore((state) => {
