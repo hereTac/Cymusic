@@ -33,7 +33,7 @@ export const NowPlayList = ({
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
-	if(selectedTrack.url=='Unknown') {
+	if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
 	const res = await myGetMusicUrl(selectedTrack, '128k')
 	selectedTrack.url = res.url
 	}

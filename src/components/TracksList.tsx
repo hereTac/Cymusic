@@ -37,7 +37,7 @@ export const TracksList = ({
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
-	if(selectedTrack.url=='Unknown') {
+	if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
 	const res = await myGetMusicUrl(selectedTrack, '128k')
 	selectedTrack.url = res.url
 	}
@@ -59,7 +59,7 @@ export const TracksList = ({
 		//queueOffset.current = trackIndex
 		setActiveQueueId(id)
 		} else {
-		await 	myTrackPlayer.playWithReplacePlayList(selectedTrack as IMusic.IMusicItem, [selectedTrack] as IMusic.IMusicItem[])
+		await 	myTrackPlayer.playWithReplacePlayList(selectedTrack as IMusic.IMusicItem, tracks as IMusic.IMusicItem[])
 		// 	// const nextTrackIndex =
 		// 	// 	trackIndex - queueOffset.current < 0
 		// 	// 		? tracks.length + trackIndex - queueOffset.current

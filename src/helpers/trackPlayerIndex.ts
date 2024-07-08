@@ -611,8 +611,9 @@ const play = async (
             }
             // console.log('成功4'+JSON.stringify(musicItem));
             // 5.4 没有返回源
-            if (!source && musicItem.url=='Unknown') {
+            if ((!source && musicItem.url=='Unknown')||musicItem.url.includes('fake')) {
                 // 没有源。没有url
+                console.log('没有源。没有url')
                 const resp =await myGetMusicUrl(musicItem,'128k')
 
                  source = {
@@ -638,7 +639,7 @@ const play = async (
                     //                     similarMusic,
                     //                     quality,
                     //                 )) ?? null;
-                    //             // 5.4.1 获取到真实源
+                    //             //c 5.4.1 获取到真实源
                     //             if (source) {
                     //                 setQuality(quality);
                     //                 break;

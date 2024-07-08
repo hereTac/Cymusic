@@ -30,6 +30,7 @@ const fetchWithTimeout = (url, options, timeout = 5000) => {
 };
 export const myGetMusicUrl = (songInfo, type) => {
   const url = `http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`;
+  console.log('----start----'+url);
 const options = {
   method: 'GET',
   headers: headers,  // Define your headers object
