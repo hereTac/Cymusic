@@ -17,7 +17,7 @@ export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps)
 	const handlePressAction = (id: string) => {
 		match(id)
 			.with('add-to-favorites', async () => {
-				console.log('1233333333')
+
 				toggleTrackFavorite(track)
 
 				// if the tracks is in the favorite queue, add it

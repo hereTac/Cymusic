@@ -18,6 +18,11 @@ export const utilsStyles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
+	rightRow: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		alignItems: 'center',
+	},
 	slider: {
 		height: 7,
 		borderRadius: 16,

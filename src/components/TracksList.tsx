@@ -59,7 +59,7 @@ export const TracksList = ({
 		//queueOffset.current = trackIndex
 		setActiveQueueId(id)
 		} else {
-		await 	myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
+		await 	myTrackPlayer.playWithReplacePlayList(selectedTrack as IMusic.IMusicItem, [selectedTrack] as IMusic.IMusicItem[])
 		// 	// const nextTrackIndex =
 		// 	// 	trackIndex - queueOffset.current < 0
 		// 	// 		? tracks.length + trackIndex - queueOffset.current

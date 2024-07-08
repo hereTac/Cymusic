@@ -54,7 +54,16 @@ const RootNavigation = () => {
 					headerShown: false,
 				}}
 			/>
-
+			<Stack.Screen
+				name="(modals)/playList"
+				options={{
+					presentation: 'modal',
+					gestureEnabled: true,
+					gestureDirection: 'vertical',
+					animationDuration: 400,
+					headerShown: false,
+				}}
+			/>
 			<Stack.Screen
 				name="(modals)/addToPlaylist"
 				options={{

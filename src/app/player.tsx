@@ -9,7 +9,7 @@ import { colors, fontSize, screenPadding } from '@/constants/tokens';
 import { usePlayerBackground } from '@/hooks/usePlayerBackground';
 import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite';
 import { defaultStyles, utilsStyles } from '@/styles';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image';
@@ -19,38 +19,29 @@ import usePlayerStore from '@/store/usePlayerStore';
 import { Lyric } from 'react-native-lyric'
 import { searchLyric } from '@/helpers/userApi/xiaoqiu'
 import { useLibraryStore } from '@/store/library'
-
+import { ShowPlayerListToggle } from '@/components/ShowPlayerListToggle'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 const PlayerScreen = () => {
   const { top, bottom } = useSafeAreaInsets();
   const { isFavorite, toggleFavorite } = useTrackPlayerFavorite();
     const [showLyrics, setShowLyrics] = useState(false);
     const { duration, position } = useProgress(250)
-
-const lrc = `[01:01.55]起风了 起风了 太阳落下山 
-[00:09.55]起风了 起风了 妹妹还没回家 
-[00:19.55]星星像什么 一闪一闪 
-[00:22.55]那是妹妹的眼睛
-[00:28.55]起风了 起风了 月亮爬上山呀哥风了 
-[00:35.55]起风了 起风了 哥哥骑着白马风
-[00:45.55]火光下那时什么身影 
-[00:48.55]问妹妹什么时候跟他走 
-[00:54.55]妹妹笑笑不回答
-[00:59.55]紧紧拉着哥哥的手 
-[01:01.55]一起跳舞吧 
-[01:40.55]起风了 起风了 太阳落下山 
-[01:48.55]起风了 起风了 妹妹还没回家 
-[02:58.35]星星像什么 一闪一闪
-[03:01.55]那是妹妹的眼睛
-[03:06.88]起风了 起风了 月亮爬上山呀
-[03:14.55]起风了 起风了 哥哥骑着白马
-[03:24.55]火光下那时什么身影 
-[03:27.55]问妹妹什么时候跟他走 
-[03:33.55]妹妹笑笑不回答 
-[03:38.05]紧紧拉着哥哥的手 
-[03:40.55]一起跳舞吧 
-[03:42.55]妹妹笑笑不回答 
-[03:47.55]紧紧拉着哥哥的手 
-[03:49.55]一起跳舞吧`;
+    const lyricsOpacity = useSharedValue(0);
+const animatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: lyricsOpacity.value,
+      transform: [
+        {
+            scale: withTiming(lyricsOpacity.value ? 1 : 1, { duration: 500 }),
+        },
+      ],
+    };
+  });
+  const handleLyricsToggle = () => {
+    const newShowLyrics = !showLyrics;
+    setShowLyrics(newShowLyrics);
+    lyricsOpacity.value =withTiming(newShowLyrics ? 1 : 0, { duration: 1000 });
+  };
   const {
     isLoading,
     isInitialized,
@@ -109,15 +100,13 @@ const lrc = `[01:01.55]起风了 起风了 太阳落下山
     >
       <View style={styles.overlayContainer}>
         <DismissPlayerSymbol />
-        {showLyrics ? (
-            <TouchableOpacity style={{backgroundColor : 'transparent'}}
-            onPress={async () => {
-              setShowLyrics(!showLyrics)
-            }}>
-               <Lyric
+       {showLyrics ? (
+           <Animated.View style={[styles.lyricContainer, animatedStyle]}>
+          <TouchableOpacity style={{ backgroundColor: 'transparent', flex: 1 }} onPress={handleLyricsToggle}>
+              <Lyric
                 style={styles.lyric}
                 lrc={nowLyric}
-                currentTime={position*1000}
+                currentTime={position * 1000}
                 autoScroll
                 autoScrollAfterUserScroll={500}
                 lineHeight={50}
@@ -125,15 +114,12 @@ const lrc = `[01:01.55]起风了 起风了 太阳落下山
                 height={850}
                 lineRenderer={lineRenderer}
               />
-            </TouchableOpacity>
-            ) :(
-        <View style={{ flex: 1, marginTop: top + 70, marginBottom: bottom }}>
-         <TouchableOpacity
-            style={styles.artworkImageContainer}
-            onPress={async () => {
-              setShowLyrics(!showLyrics)
-            }}
-          >
+
+          </TouchableOpacity>
+           </Animated.View>
+        ) : (
+          <View style={{ flex: 1, marginTop: top + 70, marginBottom: bottom }}>
+            <TouchableOpacity style={styles.artworkImageContainer} onPress={handleLyricsToggle}>
 
               <FastImage
                 source={{
@@ -190,9 +176,17 @@ const lrc = `[01:01.55]起风了 起风了 太阳落下山
 
             <PlayerVolumeBar style={{ marginTop: 'auto', marginBottom: 30 }} />
 
-            <View style={utilsStyles.centeredRow}>
-              <PlayerRepeatToggle size={30} style={{ marginBottom: 6 }} />
-            </View>
+             <View style={styles.container}>
+      <View style={styles.leftItem}>
+        <MaterialCommunityIcons name="tooltip-minus-outline" size={27} color="white" onPress={handleLyricsToggle}  style={{ marginBottom: 2 }} />
+      </View>
+      <View style={styles.centeredItem}>
+        <PlayerRepeatToggle size={30} style={{ marginBottom: 6 }} />
+      </View>
+      <View style={styles.rightItem}>
+        <ShowPlayerListToggle size={30} style={{ marginBottom: 6 }}  />
+      </View>
+    </View>
           </View>
         </View>)}
 
@@ -291,8 +285,27 @@ const styles = StyleSheet.create({
 
   }, lyric:{
 
+  }, container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
   },
-
+  leftItem: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  centeredItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  rightItem: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  lyricContainer: {
+    flex: 1,
+  },
 });
 
 export default PlayerScreen;
