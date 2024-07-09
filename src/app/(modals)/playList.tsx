@@ -9,15 +9,16 @@ import myTrackPlayer from '@/helpers/trackPlayerIndex';
 import { usePlayerBackground } from '@/hooks/usePlayerBackground';
 import { unknownTrackImageUri } from '@/constants/images';
 import { NowPlayList } from '@/components/NowPlayList';
+import { usePlayList } from '@/store/playList'
 
 const PlayListScreen = () => {
   const headerHeight = useHeaderHeight();
-  const tracks = myTrackPlayer.getPlayList() as Track[];
+  const tracks = usePlayList();
 
 
   return (
     <SafeAreaView style={[styles.modalContainer, { paddingTop: headerHeight }]}>
-      <NowPlayList id='PlayListScreen' tracks={tracks} />
+      <NowPlayList id='PlayListScreen' tracks={tracks as Track[]} />
     </SafeAreaView>
   );
 };
