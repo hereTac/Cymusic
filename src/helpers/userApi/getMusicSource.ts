@@ -12,6 +12,7 @@ const withTimeout = (promise, ms) => {
   return Promise.race([promise, timeout]);
 };
 const fetchWithTimeout = (url, options, timeout = 5000) => {
+  console.log('----start----'+url);
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       reject(new Error('Request timed out'));
@@ -30,7 +31,8 @@ const fetchWithTimeout = (url, options, timeout = 5000) => {
 };
 export const myGetMusicUrl = (songInfo, type) => {
   const url = `http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`;
-  console.log('----start----'+url);
+  const backupUrl = `https://ovoa.cc/api/QQmusic.php?msg=${encodeURIComponent(songInfo.title)}&&n=1`;
+
 const options = {
   method: 'GET',
   headers: headers,  // Define your headers object
@@ -42,7 +44,20 @@ return fetchWithTimeout(url, options, 5000)
   .then((body: any) => {
     if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
       console.log('Fetch1 failed with error mp3');
-       return { type, url: fakeAudioMp3Uri };
+       return fetchWithTimeout(backupUrl, options, 5000)
+            .then((backupResponse: Response) => parseResponse(backupResponse))
+            .then((backupBody: any) => {
+              if (!backupBody || !backupBody.data || !backupBody.data.src) {
+                console.log('Backup fetch failed or no song_url in response');
+                return { type, url: fakeAudioMp3Uri };
+              }
+              console.log('Backup fetch success:', backupBody.data.src);
+              return { type, url: backupBody.data.src };
+            })
+            .catch((backupError: Error) => {
+              console.log('Backup fetch error:', backupError);
+              return { type, url: fakeAudioMp3Uri };
+            });
     }
     console.log('获取成功1：' + body.data);
     return body.code === 0 ? { type, url: body.data } : null;
@@ -50,10 +65,36 @@ return fetchWithTimeout(url, options, 5000)
   .catch((error: Error) => {
     if (error.message === 'Request timed out') {
       console.log('Fetch1 error: Request timed out');
-      return { type, url: fakeAudioMp3Uri };
+           return fetchWithTimeout(backupUrl, options, 5000)
+            .then((backupResponse: Response) => parseResponse(backupResponse))
+            .then((backupBody: any) => {
+              if (!backupBody || !backupBody.data || !backupBody.data.src) {
+                console.log('Backup fetch failed or no song_url in response');
+                return { type, url: fakeAudioMp3Uri };
+              }
+              console.log('Backup fetch success:', backupBody.data.src);
+              return { type, url: backupBody.data.src };
+            })
+            .catch((backupError: Error) => {
+              console.log('Backup fetch error:', backupError);
+              return { type, url: fakeAudioMp3Uri };
+            });
     }
     console.log('Fetch1 error:', error);
-    return null;
+         return fetchWithTimeout(backupUrl, options, 5000)
+            .then((backupResponse: Response) => parseResponse(backupResponse))
+            .then((backupBody: any) => {
+              if (!backupBody || !backupBody.data || !backupBody.data.src) {
+                console.log('Backup fetch failed or no song_url in response');
+                return { type, url: fakeAudioMp3Uri };
+              }
+              console.log('Backup fetch success:', backupBody.data.src);
+              return { type, url: backupBody.data.src };
+            })
+            .catch((backupError: Error) => {
+              console.log('Backup fetch error:', backupError);
+              return { type, url: fakeAudioMp3Uri };
+            });
   });
 	// return  Promise.resolve({ type, url: fakeAudioMp3Uri })
   // const fetch1 = withTimeout(httpFetch(`http://110.42.111.49:1314/url/tx/${songInfo.id}/${type}`, {
