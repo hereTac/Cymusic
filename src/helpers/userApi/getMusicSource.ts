@@ -207,33 +207,65 @@ export const  myGetLyric = async (musicItem:IMusic.IMusicItem) => {
       tlyric: decodeName(b64DecodeUnicode(body.trans)),
     };
 
-    // console.log(` url: \`http://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${musicItem.id}&pcachetime=${new Date().getTime()}&g_tk=5381&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0\`,
-    //         headers: {
-    //             Referer: "https://y.qq.com",
-    //             Cookie: "uin="
-    //         },
-    //         method: "get",
-    //         xsrfCookieName: "XSRF-TOKEN",
-    //         withCredentials: true,`)
-    // const response = await axios({
-    //   url: `https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=${musicItem.id}&pcachetime=${new Date().getTime()}&g_tk=5381&loginUin=0&hostUin=0&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`,
-    //   headers: {
-    //     Referer: "https://y.qq.com",
-    //     Cookie: "uin="
-    //   },
-    //   method: "get",
-    //   xsrfCookieName: "XSRF-TOKEN",
-    //   withCredentials: true,
-    // });
-    //
-    // const result = response.data;
-    // const res = JSON.parse(result.replace(/callback\(|MusicJsonCallback\(|jsonCallback\(|\)$/g, ""));
-    //
-    // return {
-    //   rawLrc: res.lyric,
-    // };
   } catch (error) {
     console.error('Error fetching lyrics:', error);
     throw error;
   }
+}
+export async function getTopListDetail(topListItem) {
+  let _a
+  const res = await  axios({
+        url: `https://u.y.qq.com/cgi-bin/musicu.fcg?g_tk=5381&data=%7B%22detail%22%3A%7B%22module%22%3A%22musicToplist.ToplistInfoServer%22%2C%22method%22%3A%22GetDetail%22%2C%22param%22%3A%7B%22topId%22%3A${topListItem.id}%2C%22offset%22%3A0%2C%22num%22%3A100%2C%22period%22%3A%22${(_a = topListItem.period) !== null && _a !== void 0 ? _a : ""}%22%7D%7D%2C%22comm%22%3A%7B%22ct%22%3A24%2C%22cv%22%3A0%7D%7D`,
+        method: "get",
+        headers: {
+            Cookie: "uin=",
+        },
+        xsrfCookieName: "XSRF-TOKEN",
+        withCredentials: true,
+    });
+    return Object.assign(Object.assign({}, topListItem), {
+        musicList: res.data.detail.data.songInfoList
+            .map(formatMusicItem)
+    });
+}
+function formatMusicItem(_) {
+    let _a, _b, _c;
+    const albumid = _.albumid || ((_a = _.album) === null || _a === void 0 ? void 0 : _a.id);
+    const albummid = _.albummid || ((_b = _.album) === null || _b === void 0 ? void 0 : _b.mid);
+    const albumname = _.albumname || ((_c = _.album) === null || _c === void 0 ? void 0 : _c.title);
+    return {
+        id: _.mid || _.songid,
+        songmid: _.id || _.songmid,
+        title: _.title || _.songname,
+        artist: _.singer.map((s) => s.name).join(", "),
+        artwork: albummid
+            ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albummid}.jpg`
+            : undefined,
+        album: albumname,
+        lrc: _.lyric || undefined,
+        albumid: albumid,
+        albummid: albummid,
+        url: 'Unknown',
+    };
+}
+export async function getTopLists() {
+    const list = await  axios({
+        url: "https://u.y.qq.com/cgi-bin/musicu.fcg?_=1577086820633&data=%7B%22comm%22%3A%7B%22g_tk%22%3A5381%2C%22uin%22%3A123456%2C%22format%22%3A%22json%22%2C%22inCharset%22%3A%22utf-8%22%2C%22outCharset%22%3A%22utf-8%22%2C%22notice%22%3A0%2C%22platform%22%3A%22h5%22%2C%22needNewCode%22%3A1%2C%22ct%22%3A23%2C%22cv%22%3A0%7D%2C%22topList%22%3A%7B%22module%22%3A%22musicToplist.ToplistInfoServer%22%2C%22method%22%3A%22GetAll%22%2C%22param%22%3A%7B%7D%7D%7D",
+        method: "get",
+        headers: {
+            Cookie: "uin=",
+        },
+        xsrfCookieName: "XSRF-TOKEN",
+        withCredentials: true,
+    });
+    return list.data.topList.data.group.map((e) => ({
+        title: e.groupName,
+        data: e.toplist.map((_) => ({
+            id: _.topId,
+            description: _.intro,
+            title: _.title,
+            period: _.period,
+            coverImg: _.headPicUrl || _.frontPicUrl,
+        })),
+    }));
 }

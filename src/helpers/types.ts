@@ -5,6 +5,10 @@ export type Playlist = {
 	tracks: Track[]
 	artworkPreview: string
 	singerImg:string
+	coverImg:string
+	period:string
+	title:string
+	description:string
 }
 
 export type Artist = {

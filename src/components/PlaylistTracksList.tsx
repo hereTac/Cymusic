@@ -4,27 +4,23 @@ import { generateTracksListId } from '@/helpers/miscellaneous'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { defaultStyles } from '@/styles'
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { QueueControls } from './QueueControls'
 import { TracksList } from './TracksList'
+import { Track } from 'react-native-track-player'
 
-export const PlaylistTracksList = ({ playlist }: { playlist: Playlist }) => {
-	const search = useNavigationSearch({
-		searchBarOptions: {
-			hideWhenScrolling: true,
-			placeholder: 'Find in playlist',
-		},
-	})
+export const PlaylistTracksList = ({ playlist,tracks }: { playlist: Playlist, tracks:Track[]}) => {
 
-	const filteredPlaylistTracks = useMemo(() => {
-		return playlist.tracks.filter(trackTitleFilter(search))
-	}, [playlist.tracks, search])
+
+	// const filteredPlaylistTracks = useMemo(() => {
+	// 	return playlist.tracks.filter(trackTitleFilter(search))
+	// }, [playlist.tracks, search])
 
 	return (
 		<TracksList
-			id={generateTracksListId(playlist.name, search)}
+			id={generateTracksListId(playlist.title)}
 			scrollEnabled={false}
 			hideQueueControls={true}
 			ListHeaderComponentStyle={styles.playlistHeaderContainer}
@@ -33,7 +29,7 @@ export const PlaylistTracksList = ({ playlist }: { playlist: Playlist }) => {
 					<View style={styles.artworkImageContainer}>
 						<FastImage
 							source={{
-								uri: playlist.artworkPreview,
+								uri: playlist.coverImg,
 								priority: FastImage.priority.high,
 							}}
 							style={styles.artworkImage}
@@ -41,15 +37,14 @@ export const PlaylistTracksList = ({ playlist }: { playlist: Playlist }) => {
 					</View>
 
 					<Text numberOfLines={1} style={styles.playlistNameText}>
-						{playlist.name}
+						{playlist.title}
 					</Text>
 
-					{search.length === 0 && (
-						<QueueControls style={{ paddingTop: 24 }} tracks={playlist.tracks} />
-					)}
+						<QueueControls style={{ paddingTop: 24 }} tracks={tracks} />
+
 				</View>
 			}
-			tracks={filteredPlaylistTracks}
+			tracks={tracks}
 		/>
 	)
 }

@@ -8,16 +8,18 @@ import musicSdk from '@/components/utils/musicSdk'
 
 import { setTrackViewList } from '@/store/trackViewList'
 import PersistStatus from '@/store/PersistStatus'
+import { getTopLists } from '@/helpers/userApi/getMusicSource'
 
 interface LibraryState {
   tracks: TrackWithPlaylist[]
   favorites: IMusic.IMusicItem[]
   nowLyric:string
+  playlists:Playlist[]
   toggleTrackFavorite: (track: Track) => void
   addToPlaylist: (track: Track, playlistName: string) => void
   fetchTracks: () => Promise<void>
   setNowLyric: (lyric: string) => void
-  // setPlayList: (newPlayList: IMusic.IMusicItem[], shouldSave?: boolean) => void
+  setPlayList: (newPlayList?: Playlist[]) => void
   // getMusicIndex: (musicItem?: IMusic.IMusicItem | null) => number
   // isInPlayList: (musicItem?: IMusic.IMusicItem | null) => boolean
   // getPlayListMusicAt: (index: number) => IMusic.IMusicItem | null
@@ -53,7 +55,7 @@ export const useLibraryStore = create<LibraryState>((set) => ({
   tracks: [],
   favorites: PersistStatus.get('music.favorites') || [],
   nowLyric:'当前无歌词',
-  // playListIndexMap: {},
+  playlists: [],
  toggleTrackFavorite: (track: Track) => {
     set((state) => {
       const favorites = [...state.favorites];
@@ -99,24 +101,21 @@ export const useLibraryStore = create<LibraryState>((set) => ({
   },
   setNowLyric:(nowLyric:string)=>{
     set({ nowLyric: nowLyric });
-  }
-  // setPlayList: (newPlayList, shouldSave = true) => {
-  //   const newIndexMap: Record<string, Record<string, number>> = {}
-  //   newPlayList.forEach((item, index) => {
-  //     if (!newIndexMap[item.platform]) {
-  //       newIndexMap[item.platform] = {
-  //         [item.id]: index,
-  //       }
-  //     } else {
-  //       newIndexMap[item.platform][item.id] = index
-  //     }
-  //   })
-  //   set({
-  //     tracks: newPlayList,
-  //     playListIndexMap: newIndexMap,
-  //   })
-  //
-  // },
+  },
+  setPlayList: async (newPlayList?) => {
+    try {
+      const playlists = await getTopLists()
+     const combinedData = playlists.flatMap(group =>
+    group.data.map(playlist => ({
+        ...playlist,
+        coverImg: playlist.coverImg.replace(/^http:/, 'https:')
+    }))
+);
+      set({ playlists:combinedData})
+    } catch (error) {
+      console.error('Failed to set playlist:', error)
+    }
+  },
   // getMusicIndex: (musicItem) => {
   //   if (!musicItem) {
   //     return -1
@@ -197,25 +196,13 @@ export const useArtists = () =>
 
 export const usePlaylists = () => {
   const playlists = useLibraryStore((state) => {
-    return state.tracks.reduce((acc, track) => {
-      track.playlist?.forEach((playlistName) => {
-        const existingPlaylist = acc.find((playlist) => playlist.name === playlistName)
-        if (existingPlaylist) {
-          existingPlaylist.tracks.push(track)
-        } else {
-          acc.push({
-            name: playlistName,
-            tracks: [track],
-            artworkPreview: track.artwork ?? unknownTrackImageUri,
-            singerImg: track.singerImg,
-          })
-        }
-      })
-      return acc
-    }, [] as Playlist[])
+
+      return state.playlists
   })
 
-  const addToPlaylist = useLibraryStore((state) => state.addToPlaylist)
-
-  return { playlists, addToPlaylist }
+  const setPlayList = useLibraryStore((state) => state.setPlayList)
+  useEffect(() => {
+     setPlayList()
+  }, [setPlayList])
+  return { playlists, setPlayList }
 }

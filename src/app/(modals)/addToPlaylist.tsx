@@ -20,7 +20,7 @@ const AddToPlaylistModal = () => {
 
 	const tracks = useTracks()
 
-	const { playlists, addToPlaylist } = usePlaylists()
+	const { playlists} = usePlaylists()
 
 	const track = tracks.find((currentTrack) => trackUrl === currentTrack.url)
 
@@ -34,7 +34,7 @@ const AddToPlaylistModal = () => {
 	)
 
 	const handlePlaylistPress = async (playlist: Playlist) => {
-		addToPlaylist(track, playlist.name)
+
 
 		// should close the modal
 		router.dismiss()

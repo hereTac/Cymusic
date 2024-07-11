@@ -37,6 +37,22 @@ const TabsNavigation = () => {
 				}}
 			>
 				<Tabs.Screen
+					name="(songs)"
+					options={{
+						title: 'Songs',
+						tabBarIcon: ({ color }) => (
+							<Ionicons name="musical-notes-sharp" size={24} color={color} />
+						),
+					}}
+				/>
+				<Tabs.Screen
+					name="radio"
+					options={{
+						title: 'Radio',
+						tabBarIcon: ({ color }) => <Ionicons name="radio" size={24} color={color} />,
+					}}
+				/>
+				<Tabs.Screen
 					name="favorites"
 					options={{
 						title: 'Favorites',
@@ -48,26 +64,11 @@ const TabsNavigation = () => {
 					options={{
 						title: 'Search',
 						tabBarIcon: ({ color }) => (
-							<MaterialCommunityIcons name="text-search" size={28} color={color} />
+							<MaterialCommunityIcons name="text-search" size={26} color={color} />
 						),
 					}}
 				/>
-				<Tabs.Screen
-					name="(songs)"
-					options={{
-						title: 'Songs',
-						tabBarIcon: ({ color }) => (
-							<Ionicons name="musical-notes-sharp" size={24} color={color} />
-						),
-					}}
-				/>
-				<Tabs.Screen
-					name="artists"
-					options={{
-						title: 'Artists',
-						tabBarIcon: ({ color }) => <FontAwesome6 name="users-line" size={20} color={color} />,
-					}}
-				/>
+
 			</Tabs>
 
 			<FloatingPlayer

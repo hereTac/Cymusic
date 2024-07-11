@@ -29,7 +29,7 @@ export const PlaylistsList = ({
 	})
 
 	const filteredPlaylist = useMemo(() => {
-		return playlists.filter(playlistNameFilter(search))
+		return playlists
 	}, [playlists, search])
 
 	return (
@@ -47,7 +47,7 @@ export const PlaylistsList = ({
 					/>
 				</View>
 			}
-			data={filteredPlaylist}
+			data={playlists}
 			renderItem={({ item: playlist }) => (
 				<PlaylistListItem playlist={playlist} onPress={() => handlePlaylistPress(playlist)} />
 			)}

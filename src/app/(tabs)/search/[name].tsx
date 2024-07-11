@@ -24,7 +24,7 @@ const PlaylistScreen = () => {
 				contentInsetAdjustmentBehavior="automatic"
 				style={{ paddingHorizontal: screenPadding.horizontal }}
 			>
-				<PlaylistTracksList playlist={playlist} />
+
 			</ScrollView>
 		</View>
 	)
