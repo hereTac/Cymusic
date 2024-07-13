@@ -7,4 +7,4 @@ export const artistNameFilter = (name: string) => (artist: Artist) =>
 	artist.name.toLowerCase().includes(name.toLowerCase())
 
 export const playlistNameFilter = (name: string) => (playlist: Playlist) =>
-	playlist.name.toLowerCase().includes(name.toLowerCase())
+	playlist.title.toLowerCase().includes(name.toLowerCase())
