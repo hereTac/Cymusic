@@ -1,4 +1,5 @@
- import { StackScreenWithSearchBar } from '@/constants/layout'
+import GlobalButton from '@/components/GlobalButton'
+import { StackScreenWithSearchBar } from '@/constants/layout'
 import { defaultStyles } from '@/styles'
 import { Stack } from 'expo-router'
 import { View } from 'react-native'
@@ -12,6 +13,7 @@ const SongsScreenLayout = () => {
 					options={{
 						...StackScreenWithSearchBar,
 						headerTitle: 'Songs',
+						headerRight: () => <GlobalButton />,
 					}}
 				/>
 			</Stack>

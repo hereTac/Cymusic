@@ -8,9 +8,9 @@ import { useCallback, useRef } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
-import { addUserApi } from '@/helpers/userApiHelper'
-import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import { Platform, Dimensions, View } from 'react-native'
 
+const { width, height } = Dimensions.get('window')
 
 SplashScreen.preventAutoHideAsync()
 
@@ -75,6 +75,16 @@ const RootNavigation = () => {
 					headerTitleStyle: {
 						color: colors.text,
 					},
+				}}
+			/>
+			<Stack.Screen
+				name="(modals)/settingModal"
+				options={{
+			presentation: 'modal',
+      headerShown: false,
+      gestureEnabled: true,
+      gestureDirection: 'vertical',
+
 				}}
 			/>
 		</Stack>
