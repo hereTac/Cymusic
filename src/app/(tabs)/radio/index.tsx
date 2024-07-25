@@ -24,7 +24,7 @@ const RadiolistsScreen = () => {
 	const filteredPlayLists = useMemo(() => {
 		if (!search) return playlists
 		return playlists.filter(playlistNameFilter(search))
-	}, [search]) 
+	}, [search,playlists])
 
 	const handlePlaylistPress = (playlist: Playlist) => {
 		router.push(`/(tabs)/radio/${playlist.title}`)

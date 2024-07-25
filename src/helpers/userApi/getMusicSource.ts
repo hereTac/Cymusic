@@ -30,8 +30,8 @@ const fetchWithTimeout = (url, options, timeout = 5000) => {
   });
 };
 export const myGetMusicUrl = (songInfo, type) => {
-  const url = `http://111.111.111.111:1314/url/tx/${songInfo.id}/${type}`;
-  const backupUrl = `https://????.cc/api/QQmusic.php?msg=${encodeURIComponent(songInfo.title)}&&n=1`;
+  const url = `http://110.42.36.53:1314/url/tx/${songInfo.id}/${type}`;
+  const backupUrl = `https://ovoa.cc/api/QQmusic.php?msg=${encodeURIComponent(songInfo.title)}&&n=1`;
 
 const options = {
   method: 'GET',
