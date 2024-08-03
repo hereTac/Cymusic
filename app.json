@@ -18,7 +18,12 @@
 			"bundleIdentifier": "com.music.player",
 			"infoPlist": {
 				"UIBackgroundModes": ["audio"]
-			}
+			},
+			"splash": {
+			"image": "./assets/splash.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#000"
+		}
 		},
 		"android": {
 			"adaptiveIcon": {
