@@ -80,3 +80,12 @@ npx expo run:ios
 9.1 若你使用了本项目，将代表你接受本协议。
 
 ---
+## Star History
+
+<a href="https://star-history.com/#gyc-12/music-player-master&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date" />
+ </picture>
+</a>
