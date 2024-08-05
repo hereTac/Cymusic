@@ -9,7 +9,7 @@ import TrackPlayer, { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 
 import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
-import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import myTrackPlayer, { qualityStore } from '@/helpers/trackPlayerIndex'
 import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
 import { setPlayList } from '@/store/playList'
 
@@ -36,7 +36,7 @@ export const SearchList = ({
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
 	if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
-	const res = await myGetMusicUrl(selectedTrack, '128k')
+	const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
 	selectedTrack.url = res.url
 	}
 

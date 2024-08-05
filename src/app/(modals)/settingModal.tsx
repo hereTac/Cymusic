@@ -1,12 +1,26 @@
 // src/app/modals/settingModal.tsx
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Switch, Image, Modal, Linking } from 'react-native'
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  Image,
+  Modal,
+  Linking,
+  Alert, ActivityIndicator,
+} from 'react-native'
 import { colors } from '@/constants/tokens'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { utilsStyles } from '@/styles'
 import { MenuView } from '@react-native-menu/menu'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
+import Constants from 'expo-constants'
+import myTrackPlayer, { qualityStore, useCurrentQuality } from '@/helpers/trackPlayerIndex'
+const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本';
 // eslint-disable-next-line react/prop-types
 const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
   const handlePressAction = async (id: string) => {
@@ -36,8 +50,9 @@ const settingsData = [
     data: [
       { id: '1', title: 'music-player', type: 'link', icon: require('@/assets/144.png') },
       { id: '2', title: '版本号', type: 'value', value: '1.0.1' },
-      { id: '3', title: '检查更新', type: 'link' },
+      { id: '3', title: '检查更新', type: 'value' },
       { id: '5', title: '项目链接', type: 'value', value: '' },
+      { id: '9', title: '清空缓存', type: 'value', value: '' },
     ]
   },
   {
@@ -63,8 +78,9 @@ const settingsData = [
 
 const SettingModal = () => {
   const router = useRouter()
-  const [currentQuality, setCurrentQuality] = useState('320k')
+   const [currentQuality, setCurrentQuality] = useCurrentQuality();
   const [isQualitySelectorVisible, setIsQualitySelectorVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const DismissPlayerSymbol = () => {
     const { top } = useSafeAreaInsets();
@@ -74,7 +90,46 @@ const SettingModal = () => {
       </View>
     );
   };
+ const checkForUpdates = async () => {
+    setIsLoading(true);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('请求超时')), 10000)
+    );
+    try {
+       const result = await Promise.race([
+        fetch('https://api.github.com/repos/gyc-12/music-player-master/releases/latest'),
+        timeoutPromise
+      ]);
+      if (!(result instanceof Response)) {
+      throw new Error('非预期的结果类型');
+    }
 
+    if (!result.ok) {
+      throw new Error(`HTTP error! status: ${result.status}`);
+    }
+      const data = await result.json();
+      const latestVersion = data.tag_name
+      console.log(CURRENT_VERSION+'CURRENT_VERSIONCURRENT_VERSION'+latestVersion)
+
+      if (latestVersion !== CURRENT_VERSION) {
+        Alert.alert(
+          '新版本可用',
+          `发现新版本 ${latestVersion}，请更新。`,
+          [
+            { text: '确定', onPress: () => Linking.openURL(data.html_url) },
+          { text: '取消', onPress: () => {}, style: 'cancel'}
+          ]
+        )
+      } else {
+        Alert.alert('已是最新版本', '当前已是最新版本。')
+      }
+    } catch (error) {
+      console.error('检查更新失败', error)
+      Alert.alert('检查更新失败', '无法检查更新，请稍后再试。')
+    }  finally {
+      setIsLoading(false);
+    }
+  }
   const renderItem = (item, index, sectionData) => (
     <View key={item.id}>
     <TouchableOpacity
@@ -91,8 +146,30 @@ const SettingModal = () => {
         } else if (item.title === '当前音质') {
           setIsQualitySelectorVisible(true)
         } else if (item.type === 'link') {
+          if(item.title === '清空待播清单'){
+            Alert.alert(
+              '清空待播清单',
+              '确定要清空待播清单吗？',
+              [
+                { text: '取消', style: 'cancel' },
+                { text: '确定', onPress: () => myTrackPlayer.clearToBePlayed() },
+              ]
+            );
+          }
+          else if(item.title === '导入音源'){
+            Alert.alert(
+              '还没想好怎么写',
+              '还没想好怎么写',
+              [
+                { text: '取消', style: 'cancel' },
+                { text: '确定'},
+              ]
+            );
+          }
           console.log(`Navigate to ${item.title}`)
-        }
+        }else if (item.title === '检查更新') {
+          checkForUpdates()
+}
       }}
     >
       {item.icon && <Image source={item.icon} style={styles.icon} />}
@@ -126,7 +203,11 @@ const SettingModal = () => {
     {index !== sectionData.length - 1 && <View style={styles.separator} />}
     </View>
   )
-
+const GlobalLoading = () => (
+  <View style={styles.loadingOverlay}>
+    <ActivityIndicator size="large" color={colors.loading} />
+  </View>
+);
   return (
     <View style={styles.container}>
       <DismissPlayerSymbol />
@@ -141,7 +222,7 @@ const SettingModal = () => {
           </View>
         ))}
       </ScrollView>
-
+     {isLoading && <GlobalLoading />}
     </View>
   )
 }
@@ -242,6 +323,16 @@ item: {
      fontSize: 16,
     color: colors.textMuted,
 
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 })
 

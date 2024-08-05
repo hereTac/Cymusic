@@ -7,7 +7,7 @@ import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import TrackPlayer, { Track, useActiveTrack } from 'react-native-track-player'
 
-import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import myTrackPlayer, { qualityStore } from '@/helpers/trackPlayerIndex'
 import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -34,7 +34,7 @@ export const NowPlayList = ({
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
 	if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
-	const res = await myGetMusicUrl(selectedTrack, '128k')
+	const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
 	selectedTrack.url = res.url
 	}
 		await  myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)

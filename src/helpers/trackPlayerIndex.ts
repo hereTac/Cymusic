@@ -40,8 +40,14 @@ const currentMusicStore = new GlobalState<IMusic.IMusicItem | null>(null)
 export const repeatModeStore = new GlobalState<MusicRepeatMode>(MusicRepeatMode.QUEUE)
 
 /** 音质 */
-const qualityStore = new GlobalState<IMusic.IQualityKey>('low')
-
+export const qualityStore = new GlobalState<IMusic.IQualityKey>('128k')
+export function useCurrentQuality() {
+  const currentQuality = qualityStore.useValue();
+  const setCurrentQuality = (newQuality: IMusic.IQualityKey) => {
+	setQuality(newQuality);
+	}
+  return [currentQuality, setCurrentQuality] as const;
+}
 const setNowLyric = useLibraryStore.getState().setNowLyric
 
 let currentIndex = -1
@@ -95,16 +101,17 @@ async function setupTrackPlayer() {
 	const repeatMode = PersistStatus.get('music.repeatMode')
 	const progress = PersistStatus.get('music.progress')
 	const track = PersistStatus.get('music.musicItem')
-	// const quality =
-	//     PersistStatus.get('music.quality') ||
-	//     Config.get('setting.basic.defaultPlayQuality') ||
-	//     'standard';
+	const quality = PersistStatus.get('music.quality') || '128k';
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
 	}
 	if (repeatMode) {
 		repeatModeStore.setValue(repeatMode as MusicRepeatMode)
+	}
+
+	if (quality) {
+		setQuality(quality as IMusic.IQualityKey)
 	}
 
 	if (musicQueue && Array.isArray(musicQueue)) {
@@ -404,6 +411,25 @@ const clear = async () => {
 	PersistStatus.set('music.musicItem', undefined)
 	PersistStatus.set('music.progress', 0)
 }
+/** 清空待播列表 */
+const clearToBePlayed = async () => {
+  // 获取当前正在播放的音乐
+  const currentMusic = currentMusicStore.getValue();
+
+  if (currentMusic) {
+    // 设置播放列表仅包含当前正在播放的音乐
+    setPlayList([currentMusic]);
+    setCurrentMusic(currentMusic);
+
+    // 重置播放器并重新设置当前音轨
+    // await setTrackSource(currentMusic as Track, true);
+  } else {
+    // 如果没有当前播放的音乐，清空播放列表
+    setPlayList([]);
+    setCurrentMusic(null);
+    await ReactNativeTrackPlayer.reset();
+  }
+}
 
 /** 暂停 */
 const pause = async () => {
@@ -560,7 +586,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 			if ((!source && musicItem.url == 'Unknown') || musicItem.url.includes('fake')) {
 				// 没有源。没有url
 				console.log('没有源。没有url')
-				const resp = await myGetMusicUrl(musicItem, '128k')
+				const resp = await myGetMusicUrl(musicItem, qualityStore.getValue())
 
 				source = {
 					url: resp.url,
@@ -607,7 +633,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 				source = {
 					url: musicItem.url,
 				}
-				setQuality('128k')
+				// setQuality('128k')
 			}
 		}
 
@@ -757,7 +783,7 @@ const changeQuality = async (newQuality: IMusic.IQualityKey) => {
 		//     );
 		//
 		//     await ReactNativeTrackPlayer.seekTo(progress.position ?? 0);
-		//     setQuality(newQuality);
+       setQuality(newQuality);
 		// }
 		return true
 	} catch {
@@ -814,6 +840,7 @@ const myTrackPlayer = {
 	pause,
 	remove,
 	clear,
+	clearToBePlayed,
 	useCurrentMusic: currentMusicStore.useValue,
 	getCurrentMusic: currentMusicStore.getValue,
 	useRepeatMode: repeatModeStore.useValue,
@@ -821,6 +848,7 @@ const myTrackPlayer = {
 	toggleRepeatMode,
 	usePlaybackState,
 	setRepeatMode,
+	setQuality,
 	getProgress: ReactNativeTrackPlayer.getProgress,
 	useProgress: useProgress,
 	seekTo: ReactNativeTrackPlayer.seekTo,
