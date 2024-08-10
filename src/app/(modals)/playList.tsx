@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { colors, screenPadding } from '@/constants/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View,Text } from 'react-native';
 import { defaultStyles } from '@/styles';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { Track, useActiveTrack } from 'react-native-track-player';
@@ -17,7 +17,9 @@ const PlayListScreen = () => {
 
 
   return (
+
     <SafeAreaView style={[styles.modalContainer, { paddingTop: headerHeight }]}>
+       <Text style={styles.header}>播放列表</Text>
       <NowPlayList id='PlayListScreen' tracks={tracks as Track[]} />
     </SafeAreaView>
   );
@@ -28,6 +30,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: screenPadding.horizontal,
     backgroundColor: defaultStyles.container.backgroundColor, // 设置默认背景颜色
+  },
+    header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    padding: 0,
+      paddingBottom: 20,
+    paddingTop: 0,
+    color: colors.text,
   },
 });
 

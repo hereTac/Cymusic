@@ -87,6 +87,16 @@ const RootNavigation = () => {
 
 				}}
 			/>
+				<Stack.Screen
+				name="(modals)/importPlayList"
+				options={{
+			presentation: 'modal',
+      headerShown: false,
+      gestureEnabled: true,
+      gestureDirection: 'vertical',
+
+				}}
+			/>
 		</Stack>
 	)
 }

@@ -35,7 +35,8 @@ import { useLibraryStore } from '@/store/library'
 
 /** 当前播放 */
 const currentMusicStore = new GlobalState<IMusic.IMusicItem | null>(null)
-
+/** 歌单*/
+const playListsStore = new GlobalState<IMusic.PlayList[] | null>(null)
 /** 播放模式 */
 export const repeatModeStore = new GlobalState<MusicRepeatMode>(MusicRepeatMode.QUEUE)
 
@@ -97,11 +98,12 @@ function migrate() {
 async function setupTrackPlayer() {
 	migrate()
 	const rate = PersistStatus.get('music.rate')
-	const musicQueue = PersistStatus.get('music.playList')
+	const musicQueue = PersistStatus.get('music.play-list')
 	const repeatMode = PersistStatus.get('music.repeatMode')
 	const progress = PersistStatus.get('music.progress')
 	const track = PersistStatus.get('music.musicItem')
 	const quality = PersistStatus.get('music.quality') || '128k';
+	const playLists = PersistStatus.get('music.playLists') ;
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -112,6 +114,9 @@ async function setupTrackPlayer() {
 
 	if (quality) {
 		setQuality(quality as IMusic.IQualityKey)
+	}
+	if(playLists){
+		playListsStore.setValue(playLists)
 	}
 
 	if (musicQueue && Array.isArray(musicQueue)) {
@@ -473,6 +478,14 @@ const setQuality = (quality: IMusic.IQualityKey) => {
 	qualityStore.setValue(quality)
 	PersistStatus.set('music.quality', quality)
 }
+
+const addPlayLists= (playlist: IMusic.PlayList) => {
+	const nowPlayLists = playListsStore.getValue()
+	nowPlayLists.push(playlist)
+	playListsStore.setValue(nowPlayLists)
+	PersistStatus.set('music.playLists', nowPlayLists)
+}
+
 /**
  * 播放
  *
@@ -853,6 +866,7 @@ const myTrackPlayer = {
 	useProgress: useProgress,
 	seekTo: ReactNativeTrackPlayer.seekTo,
 	changeQuality,
+	addPlayLists,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,

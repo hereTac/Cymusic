@@ -175,7 +175,28 @@ declare namespace IMusic {
         /** 内部信息 */
         [k: symbol]: any;
     }
+ export interface PlayList {
+        /** 歌单在平台的唯一编号 */
+        id: string;
+        /** 平台 */
+        platform: string;
+        /** 作者 */
+        artist: string;
+        /** 标题 */
+        title: string;
+        /** 歌单名 */
+        name: string;
+        /** 歌单封面图 */
+        artwork: string;
+        /** 音源 */
+        source?: Partial<Record<IQualityKey, IMediaSource>>;
 
+        songs: IMusicItem[];
+        /** 其他可以被序列化的信息 */
+        [k: string]: any;
+        /** 内部信息 */
+        [k: symbol]: any;
+    }
     export interface IMusicItemCache extends IMusicItem {
         $localLyric?: ILyric.ILyricSource;
     }

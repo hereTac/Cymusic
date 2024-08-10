@@ -11,7 +11,8 @@ interface IPersistConfig {
     'music.musicItem': IMusic.IMusicItem;//当前播放
     'music.progress': number;
     'music.repeatMode': string;
-    'music.playList': IMusic.IMusicItem[];
+    //播放列表
+    'music.play-list': IMusic.IMusicItem[];
     'music.favorites': IMusic.IMusicItem[];
     'music.rate': number;
     'music.quality': IMusic.IQualityKey;
@@ -20,6 +21,8 @@ interface IPersistConfig {
     'lyric.showTranslation': boolean;
     'lyric.detailFontSize': number;
     'app.logo': 'Default' | 'Logo1';
+    //歌单
+    'music.playLists': IMusic.PlayList[];
 }
 
 function set<K extends keyof IPersistConfig>(

@@ -47,7 +47,7 @@ const AddToPlaylistModal = () => {
 
 	return (
 		<SafeAreaView style={[styles.modalContainer, { paddingTop: headerHeight }]}>
-			<PlaylistsList playlists={availablePlaylists} onPlaylistPress={handlePlaylistPress} />
+			{/*<PlaylistsList playlists={availablePlaylists} onPlaylistPress={handlePlaylistPress} />*/}
 		</SafeAreaView>
 	)
 }
