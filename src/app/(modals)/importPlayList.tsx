@@ -5,6 +5,9 @@ import { useHeaderHeight } from '@react-navigation/elements'
 import { colors, screenPadding } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
 import { Ionicons } from '@expo/vector-icons'
+import { getPlayListFromQ } from '@/helpers/userApi/getMusicSource'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import { router } from 'expo-router'
 
 const ImportPlayList = () => {
   const [playlistUrl, setPlaylistUrl] = useState('')
@@ -19,24 +22,19 @@ const handleImport = async () => {
   setIsLoading(true);
   setError(null);
   try {
+    if(!playlistUrl.includes('id=')) throw new Error('链接格式不正确');
+    if(!playlistUrl) throw new Error('链接不能为空');
     // 发起实际的网络请求
-    const response = await fetch(playlistUrl);
-    const htmlText = await response.text();
-
-    // 提取 firstPageData
-    const firstPageDataMatch = htmlText.match(/var firstPageData = ({.*?});/s);
-    if (!firstPageDataMatch) {
-      throw new Error('无法找到 firstPageData');
-    }
-
-    // 提取 JSON 字符串并解析
-    const firstPageDataStr = firstPageDataMatch[1];
-    const firstPageData = JSON.parse(firstPageDataStr);
-
+    const match = playlistUrl.match(/[?&]id=(\d+)/)
+    const response = await getPlayListFromQ( match ? match[1] : null);
     // 设置数据
-    setPlaylistData(firstPageData);
+    //  console.log(JSON.stringify(response.songs)+'12312312')
+    setPlaylistData(response)
+myTrackPlayer.addPlayLists(response as IMusic.PlayList)
+    router.dismiss()
   } catch (err) {
     setError('导入失败，请检查链接是否正确');
+    // myTrackPlayer.deletePlayLists('7570659434')
     console.error('导入错误:', err);
   } finally {
     setIsLoading(false);
@@ -59,7 +57,7 @@ const handleImport = async () => {
           style={styles.input}
           value={playlistUrl}
           onChangeText={setPlaylistUrl}
-          placeholder="🔗输入企鹅音乐歌单链接"
+          placeholder='🔗输入企鹅音乐歌单链接要有"id="字样'
           placeholderTextColor="#999"
           autoCapitalize="none"
           autoCorrect={false}
@@ -78,7 +76,7 @@ const handleImport = async () => {
         </TouchableOpacity>
       </View>
       {error && <Text style={styles.error}>{error}</Text>}
-      {playlistData && (
+      {playlistData&& (
         <Text style={styles.successText}>导入成功! 歌单名称: {playlistData.name}</Text>
       )}
     </SafeAreaView>

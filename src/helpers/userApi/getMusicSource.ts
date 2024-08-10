@@ -1,9 +1,10 @@
 import { httpFetch } from '@/components/utils/request';
 import { headers } from '@/components/utils/musicSdk/options.js';
 import { fakeAudioMp3Uri } from '@/constants/images';
-import { b64DecodeUnicode, decodeName } from '@/components/utils';
+import { b64DecodeUnicode, decodeName, formatPlayTime } from '@/components/utils'
 import { DEV_URL_PREFIX, BACKUP_URL_PREFIX,KW_URL } from './third_party_url';
 import { Alert } from 'react-native';
+import { formatSingerName } from '@/components/utils/musicSdk/utils'
 
 const withTimeout = (promise, ms) => {
   const timeout = new Promise((_, reject) =>
@@ -269,4 +270,55 @@ export async function getMusicFromKw(songInfo,quality:string){
 	const  id =await getKwId(songInfo)
 	const  url = await getUrlFromKw(id,quality)
 	return url
+}
+export async function getPlayListFromQ(playListID: string) {
+  const url = `https://c.y.qq.com/v8/fcg-bin/fcg_v8_playlist_cp.fcg?newsong=1&id=${playListID}&format=json&inCharset=GB2312&outCharset=utf-8`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if(response.status!=200){
+       throw new Error('请求失败');
+    }
+
+    if (!data.data || !data.data.cdlist || !Array.isArray(data.data.cdlist)) {
+      throw new Error('Invalid data structure');
+    }
+
+    const songList = data.data.cdlist.flatMap(cd => cd.songlist || []);
+    const artwork = data.data.cdlist[0].logo.replace(/http:/, 'https:');
+
+    const formattedSongs = songList.map(item => ({
+      artist: formatSingerName(item.singer, 'name') || 'Unknown Artist',
+      title: item.title || 'Untitled Song',
+      album: item.album?.name || 'Unknown Album',
+      id: item.mid || 'default_songmid',
+      artwork: (item.album?.name === '' || item.album?.name === '空')
+        ? (item.singer?.length ? `https://y.gtimg.cn/music/photo_new/T001R500x500M000${item.singer[0].mid}.jpg` : '')
+        : `https://y.gtimg.cn/music/photo_new/T002R500x500M000${item.album?.mid}.jpg`,
+      singerImg: item.singer?.length ? `https://y.gtimg.cn/music/photo_new/T001R500x500M000${item.singer[0].mid}.jpg` : '',
+      url: item.url || 'Unknown',
+      genre: item.genre || 'Unknown Genre',
+      date: item.releaseDate || 'Unknown Release Date',
+      duration: item.interval || 0,
+    }));
+
+
+    return {
+      success: true,
+      id: playListID,
+      platform: 'QQ',
+      artist:data.data.cdlist[0].nickname,
+      name: data.data.cdlist[0].dissname,
+      artwork: artwork,
+      title: data.data.cdlist[0].desc,
+      songs: formattedSongs
+    };
+  } catch (error) {
+    console.error('Error fetching playlist:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
 }

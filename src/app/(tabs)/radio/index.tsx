@@ -10,6 +10,7 @@ import { useEffect, useMemo } from 'react'
 import { ScrollView, View } from 'react-native'
 import { getTopListDetail, getTopLists } from '@/helpers/userApi/getMusicSource'
 import { Track } from 'react-native-track-player'
+import { RadioList } from '@/components/RadioList'
 
 const RadiolistsScreen = () => {
 	const router = useRouter()
@@ -38,7 +39,7 @@ const RadiolistsScreen = () => {
 					paddingHorizontal: screenPadding.horizontal,
 				}}
 			>
-				<PlaylistsList
+				<RadioList
 					scrollEnabled={false}
 					playlists={filteredPlayLists}
 					onPlaylistPress={handlePlaylistPress}

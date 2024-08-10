@@ -11,6 +11,7 @@ import { Track } from 'react-native-track-player'
 import { PlaylistsList } from '@/components/PlaylistsList'
 import { Playlist } from '@/helpers/types'
 import { router } from 'expo-router'
+import myTrackPlayer, { playListsStore } from '@/helpers/trackPlayerIndex'
 
 const FavoritesScreen = () => {
 	const search = useNavigationSearch({
@@ -20,25 +21,30 @@ const FavoritesScreen = () => {
 	})
 
 	const { favorites } = useFavorites()
-	const playListItem ={
+
+	const favoritePlayListItem ={
 	name: 'Favorites',
+	id:'favorites',
 	tracks: [],
 	title:'喜欢的歌曲',
 	coverImg:'https://y.qq.com/mediastyle/global/img/cover_like.png?max_age=2592000',
 	description:'喜欢的歌曲'
 }
-	const playLists = [playListItem]
-	const filteredFavoritesTracks = useMemo(() => {
-		if (!search) return favorites as Track[]
+const storedPlayLists =playListsStore.useValue() || [];
+	const playLists = [favoritePlayListItem,...storedPlayLists]
 
-		return favorites.filter(trackTitleFilter(search)) as  Track[]
-	}, [search, favorites])
+	const filteredPlayLists = useMemo(() => {
+		if (!search) return playLists as Playlist[]
+
+		return playLists.filter((playlist: Playlist) =>
+	playlist.name.toLowerCase().includes(search.toLowerCase())) as  Playlist[]
+	}, [search, playLists,storedPlayLists])
 const handlePlaylistPress = (playlist: Playlist) => {
 		if(playlist.name =='Favorites'){
 			router.push(`/(tabs)/favorites/favoriteMusic`)
 		}
 		else {
-				router.push(`/(tabs)/favorites/${playlist.name}`)
+				router.push(`/(tabs)/favorites/${playlist.id}`)
 		}
 
 	}
@@ -52,7 +58,7 @@ const handlePlaylistPress = (playlist: Playlist) => {
 			>
 				<PlaylistsList
 					scrollEnabled={false}
-					playlists={playLists as Playlist[]}
+					playlists={filteredPlayLists as Playlist[]}
 					onPlaylistPress={handlePlaylistPress}
 				/>
 			</ScrollView>

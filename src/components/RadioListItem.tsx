@@ -9,14 +9,14 @@ type PlaylistListItemProps = {
 	playlist: Playlist
 } & TouchableHighlightProps
 
-export const PlaylistListItem = ({ playlist, ...props }: PlaylistListItemProps) => {
+export const RadioListItem = ({ playlist, ...props }: PlaylistListItemProps) => {
 	return (
 		<TouchableHighlight activeOpacity={0.8} {...props}>
 			<View style={styles.playlistItemContainer}>
 				<View>
 					<FastImage
 						source={{
-							uri: playlist.coverImg?playlist.coverImg:playlist.artwork,
+							uri: playlist.coverImg,
 							priority: FastImage.priority.normal,
 						}}
 						style={styles.playlistArtworkImage}

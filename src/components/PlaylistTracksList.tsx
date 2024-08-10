@@ -29,7 +29,7 @@ export const PlaylistTracksList = ({ playlist,tracks }: { playlist: Playlist, tr
 					<View style={styles.artworkImageContainer}>
 						<FastImage
 							source={{
-								uri: playlist.coverImg,
+								uri: playlist.coverImg||playlist.artwork,
 								priority: FastImage.priority.high,
 							}}
 							style={styles.artworkImage}

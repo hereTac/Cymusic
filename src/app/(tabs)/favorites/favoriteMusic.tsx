@@ -21,6 +21,7 @@ const FavoriteMusicScreen = () => {
 	const { favorites } = useFavorites()
 	const playListItem = {
 		name: 'Favorites',
+		id: 'favorites',
 		tracks: [],
 		title: '喜欢的歌曲',
 		coverImg: 'https://y.qq.com/mediastyle/global/img/cover_like.png?max_age=2592000',

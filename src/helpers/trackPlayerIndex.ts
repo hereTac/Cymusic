@@ -36,7 +36,7 @@ import { useLibraryStore } from '@/store/library'
 /** 当前播放 */
 const currentMusicStore = new GlobalState<IMusic.IMusicItem | null>(null)
 /** 歌单*/
-const playListsStore = new GlobalState<IMusic.PlayList[] | null>(null)
+export const playListsStore = new GlobalState<IMusic.PlayList[] | []>(null)
 /** 播放模式 */
 export const repeatModeStore = new GlobalState<MusicRepeatMode>(MusicRepeatMode.QUEUE)
 
@@ -479,11 +479,60 @@ const setQuality = (quality: IMusic.IQualityKey) => {
 	PersistStatus.set('music.quality', quality)
 }
 
-const addPlayLists= (playlist: IMusic.PlayList) => {
-	const nowPlayLists = playListsStore.getValue()
-	nowPlayLists.push(playlist)
-	playListsStore.setValue(nowPlayLists)
-	PersistStatus.set('music.playLists', nowPlayLists)
+const addPlayLists = (playlist: IMusic.PlayList) => {
+  try {
+    const nowPlayLists = playListsStore.getValue() || [];
+
+    // 检查播放列表是否已存在
+    const playlistExists = nowPlayLists.some(existingPlaylist => existingPlaylist.id === playlist.id);
+
+    if (playlistExists) {
+     // console.log(`Playlist already exists, not adding duplicate. Current playlists: ${JSON.stringify(nowPlayLists, null, 2)}`);
+      return; // 如果播放列表已存在，直接返回，不进行任何操作
+    }
+
+    // 如果播放列表不存在，则添加它
+    const updatedPlayLists = [...nowPlayLists, playlist];
+    playListsStore.setValue(updatedPlayLists);
+    PersistStatus.set('music.playLists', updatedPlayLists);
+    console.log('Playlist added successfully');
+  } catch (error) {
+    console.error('Error adding playlist:', error);
+    // 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
+  }
+}
+const deletePlayLists = (playlistId: string) => {
+  try {
+		if(playlistId =='favorites'){
+			return '不能删除收藏歌单';
+		}
+    const nowPlayLists = playListsStore.getValue() || [];
+
+    // 检查播放列表是否已存在
+    const playlistFiltered = nowPlayLists.filter(existingPlaylist => existingPlaylist.id !== playlistId);
+
+
+    // 如果播放列表不存在，则添加它
+    const updatedPlayLists = [...playlistFiltered];
+    playListsStore.setValue(updatedPlayLists);
+    PersistStatus.set('music.playLists', updatedPlayLists);
+    console.log('Playlist deleted successfully');
+		return 'success'
+  } catch (error) {
+    console.error('Error deleted playlist:', error);
+
+  }
+}
+const getPlayListById = (playlistId: string) => {
+  try {
+		console.log(playlistId+'playlistId')
+    const nowPlayLists = playListsStore.getValue() || [];
+    const playlistFiltered = nowPlayLists.filter(existingPlaylist => existingPlaylist.id === playlistId);
+		return playlistFiltered;
+  } catch (error) {
+    console.error('Error find playlist:', error);
+
+  }
 }
 
 /**
@@ -867,6 +916,8 @@ const myTrackPlayer = {
 	seekTo: ReactNativeTrackPlayer.seekTo,
 	changeQuality,
 	addPlayLists,
+	deletePlayLists,
+	getPlayListById,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,
