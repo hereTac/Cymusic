@@ -5,73 +5,87 @@ import { StyleSheet, Text, View, ViewProps } from 'react-native'
 import { Slider } from 'react-native-awesome-slider'
 import { useSharedValue } from 'react-native-reanimated'
 import TrackPlayer, { useProgress } from 'react-native-track-player'
+import { useEffect } from 'react'
 
-export const PlayerProgressBar = ({ style }: ViewProps) => {
-	const { duration, position } = useProgress(250)
+export const PlayerProgressBar = ({ style, onSeek }: ViewProps & { onSeek?: (position: number) => void }) => {
+    const { duration, position } = useProgress(250)
 
-	const isSliding = useSharedValue(false)
-	const progress = useSharedValue(0)
-	const min = useSharedValue(0)
-	const max = useSharedValue(1)
+    const isSliding = useSharedValue(false)
+    const progress = useSharedValue(0)
+    const min = useSharedValue(0)
+    const max = useSharedValue(1)
 
-	const trackElapsedTime = formatSecondsToMinutes(position)
-	const trackRemainingTime = formatSecondsToMinutes(duration - position)
+    const trackElapsedTime = formatSecondsToMinutes(position)
+    const trackRemainingTime = formatSecondsToMinutes(duration - position)
 
-	if (!isSliding.value) {
-		progress.value = duration > 0 ? position / duration : 0
-	}
+    useEffect(() => {
+        if (!isSliding.value) {
+            progress.value = duration > 0 ? position / duration : 0
+        }
+    }, [position, duration, isSliding])
 
-	return (
-		<View style={style}>
-			<Slider
-				progress={progress}
-				minimumValue={min}
-				maximumValue={max}
-				containerStyle={utilsStyles.slider}
-				thumbWidth={0}
-				renderBubble={() => null}
-				theme={{
-					minimumTrackTintColor: colors.minimumTrackTintColor,
-					maximumTrackTintColor: colors.maximumTrackTintColor,
-				}}
-				onSlidingStart={() => (isSliding.value = true)}
-				onValueChange={async (value) => {
-					await TrackPlayer.seekTo(value * duration)
-				}}
-				onSlidingComplete={async (value) => {
-					// if the user is not sliding, we should not update the position
-					if (!isSliding.value) return
+    const handleSlidingComplete = async (value) => {
+        if (!isSliding.value) return
 
-					isSliding.value = false
+        isSliding.value = false
 
-					await TrackPlayer.seekTo(value * duration)
-				}}
-			/>
+        const newPosition = value * duration
+        await TrackPlayer.seekTo(newPosition)
 
-			<View style={styles.timeRow}>
-				<Text style={styles.timeText}>{trackElapsedTime}</Text>
+        if (onSeek) {
+            onSeek(newPosition)
+        }
+    }
 
-				<Text style={styles.timeText}>
-					{'-'} {trackRemainingTime}
-				</Text>
-			</View>
-		</View>
-	)
+    return (
+        <View style={style}>
+            <Slider
+                progress={progress}
+                minimumValue={min}
+                maximumValue={max}
+                containerStyle={utilsStyles.slider}
+                thumbWidth={0}
+                renderBubble={() => null}
+                theme={{
+                    minimumTrackTintColor: colors.minimumTrackTintColor,
+                    maximumTrackTintColor: colors.maximumTrackTintColor,
+                }}
+                onSlidingStart={() => (isSliding.value = true)}
+                onValueChange={async (value) => {
+                    const newPosition = value * duration
+                    await TrackPlayer.seekTo(newPosition)
+
+                    if (onSeek) {
+                        onSeek(newPosition)
+                    }
+                }}
+                onSlidingComplete={handleSlidingComplete}
+            />
+
+            <View style={styles.timeRow}>
+                <Text style={styles.timeText}>{trackElapsedTime}</Text>
+
+                <Text style={styles.timeText}>
+                    {'-'} {trackRemainingTime}
+                </Text>
+            </View>
+        </View>
+    )
 }
 
 const styles = StyleSheet.create({
-	timeRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'baseline',
-		marginTop: 20,
-	},
-	timeText: {
-		...defaultStyles.text,
-		color: colors.text,
-		opacity: 0.75,
-		fontSize: fontSize.xs,
-		letterSpacing: 0.7,
-		fontWeight: '500',
-	},
+    timeRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        marginTop: 20,
+    },
+    timeText: {
+        ...defaultStyles.text,
+        color: colors.text,
+        opacity: 0.75,
+        fontSize: fontSize.xs,
+        letterSpacing: 0.7,
+        fontWeight: '500',
+    },
 })

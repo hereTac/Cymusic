@@ -99,6 +99,16 @@ const PlayerScreen = () => {
 
 	const trackToDisplay = activeTrack || prevTrack // Use previous track if active track is null
 
+   // 用于同步歌词的时间
+    const [currentLyricTime, setCurrentLyricTime] = useState(position * 1000)
+
+    // 更新当前歌词时间的函数
+    const handleSeek = (newPosition) => {
+        setCurrentLyricTime(newPosition * 1000)
+    }
+  useEffect(() => {
+        setCurrentLyricTime(position * 1000)
+    }, [position])
 	return (
 		<LinearGradient
 			style={{ flex: 1 }}
@@ -115,7 +125,7 @@ const PlayerScreen = () => {
 							<Lyric
 								style={styles.lyric}
 								lrc={nowLyric}
-								currentTime={position * 1000}
+								currentTime={currentLyricTime}
 								autoScroll
 								autoScrollAfterUserScroll={500}
 								lineHeight={50}
@@ -175,7 +185,7 @@ const PlayerScreen = () => {
 									)}
 								</View>
 
-								<PlayerProgressBar style={{ marginTop: 32 }} />
+								<PlayerProgressBar style={{ marginTop: 32 }} onSeek={handleSeek} />
 
 								<PlayerControls style={{ marginTop: 40 }} />
 							</View>

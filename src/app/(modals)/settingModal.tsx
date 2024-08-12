@@ -49,7 +49,7 @@ const settingsData = [
     title: '应用信息',
     data: [
       { id: '1', title: 'music-player', type: 'link', icon: require('@/assets/144.png') },
-      { id: '2', title: '版本号', type: 'value', value: '1.0.1' },
+      { id: '2', title: '版本号', type: 'value', value: CURRENT_VERSION },
       { id: '3', title: '检查更新', type: 'value' },
       { id: '5', title: '项目链接', type: 'value', value: '' },
       { id: '9', title: '清空缓存', type: 'value', value: '' },
