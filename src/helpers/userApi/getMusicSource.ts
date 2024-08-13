@@ -5,6 +5,8 @@ import { b64DecodeUnicode, decodeName, formatPlayTime } from '@/components/utils
 import { DEV_URL_PREFIX, BACKUP_URL_PREFIX,KW_URL } from './third_party_url';
 import { Alert } from 'react-native';
 import { formatSingerName } from '@/components/utils/musicSdk/utils'
+import axios from 'axios'
+import { getSingerInfo } from '@/helpers/userApi/qq-music-api'
 
 const withTimeout = (promise, ms) => {
   const timeout = new Promise((_, reject) =>
@@ -320,5 +322,164 @@ export async function getPlayListFromQ(playListID: string) {
       success: false,
       error: error.message
     };
+  }
+}
+
+
+interface Album {
+    album_mid: string;
+    album_name: string;
+    singer_mid: string;
+    singer_name: string;
+}
+
+interface Song {
+    songname: string;
+    songmid: string;
+}
+
+
+// 获取专辑列表
+export async function getAlbumList(singerMid: string): Promise<Album[]> {
+    const url = `https://u.y.qq.com/cgi-bin/musicu.fcg?callback=getUCGI2613146679247198&g_tk=5381&jsonpCallback=getUCGI2613146679247198&loginUin=0&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0&data=%7B%22singerAlbum%22%3A%7B%22method%22%3A%22get_singer_album%22%2C%22param%22%3A%7B%22singermid%22%3A%22${singerMid}%22%2C%22order%22%3A%22time%22%2C%22begin%22%3A0%2C%22num%22%3A100%2C%22exstatus%22%3A1%7D%2C%22module%22%3A%22music.web_singer_info_svr%22%7D%7D`;
+     const headers = {
+        'Referer': `https://y.qq.com/n/yqq/singer/${singerMid}.html`
+    };
+      const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R180x180M000'
+    try {
+        const response = await axios.get(url, { headers });
+        const data = JSON.parse(response.data.slice(24, -1));
+        const albumList = data.singerAlbum.data.list;
+
+        return albumList.map((item: any) => ({
+            album_mid: item.album_mid,
+            album_name: item.album_name,
+            singer_mid: item.singer_mid,
+            singer_name: item.singer_name,
+            artwork: `${coverJpgUrlPre}${item.album_mid}.jpg?max_age=2592000`,
+
+        }));
+    } catch (error) {
+        console.error('Error fetching album list:', error);
+        return [];
+    }
+}
+
+// 根据专辑ID
+export async function getMusicByAlbumId(albumMid: string, singerName: string): Promise<void> {
+    const url = `https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid=${albumMid}&g_tk=5381&jsonpCallback=albuminfoCallback&loginUin=0&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`;
+   const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R180x180M000'
+ const headers = {
+        'Referer': 'https://y.qq.com/portal/player.html'
+    };
+    try {
+        const response = await axios.get(url, { headers });
+        const data = JSON.parse(response.data.slice(19, -1));
+        const songList: Song[] = data.data.list;
+        data.data.list.flatMap((item: any) => ({
+            artist: singerName,
+            title: item.songname,
+            album: data.data.albumname,
+            id: item.songmid,
+            artwork: `${coverJpgUrlPre}${albumMid}.jpg?max_age=2592000`,
+            singerImg: `https://y.gtimg.cn/music/photo_new/T001R500x500M000${albumMid}.jpg?max_age=2592000`,
+            url: 'Unknown',
+            genre: 'Unknown Genre',
+            date: 'Unknown Release Date',
+            duration: 0,
+        }));
+
+    } catch (error) {
+        console.error('Error get music by album ID:', error);
+    }
+}
+export async function getSingerMidBySingerName(singerName: string) {
+  const url = `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=1&n=2&w=${encodeURIComponent(singerName)}&format=json`
+try{
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+   const results = await response.json();
+    if (results.code !== 0 || !results.data || !results.data.song || !results.data.song.list) {
+      throw new Error('Invalid response structure');
+    }
+
+    const songList = results.data.song.list;
+
+    // 查找匹配歌手名和歌曲名的项
+    for (const song of songList) {
+        // 在歌手列表中查找匹配的歌手
+        const matchingSinger = song.singer.find(s => s.name.toLowerCase() === singerName.toLowerCase());
+        if (matchingSinger) {
+          return matchingSinger.mid;
+        }
+
+    }
+
+    console.log(`没有找到歌手 ${singerName} `);
+    return null;
+
+  }
+catch (error) {
+    console.error('There has been a problem with your fetch operation of getSingerMidBySongName:', error);
+    return null;
+  }
+}
+
+export async function searchMusicInfoByName(songName: string, singerName?: string) {
+  const url = `https://c.y.qq.com/soso/fcgi-bin/music_search_new_platform?searchid=53806572956004615&t=1&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=1&n=20&w=${encodeURIComponent(songName)}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const rawData = await response.text();
+    const jsonData = JSON.parse(rawData.replace(/^callback\(|\)$/g, ''));
+
+    if (jsonData.code !== 0 || !jsonData.data || !jsonData.data.song || !jsonData.data.song.list) {
+      throw new Error('Invalid response structure');
+    }
+
+    let filteredList = jsonData.data.song.list;
+
+    if (singerName) {
+      filteredList = filteredList.filter((item: any) =>
+        JSON.stringify(item).toLowerCase().includes(singerName.toLowerCase())
+      );
+      return filteredList;
+    }
+
+   else{
+      return [filteredList[0]];
+    }
+
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation of searchMusicInfoByName:', error);
+    return null;
+  }
+}
+
+export async function getSingerDetail(singerMid:string) {
+  try {
+    const response = await getSingerInfo(singerMid);
+    const jsonData = await response;
+    console.log(jsonData)
+
+    if ( !jsonData.singer || !jsonData.singer.data || !jsonData.singer.data.songlist) {
+      throw new Error('Invalid response structure');
+    }
+console.log(jsonData)
+
+  return {
+    singerImg:`https://y.gtimg.cn/music/photo_new/T001R500x500M000${singerMid}.jpg`,
+    title:jsonData.singer.data.singer_info.name,
+    musicList: jsonData.singer.data.songlist.map(formatMusicItem),
+  };
+
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation of getSingerDetail:', error);
+    return null;
   }
 }

@@ -6,29 +6,26 @@ import { PlaylistTracksList } from '@/components/PlaylistTracksList';
 import { screenPadding } from '@/constants/tokens';
 import { usePlaylists } from '@/store/library';
 import { defaultStyles } from '@/styles';
-import { getTopListDetail } from '@/helpers/userApi/getMusicSource';
+import { getSingerDetail, getTopListDetail } from '@/helpers/userApi/getMusicSource'
 import { Track } from 'react-native-track-player';
+import { SingerTracksList } from '@/components/SingerTracksList'
 
-const RadioListScreen = () => {
+const SingerListScreen = () => {
     const { name: playlistName } = useLocalSearchParams<{ name: string }>();
     const { playlists } = usePlaylists();
+   const playlist = playlists.find((playlist) => playlist.title === playlistName);
     const [topListDetail, setTopListDetail] = useState<{ musicList: Track[] } | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const playlist = playlists.find((playlist) => playlist.title === playlistName);
 
     useEffect(() => {
         const fetchTopListDetail = async () => {
-            // console.log(playlistName)
-            if (!playlist) {
-                console.warn(`Playlist ${playlistName} was not found!`);
-                setLoading(false);
-                return;
-            }
-
-            const detail = await getTopListDetail(playlist);
+            console.log(playlistName+'123123')
+          const detail =await getSingerDetail(playlistName);
+          console.log(JSON.stringify(detail));
             setTopListDetail(detail);
-						// console.log(JSON.stringify(detail));
+
+
             setLoading(false);
         };
         fetchTopListDetail();
@@ -42,9 +39,6 @@ const RadioListScreen = () => {
         );
     }
 
-    if (!playlist || !topListDetail) {
-        return <Redirect href={'/(tabs)/radio'} />;
-    }
 
     return (
         <View style={defaultStyles.container}>
@@ -52,10 +46,10 @@ const RadioListScreen = () => {
                 contentInsetAdjustmentBehavior="automatic"
                 style={{ paddingHorizontal: screenPadding.horizontal }}
             >
-                <PlaylistTracksList playlist={playlist} tracks={topListDetail.musicList} />
+                <SingerTracksList playlist={topListDetail} tracks={topListDetail.musicList} />
             </ScrollView>
         </View>
     );
 };
 
-export default RadioListScreen;
+export default SingerListScreen;

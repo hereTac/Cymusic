@@ -43,7 +43,6 @@ const RootNavigation = () => {
 		//每个 Stack.Screen 组件定义了一个可导航的屏幕
 		<Stack>
 			<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-
 			<Stack.Screen
 				name="player"
 				options={{
@@ -97,6 +96,16 @@ const RootNavigation = () => {
 
 				}}
 			/>
+				<Stack.Screen
+					name="(modals)/[name]"
+					options={{
+			presentation: 'modal',
+      headerShown: false,
+      gestureEnabled: true,
+      gestureDirection: 'vertical',
+
+				}}
+				/>
 		</Stack>
 	)
 }
