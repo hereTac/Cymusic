@@ -3,9 +3,31 @@ import { formatSecondsToMinutes } from '@/helpers/miscellaneous'
 import { defaultStyles, utilsStyles } from '@/styles'
 import { StyleSheet, Text, View, ViewProps } from 'react-native'
 import { Slider } from 'react-native-awesome-slider'
-import { useSharedValue } from 'react-native-reanimated'
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated'
 import TrackPlayer, { useProgress } from 'react-native-track-player'
 import { useEffect } from 'react'
+import PropTypes from 'prop-types'
+
+const AnimatedThumb = ({ isSliding }) => {
+    const animatedStyle = useAnimatedStyle(() => {
+
+        return {
+            width: withSpring(isSliding.value ? 24 : 12),
+            height: withSpring(isSliding.value ? 24 : 12),
+            borderRadius: withSpring(isSliding.value ? 12 : 6),
+            backgroundColor: '#fff',
+            left: 2,
+        }
+    })
+
+    return <Animated.View style={animatedStyle} />
+}
+
+AnimatedThumb.propTypes = {
+    isSliding: PropTypes.shape({
+        value: PropTypes.bool.isRequired,
+    }).isRequired,
+}
 
 export const PlayerProgressBar = ({ style, onSeek }: ViewProps & { onSeek?: (position: number) => void }) => {
     const { duration, position } = useProgress(250)
@@ -44,7 +66,7 @@ export const PlayerProgressBar = ({ style, onSeek }: ViewProps & { onSeek?: (pos
                 minimumValue={min}
                 maximumValue={max}
                 containerStyle={utilsStyles.slider}
-                thumbWidth={0}
+                renderThumb={() => <AnimatedThumb isSliding={isSliding} />}
                 renderBubble={() => null}
                 theme={{
                     minimumTrackTintColor: colors.minimumTrackTintColor,
@@ -71,6 +93,11 @@ export const PlayerProgressBar = ({ style, onSeek }: ViewProps & { onSeek?: (pos
             </View>
         </View>
     )
+}
+
+PlayerProgressBar.propTypes = {
+    style: PropTypes.object,
+    onSeek: PropTypes.func,
 }
 
 const styles = StyleSheet.create({
