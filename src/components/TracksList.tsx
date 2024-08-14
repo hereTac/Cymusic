@@ -20,6 +20,7 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 	id: string
 	tracks: Track[]
 	hideQueueControls?: boolean
+	isSinger?: boolean
 }
 
 const ItemDivider = () => (
@@ -29,10 +30,10 @@ export const TracksList = ({
 	id,
 	tracks,
 	hideQueueControls = false,
+	isSinger =false,
 	...flatlistProps
 }: TracksListProps) => {
 	const queueOffset = useRef(0)
-
 	const { activeQueueId, setActiveQueueId } = useQueue()
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
@@ -100,7 +101,7 @@ export const TracksList = ({
 				</View>
 			}
 			renderItem={({ item: track }) => (
-				<TracksListItem track={track} onTrackSelect={handleTrackSelect} /> //将 track 和 handleTrackSelect 作为 props 传递给它。
+				<TracksListItem track={track} onTrackSelect={handleTrackSelect} isSinger={isSinger}/> //将 track 和 handleTrackSelect 作为 props 传递给它。
 			)}
 			{...flatlistProps}
 		/>

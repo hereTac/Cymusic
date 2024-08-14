@@ -161,13 +161,28 @@ function formatMusicItem(_) {
   const albumid = _.albumid || ((_a = _.album) === null || _a === void 0 ? void 0 : _a.id);
   const albummid = _.albummid || ((_b = _.album) === null || _b === void 0 ? void 0 : _b.mid);
   const albumname = _.albumname || ((_c = _.album) === null || _c === void 0 ? void 0 : _c.title);
+  let artwork = '';
+// 处理 artwork
+if (_.album.name === '' || _.album.name === '空') {
+    // 如果专辑名为空或'空'
+    if (_.singer && _.singer.length > 0) {
+        // 如果有歌手，使用第一个歌手的图片
+        artwork = `https://y.gtimg.cn/music/photo_new/T001R500x500M000${_.singer[0].mid}.jpg`;
+    } else {
+        // 如果没有歌手，artwork 保持为空字符串
+        artwork = '';
+    }
+} else {
+    // 如果专辑名不为空，使用专辑图片
+    artwork = `https://y.gtimg.cn/music/photo_new/T002R500x500M000${_.album.mid}.jpg`;
+}
   return {
     id: _.mid || _.songid,
     songmid: _.id || _.songmid,
     title: _.title || _.songname,
     artist: _.singer.map((s) => s.name).join(', '),
-    artwork: albummid
-      ? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albummid}.jpg`
+    artwork: artwork
+      ? artwork
       : undefined,
     album: albumname,
     lrc: _.lyric || undefined,
@@ -465,16 +480,17 @@ export async function getSingerDetail(singerMid:string) {
   try {
     const response = await getSingerInfo(singerMid);
     const jsonData = await response;
-    console.log(jsonData)
+    // console.log(jsonData)
 
     if ( !jsonData.singer || !jsonData.singer.data || !jsonData.singer.data.songlist) {
       throw new Error('Invalid response structure');
     }
-console.log(jsonData)
+ // console.log(jsonData.singer.data)
 
   return {
     singerImg:`https://y.gtimg.cn/music/photo_new/T001R500x500M000${singerMid}.jpg`,
     title:jsonData.singer.data.singer_info.name,
+    id:singerMid,
     musicList: jsonData.singer.data.songlist.map(formatMusicItem),
   };
 

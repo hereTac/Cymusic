@@ -1,6 +1,6 @@
 import { useFavorites } from '@/store/library'
 import { useQueue } from '@/store/queue'
-import { MenuView } from '@react-native-menu/menu'
+import { MenuAction, MenuView } from '@react-native-menu/menu'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { PropsWithChildren, useState, useCallback, useMemo } from 'react'
 import TrackPlayer, { Track } from 'react-native-track-player'
@@ -11,9 +11,9 @@ import { TouchableOpacity } from 'react-native'
 import { getSingerInfo } from '@/helpers/userApi/qq-music-api'
 import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 
-type TrackShortcutsMenuProps = PropsWithChildren<{ track: Track }>
+type TrackShortcutsMenuProps = PropsWithChildren<{ track: Track ,isSinger?: boolean}>
 
-export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps) => {
+export const TrackShortcutsMenu = ({ track, children ,isSinger}: TrackShortcutsMenuProps) => {
   const router = useRouter()
   const { favorites, toggleTrackFavorite } = useFavorites()
   const isFavorite = favorites.find((trackItem) => trackItem.id === track?.id)
@@ -112,7 +112,8 @@ export const TrackShortcutsMenu = ({ track, children }: TrackShortcutsMenuProps)
           title: isFavorite ? '从喜爱移除' : '添加到喜爱',
           image: isFavorite ? 'heart.fill' : 'heart',
         },
-        ...artistActions,
+        ...(isSinger ? [] : artistActions as MenuAction[])
+
       ]}
     >
       {children}
