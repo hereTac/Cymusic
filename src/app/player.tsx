@@ -20,6 +20,9 @@ import { Lyric } from 'react-native-lyric'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useActiveTrack, useProgress } from 'react-native-track-player'
+import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
+import { router } from 'expo-router'
+
 const PlayerScreen = () => {
 	const { top, bottom } = useSafeAreaInsets()
 	const { isFavorite, toggleFavorite } = useTrackPlayerFavorite()
@@ -73,6 +76,11 @@ const PlayerScreen = () => {
 		),
 		[],
 	)
+	const handleViewArtist = (artist: string) => {
+		getSingerMidBySingerName(artist).then((singerMid) => {
+			router.push(`/(modals)/${singerMid}`)
+		})
+	}
 	useEffect(() => {
 		const checkTrackLoading = async () => {
 			if (!isInitialized) {
@@ -99,16 +107,16 @@ const PlayerScreen = () => {
 
 	const trackToDisplay = activeTrack || prevTrack // Use previous track if active track is null
 
-   // 用于同步歌词的时间
-    const [currentLyricTime, setCurrentLyricTime] = useState(position * 1000)
+	// 用于同步歌词的时间
+	const [currentLyricTime, setCurrentLyricTime] = useState(position * 1000)
 
-    // 更新当前歌词时间的函数
-    const handleSeek = (newPosition) => {
-        setCurrentLyricTime(newPosition * 1000)
-    }
-  useEffect(() => {
-        setCurrentLyricTime(position * 1000)
-    }, [position])
+	// 更新当前歌词时间的函数
+	const handleSeek = (newPosition) => {
+		setCurrentLyricTime(newPosition * 1000)
+	}
+	useEffect(() => {
+		setCurrentLyricTime(position * 1000)
+	}, [position])
 	return (
 		<LinearGradient
 			style={{ flex: 1 }}
@@ -179,9 +187,19 @@ const PlayerScreen = () => {
 
 									{/* Track artist */}
 									{trackToDisplay?.artist && (
-										<Text numberOfLines={1} style={[styles.trackArtistText, { marginTop: 6 }]}>
-											{trackToDisplay.artist}
-										</Text>
+										<TouchableOpacity
+											activeOpacity={0.6}
+											onPress={() => handleViewArtist(trackToDisplay.artist)}
+											accessibilityRole="button"
+											accessibilityHint={`View artist ${trackToDisplay.artist}`}
+										>
+											<Text
+												numberOfLines={1}
+												style={[styles.trackArtistText, { marginTop: 6 }]}
+											>
+												{trackToDisplay.artist}
+											</Text>
+										</TouchableOpacity>
 									)}
 								</View>
 

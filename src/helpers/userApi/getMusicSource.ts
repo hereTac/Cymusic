@@ -72,7 +72,7 @@ const handleBackupFetch = async (songInfo, options, type, fakeAudioMp3Uri) => {
 
 export const myGetMusicUrl = (songInfo, type) => {
   const url = `${DEV_URL_PREFIX}${songInfo.id}/${type}`;
-  const backupUrl = `${BACKUP_URL_PREFIX}${encodeURIComponent(songInfo.title)}&&n=1`;
+  // const backupUrl = `${BACKUP_URL_PREFIX}${encodeURIComponent(songInfo.title)}&&n=1`;
 
   const options = {
     method: 'GET',
@@ -81,23 +81,30 @@ export const myGetMusicUrl = (songInfo, type) => {
     credentials: 'include',  // withCredentials: true equivalent in fetch
   };
 
-  return fetchWithTimeout(url, options, 5000)
-    .then((response) => parseResponse(response))
-    .then((body) => {
-      if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
-        console.log('Fetch1 failed with error mp3');
-        return handleBackupFetch(songInfo, options, type, fakeAudioMp3Uri);
+  return handleBackupFetch(songInfo, options, type, fakeAudioMp3Uri)
+    .then((result) => {
+      if (result) {
+        console.log('获取成功（kw）：' + result.url);
+        return result;
       }
-      console.log('获取成功1：' + body.data);
-      return body.code === 0 ? { type, url: body.data } : null;
+      console.log('kw获取失败，尝试原始 URL');
+      return fetchWithTimeout(url, options, 5000)
+        .then((response) => parseResponse(response))
+        .then((body) => {
+          if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
+            console.log('Fetch 失败，返回错误');
+            return null;
+          }
+          console.log('获取成功（原始）：' + body.data);
+          return body.code === 0 ? { type, url: body.data } : null;
+        });
     })
     .catch((error) => {
-      if (error.message === 'Request timed out') {
-        console.log('Fetch1 error: Request timed out');
-        return handleBackupFetch(songInfo, options, type, fakeAudioMp3Uri);
-      }
-      console.log('Fetch1 error:', error);
-      return handleBackupFetch(songInfo, options, type, fakeAudioMp3Uri);
+      console.log('获取失败:', error);
+      Alert.alert('错误', '获取音乐失败，请稍后重试。', [
+         { text: "确定", onPress: () => console.log("Alert closed") }
+      ])
+      return null;
     });
 };
 
