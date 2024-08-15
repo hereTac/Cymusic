@@ -1,12 +1,12 @@
 {
 	"expo": {
-		"name": "music-player",
-		"slug": "music-player",
-		"version": "1.0.3",
+		"name": "CyMusic",
+		"slug": "CyMusic",
+		"version": "1.0.4",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
 		"userInterfaceStyle": "dark",
-		"scheme": "music-player",
+		"scheme": "CyMusic",
 		"splash": {
 			"image": "./assets/splash.png",
 			"resizeMode": "contain",
@@ -15,7 +15,7 @@
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.music.player",
+			"bundleIdentifier": "com.music.player.gyc",
 			"infoPlist": {
 				"UIBackgroundModes": ["audio"]
 			},
