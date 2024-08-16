@@ -22,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useActiveTrack, useProgress } from 'react-native-track-player'
 import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 import { router } from 'expo-router'
+import { nowLyricState } from '@/helpers/trackPlayerIndex'
 
 const PlayerScreen = () => {
 	const { top, bottom } = useSafeAreaInsets()
@@ -54,7 +55,7 @@ const PlayerScreen = () => {
 		setPrevTrack,
 		setActiveTrack,
 	} = usePlayerStore()
-	const nowLyric = useLibraryStore.getState().nowLyric
+	const nowLyric = nowLyricState.getValue()
 	const currentActiveTrack = useActiveTrack()
 
 	const { imageColors } = usePlayerBackground(currentActiveTrack?.artwork ?? unknownTrackImageUri)

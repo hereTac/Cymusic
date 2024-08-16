@@ -23,6 +23,10 @@ interface IPersistConfig {
     'app.logo': 'Default' | 'Logo1';
     //歌单
     'music.playLists': IMusic.PlayList[];
+    //音源
+    'music.musicApi':IMusic.MusicApi[];
+    //当前选择的音源
+    'music.selectedMusicApi': IMusic.MusicApi;
 }
 
 function set<K extends keyof IPersistConfig>(

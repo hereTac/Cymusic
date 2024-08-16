@@ -38,10 +38,10 @@ export const TracksList = ({
 
 	const handleTrackSelect = async (selectedTrack: Track) => {
 
-	if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
-	const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
-	selectedTrack.url = res.url
-	}
+	// if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
+	// const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
+	// selectedTrack.url = res.url
+	// }
 		const isChangingQueue = id !== activeQueueId
 		//
 		if (isChangingQueue) {

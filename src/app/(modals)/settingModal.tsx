@@ -1,5 +1,5 @@
 // src/app/modals/settingModal.tsx
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   StyleSheet,
   Text,
@@ -19,8 +19,17 @@ import { utilsStyles } from '@/styles'
 import { MenuView } from '@react-native-menu/menu'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
 import Constants from 'expo-constants'
-import myTrackPlayer, { qualityStore, useCurrentQuality } from '@/helpers/trackPlayerIndex'
+import myTrackPlayer, {
+  musicApiSelectedStore,
+  musicApiStore,
+  qualityStore,
+  useCurrentQuality,
+} from '@/helpers/trackPlayerIndex'
 const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本';
+import * as DocumentPicker from 'expo-document-picker';
+import RNFS from 'react-native-fs'
+import { is } from '@babel/types'
+
 // eslint-disable-next-line react/prop-types
 const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
   const handlePressAction = async (id: string) => {
@@ -44,6 +53,49 @@ const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
     </MenuView>
   )
 }
+// eslint-disable-next-line react/prop-types
+const MusicSourceMenu = ({ isDelete, onSelectSource }) => {
+  const [sources, setSources] = useState([]);
+  const selectedApi = musicApiSelectedStore.useValue();
+  const musicApis = musicApiStore.useValue();
+
+useEffect(() => {
+  if (musicApis && Array.isArray(musicApis)) {
+    setSources(musicApis.map(api => ({
+      id: api.id,
+      title: api.name,
+    })));
+  } else {
+    setSources([]); // 如果 musicApis 不是有效数组，设置为空数组
+  }
+}, [musicApis]);
+
+  const handlePressAction = async (id: string) => {
+    onSelectSource(id);
+  }
+
+  return (
+    <MenuView
+      onPressAction={({ nativeEvent: { event } }) => handlePressAction(event)}
+      actions={sources.map(source => ({
+        id: source.id,
+        title: isDelete ? `删除 ${source.title}` : source.title,
+        state:isDelete?'off': selectedApi && selectedApi.id === source.id ? 'on' : 'off',
+        attributes: isDelete ? { destructive: true } : undefined,
+      }))}
+    >
+      <TouchableOpacity style={[styles.menuTrigger]}>
+        <Text style={[styles.menuTriggerText]}>
+          {isDelete
+            ? '选择删除'
+            : (selectedApi ? selectedApi.name : '选择音源')
+          }
+        </Text>
+      </TouchableOpacity>
+    </MenuView>
+  )
+}
+
 const settingsData = [
   {
     title: '应用信息',
@@ -64,7 +116,9 @@ const settingsData = [
   {
     title: '自定义音源',
     data: [
+      { id: '11', title: '切换音源', type: 'custom' },
       { id: '7', title: '音源状态', type: 'value', value: '正常' },
+      { id: '12', title: '删除音源',type: 'value', value: ''},
       { id: '8', title: '导入音源', type: 'link' },
     ]
   },
@@ -75,7 +129,59 @@ const settingsData = [
     ]
   },
 ]
+interface ModuleExports {
+  id?: string;
+  author?: string;
+  name?: string;
+  version?: string;
+  srcUrl?: string;
+  getMusicUrl?: (source: string, songmid: string, quality: string) => Promise<string>;
+}
 
+
+const importMusicSource = async () => {
+  try {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'text/javascript',
+      copyToCacheDirectory: false,
+    });
+
+    if (result.canceled === true) {
+      console.log('User canceled document picker');
+      return;
+    }
+
+    console.log('File selected:', result.assets[0].uri);
+ const fileUri = decodeURIComponent(result.assets[0].uri);
+    const fileContents = await RNFS.readFile(fileUri, 'utf8');
+    console.log('File contents:', fileContents);
+    // 模拟 Node.js 的模块系统
+    const module: { exports: ModuleExports } = { exports: {} };
+    const require = () => {}; // 如果文件中有其他 require 调用，你需要在这里实现
+    const moduleFunc = new Function('module', 'exports', 'require', fileContents);
+    moduleFunc(module, module.exports, require);
+    const url =await  module.exports.getMusicUrl('tx','0042QMDR1VzSsx','128k');
+    console.log(url)
+  // 从模块导出创建 MusicApi 对象
+    const musicApi: IMusic.MusicApi = {
+      id: module.exports.id || '',
+      platform: 'tx', // 平台目前默认tx
+      author: module.exports.author || '',
+      name: module.exports.name || '',
+      version: module.exports.version || '',
+      srcUrl: module.exports.srcUrl || '',
+      script: fileContents, //
+      isSelected:false,
+      getMusicUrl: module.exports.getMusicUrl,
+    };
+
+    myTrackPlayer.addMusicApi(musicApi)
+    return ;
+  } catch (err) {
+  console.error('Error importing music source:', err);
+    Alert.alert('导入失败', '无法导入音源，请确保文件格式正确并稍后再试。');
+  }
+};
 const SettingModal = () => {
   const router = useRouter()
    const [currentQuality, setCurrentQuality] = useCurrentQuality();
@@ -90,6 +196,19 @@ const SettingModal = () => {
       </View>
     );
   };
+
+
+  const handleSelectSource = (sourceId) => {
+  myTrackPlayer.setMusicApiAsSelectedById(sourceId);
+
+    //setCurrentSource(sourceId);
+    // 这里你需要实现切换音源的逻辑
+    // 例如：myTrackPlayer.setMusicApiAsSelectedById(sourceId);
+  }
+
+    const handleDeleteSource = (sourceId) => {
+     myTrackPlayer.deleteMusicApiById(sourceId);
+  }
  const checkForUpdates = async () => {
     setIsLoading(true);
     const timeoutPromise = new Promise((_, reject) =>
@@ -157,14 +276,7 @@ const SettingModal = () => {
             );
           }
           else if(item.title === '导入音源'){
-            Alert.alert(
-              '还没想好怎么写',
-              '还没想好怎么写',
-              [
-                { text: '取消', style: 'cancel' },
-                { text: '确定'},
-              ]
-            );
+          importMusicSource();
           }
           console.log(`Navigate to ${item.title}`)
         }else if (item.title === '检查更新') {
@@ -192,6 +304,18 @@ const SettingModal = () => {
             onSelectQuality={setCurrentQuality}
           />
         )}
+          {item.title === '切换音源' && (
+            <MusicSourceMenu
+              isDelete={false}
+              onSelectSource={handleSelectSource}
+            />
+          )}
+            {item.title === '删除音源' && (
+            <MusicSourceMenu
+              isDelete={true}
+              onSelectSource={handleDeleteSource}
+            />
+          )}
         {(item.type === 'link' || item.title === '项目链接' ) && !item.icon && (
           <Text style={styles.arrowRight}>{'>'}</Text>
         )}

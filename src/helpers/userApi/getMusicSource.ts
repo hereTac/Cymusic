@@ -7,6 +7,7 @@ import { Alert } from 'react-native';
 import { formatSingerName } from '@/components/utils/musicSdk/utils'
 import axios from 'axios'
 import { getSingerInfo } from '@/helpers/userApi/qq-music-api'
+import myTrackPlayer, { musicApiSelectedStore } from '@/helpers/trackPlayerIndex'
 
 const withTimeout = (promise, ms) => {
   const timeout = new Promise((_, reject) =>

@@ -197,6 +197,26 @@ declare namespace IMusic {
         /** 内部信息 */
         [k: symbol]: any;
     }
+     export interface MusicApi {
+        /** 音源编号 */
+        id: string;
+        /** 作者 */
+        author: string;
+        /** 音源名称 */
+        name: string;
+        /** 版本 */
+        version: string;
+        /** 更新地址 */
+        srcUrl: string;
+       /** 脚本内容 */
+        script: string;
+        /** 音源方法 */
+        getMusicUrl: any;
+        /** 其他可以被序列化的信息 */
+        [k: string]: any;
+        /** 内部信息 */
+        [k: symbol]: any;
+    }
     export interface IMusicItemCache extends IMusicItem {
         $localLyric?: ILyric.ILyricSource;
     }
