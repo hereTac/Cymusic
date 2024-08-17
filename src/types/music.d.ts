@@ -119,7 +119,7 @@ declare namespace IMusic {
     }
 
     /** 音质 */
-    export type IQualityKey = '128k'|'low' | 'standard' | 'high' | 'super';
+    export type IQualityKey = '128k'|'320k' | 'flac'  ;
     export type IQuality = Record<
         IQualityKey,
         {

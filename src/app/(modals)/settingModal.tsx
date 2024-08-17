@@ -135,7 +135,7 @@ interface ModuleExports {
   name?: string;
   version?: string;
   srcUrl?: string;
-  getMusicUrl?: (source: string, songmid: string, quality: string) => Promise<string>;
+  getMusicUrl?: (songname: string, artist:string,songmid: string, quality: string) => Promise<string>;
 }
 
 
@@ -160,8 +160,8 @@ const importMusicSource = async () => {
     const require = () => {}; // 如果文件中有其他 require 调用，你需要在这里实现
     const moduleFunc = new Function('module', 'exports', 'require', fileContents);
     moduleFunc(module, module.exports, require);
-    const url =await  module.exports.getMusicUrl('tx','0042QMDR1VzSsx','128k');
-    console.log(url)
+    const url =await  module.exports.getMusicUrl('朵','赵雷','004IArbh3ytHgR','128k');
+    console.log(url+'123123')
   // 从模块导出创建 MusicApi 对象
     const musicApi: IMusic.MusicApi = {
       id: module.exports.id || '',

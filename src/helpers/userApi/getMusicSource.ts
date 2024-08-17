@@ -214,7 +214,7 @@ export async function getTopLists() {
     data: e.toplist.map((_) => ({
       id: _.topId,
       description: _.intro,
-      title: _.title,
+      title: _.title.replace(/腾讯/g, '').trim(),
       period: _.period,
       coverImg: _.headPicUrl || _.frontPicUrl,
     })),
