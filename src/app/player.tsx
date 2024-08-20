@@ -6,13 +6,15 @@ import { PlayerVolumeBar } from '@/components/PlayerVolumeBar'
 import { ShowPlayerListToggle } from '@/components/ShowPlayerListToggle'
 import { unknownTrackImageUri } from '@/constants/images'
 import { colors, fontSize, screenPadding } from '@/constants/tokens'
+import { nowLyricState } from '@/helpers/trackPlayerIndex'
+import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 import { usePlayerBackground } from '@/hooks/usePlayerBackground'
 import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
-import { useLibraryStore } from '@/store/library'
 import usePlayerStore from '@/store/usePlayerStore'
 import { defaultStyles } from '@/styles'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
+import { router } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
@@ -20,9 +22,6 @@ import { Lyric } from 'react-native-lyric'
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useActiveTrack, useProgress } from 'react-native-track-player'
-import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
-import { router } from 'expo-router'
-import { nowLyricState } from '@/helpers/trackPlayerIndex'
 
 const PlayerScreen = () => {
 	const { top, bottom } = useSafeAreaInsets()
@@ -190,14 +189,11 @@ const PlayerScreen = () => {
 									{trackToDisplay?.artist && (
 										<TouchableOpacity
 											activeOpacity={0.6}
-											onPress={() => handleViewArtist(trackToDisplay.artist)}
+											onPress={() => handleViewArtist(trackToDisplay.artist.split('、')[0])}
 											accessibilityRole="button"
 											accessibilityHint={`View artist ${trackToDisplay.artist}`}
 										>
-											<Text
-												numberOfLines={1}
-												style={[styles.trackArtistText, { marginTop: 6 }]}
-											>
+											<Text numberOfLines={1} style={[styles.trackArtistText, { marginTop: 6 }]}>
 												{trackToDisplay.artist}
 											</Text>
 										</TouchableOpacity>
