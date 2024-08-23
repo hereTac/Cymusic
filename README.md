@@ -20,7 +20,18 @@ RN新手，代码质量一般，请见谅。
 - [ ] 修复：flac 格式音乐快进后歌词不同步问题
 - [ ] （待添加更多任务）
 
-基于：
+## 技术栈
+
+- React Native：跨平台移动应用开发框架
+- Expo：简化 React Native 开发的工具和服务平台
+- TypeScript：JavaScript 的超集，添加了静态类型检查
+- React Native Track Player：用于音频播放的库
+- Zustand：轻量级状态管理库
+- React Navigation：页面导航库
+- Expo Router：基于文件系统的路由解决方案
+- AsyncStorage：本地数据存储库
+
+## 基于：
 
 https://github.com/CodeWithGionatha-Labs/music-player
 
