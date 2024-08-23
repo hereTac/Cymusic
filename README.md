@@ -1,4 +1,5 @@
 # CyMusic
+
 一个基于 React native 开发的音乐软件，仍在开发中，并不完善。
 
 RN新手，代码质量一般，请见谅。
@@ -6,12 +7,18 @@ RN新手，代码质量一般，请见谅。
 支持的平台：
 
 - IOS
-软件下载请转到：[发布页面](https://github.com/gyc-12/music-player-master/releases)<br>
-
+  软件下载请转到：[发布页面](https://github.com/gyc-12/music-player-master/releases)<br>
 
 代码未内置源。可以导入自定义源，注意导入的音乐源的安全可靠性。仅供学习交流使用，请勿用于商业用途，如有侵权请联系删除。
 
 自定义源示例参考：https://github.com/gyc-12/CyMusic-ImportMusicApi-Example
+
+## TODO
+
+- [ ] 下载和播放本地音乐功能
+- [ ] 歌曲加入指定歌单
+- [ ] 修复：flac 格式音乐快进后歌词不同步问题
+- [ ] （待添加更多任务）
 
 基于：
 
@@ -20,7 +27,6 @@ https://github.com/CodeWithGionatha-Labs/music-player
 https://github.com/lyswhut/lx-music-mobile
 
 https://github.com/maotoumao/MusicFree
-
 
 # Screenshots
 
@@ -37,6 +43,7 @@ yarn install
 ```bash
 npx expo run:ios
 ```
+
 # 项目协议
 
 本项目基于 Apache License 2.0 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
@@ -88,6 +95,7 @@ npx expo run:ios
 9.1 若你使用了本项目，将代表你接受本协议。
 
 ---
+
 ## Star History
 
 <a href="https://star-history.com/#gyc-12/music-player-master&Date">
