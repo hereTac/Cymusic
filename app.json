@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "CyMusic",
 		"slug": "CyMusic",
-		"version": "1.0.5",
+		"version": "1.0.6",
 		"orientation": "portrait",
 		"icon": "./assets/1024.png",
 		"userInterfaceStyle": "dark",
@@ -20,10 +20,10 @@
 				"UIBackgroundModes": ["audio"]
 			},
 			"splash": {
-			"image": "./assets/splash.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#000"
-		}
+				"image": "./assets/splash.png",
+				"resizeMode": "contain",
+				"backgroundColor": "#000"
+			}
 		},
 		"android": {
 			"adaptiveIcon": {
