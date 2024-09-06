@@ -93,35 +93,6 @@ const MusicSourceMenu = ({ isDelete, onSelectSource }) => {
 	)
 }
 
-const settingsData = [
-	{
-		title: '应用信息',
-		data: [
-			{ id: '1', title: 'CyMusic', type: 'link', icon: require('@/assets/144.png') },
-			{ id: '2', title: '版本号', type: 'value', value: CURRENT_VERSION },
-			{ id: '3', title: '检查更新', type: 'value' },
-			{ id: '5', title: '项目链接', type: 'value', value: '' },
-			{ id: '9', title: '清空缓存', type: 'value', value: '' },
-		],
-	},
-	{
-		title: '音频设置',
-		data: [{ id: '6', title: '清空待播清单', type: 'link' }],
-	},
-	{
-		title: '自定义音源',
-		data: [
-			{ id: '11', title: '切换音源', type: 'custom' },
-			{ id: '7', title: '音源状态', type: 'value', value: nowApiState.useValue() },
-			{ id: '12', title: '删除音源', type: 'value', value: '' },
-			{ id: '8', title: '导入音源', type: 'link' },
-		],
-	},
-	{
-		title: '音质选择',
-		data: [{ id: '10', title: '当前音质', type: 'value' }],
-	},
-]
 interface ModuleExports {
 	id?: string
 	author?: string
@@ -184,7 +155,36 @@ const SettingModal = () => {
 	const [currentQuality, setCurrentQuality] = useCurrentQuality()
 	const [isQualitySelectorVisible, setIsQualitySelectorVisible] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
-
+	const apiState = nowApiState.useValue()
+	const settingsData = [
+		{
+			title: '应用信息',
+			data: [
+				{ id: '1', title: 'CyMusic', type: 'link', icon: require('@/assets/144.png') },
+				{ id: '2', title: '版本号', type: 'value', value: CURRENT_VERSION },
+				{ id: '3', title: '检查更新', type: 'value' },
+				{ id: '5', title: '项目链接', type: 'value', value: '' },
+				{ id: '9', title: '清空缓存', type: 'value', value: '' },
+			],
+		},
+		{
+			title: '音频设置',
+			data: [{ id: '6', title: '清空待播清单', type: 'link' }],
+		},
+		{
+			title: '自定义音源',
+			data: [
+				{ id: '11', title: '切换音源', type: 'custom' },
+				{ id: '7', title: '音源状态', type: 'value', value: apiState },
+				{ id: '12', title: '删除音源', type: 'value', value: '' },
+				{ id: '8', title: '导入音源', type: 'link' },
+			],
+		},
+		{
+			title: '音质选择',
+			data: [{ id: '10', title: '当前音质', type: 'value' }],
+		},
+	]
 	const DismissPlayerSymbol = () => {
 		const { top } = useSafeAreaInsets()
 		return (

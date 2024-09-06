@@ -15,7 +15,7 @@ export type Playlist = {
 	platform: string
 	/** 作者 */
 	artist: string
-
+	songs: IMusic.IMusicItem[]
 }
 
 export type Artist = {
@@ -33,4 +33,4 @@ export enum MusicRepeatMode {
 	SINGLE = 'SINGLE',
 }
 
-export type TrackWithPlaylist = Track & { playlist?: string[], platform?: string }
+export type TrackWithPlaylist = Track & { playlist?: string[]; platform?: string }

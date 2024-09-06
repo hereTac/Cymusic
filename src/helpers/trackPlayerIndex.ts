@@ -440,7 +440,36 @@ const setQuality = (quality: IMusic.IQualityKey) => {
 	qualityStore.setValue(quality)
 	PersistStatus.set('music.quality', quality)
 }
+//添加歌曲到指定歌单
+const addSongToStoredPlayList = (playlist: IMusic.PlayList, track: IMusic.IMusicItem) => {
+	try {
+		const nowPlayLists = playListsStore.getValue() || []
+		const updatedPlayLists = nowPlayLists.map((existingPlaylist) => {
+			if (existingPlaylist.id === playlist.id) {
+				// 检查歌曲是否已经存在于播放列表中
+				const songExists = existingPlaylist.songs.some((song) => song.id === track.id)
 
+				if (!songExists) {
+					// 只有当歌曲不存在时才添加
+					return {
+						...existingPlaylist,
+						songs: [...existingPlaylist.songs, track],
+					}
+				} else {
+					console.log('歌曲已存在')
+				}
+			}
+			return existingPlaylist
+		})
+
+		playListsStore.setValue(updatedPlayLists)
+		PersistStatus.set('music.playLists', updatedPlayLists)
+		console.log('歌曲成功添加到歌单')
+	} catch (error) {
+		console.error('添加歌曲到歌单时出错:', error)
+		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
+	}
+}
 const addPlayLists = (playlist: IMusic.PlayList) => {
 	try {
 		const nowPlayLists = playListsStore.getValue() || []
@@ -761,10 +790,13 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 							timeoutPromise,
 						])
 						if (resp_url == null) {
+							nowApiState.setValue('异常')
 							throw new Error('获取音乐失败，请稍后重试。')
 						}
 						console.log('获取音乐 URL 成功:', resp_url)
 					} catch (error) {
+						// todo 异常自动尝试其他源
+						nowApiState.setValue('异常')
 						console.error('获取音乐 URL 失败:', error)
 						if (error.message === '请求超时') {
 							Alert.alert('错误', '获取音乐超时，请稍后重试。', [
@@ -961,6 +993,7 @@ const myTrackPlayer = {
 	addMusicApi,
 	setMusicApiAsSelectedById,
 	deleteMusicApiById,
+	addSongToStoredPlayList,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,
