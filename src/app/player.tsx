@@ -19,9 +19,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { Lyric } from 'react-native-lyric'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, {
+	Easing,
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring,
+	withTiming,
+} from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useActiveTrack, useProgress } from 'react-native-track-player'
+import { useActiveTrack, usePlaybackState, useProgress } from 'react-native-track-player'
 
 const PlayerScreen = () => {
 	const { top, bottom } = useSafeAreaInsets()
@@ -29,21 +35,50 @@ const PlayerScreen = () => {
 	const [showLyrics, setShowLyrics] = useState(false)
 	const { duration, position } = useProgress(250)
 	const lyricsOpacity = useSharedValue(0)
-	const animatedStyle = useAnimatedStyle(() => {
-		return {
-			opacity: lyricsOpacity.value,
-			transform: [
-				{
-					scale: withTiming(lyricsOpacity.value ? 1 : 1, { duration: 500 }),
-				},
-			],
-		}
-	})
+	const lyricsTranslateY = useSharedValue(50)
+	const artworkScale = useSharedValue(1)
+
+	const playbackState = usePlaybackState()
+	const isPlaying = playbackState.state === 'playing'
+
+	const lyricsAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: lyricsOpacity.value,
+		transform: [{ translateY: lyricsTranslateY.value }],
+	}))
+
+	const artworkAnimatedStyle = useAnimatedStyle(() => ({
+		transform: [{ scale: artworkScale.value }],
+	}))
 	const handleLyricsToggle = () => {
 		const newShowLyrics = !showLyrics
 		setShowLyrics(newShowLyrics)
-		lyricsOpacity.value = withTiming(newShowLyrics ? 1 : 0, { duration: 1000 })
+		if (newShowLyrics) {
+			lyricsOpacity.value = withTiming(1, { duration: 300 })
+			lyricsTranslateY.value = withSpring(0, { damping: 15, stiffness: 100 })
+		} else {
+			lyricsOpacity.value = withTiming(0, { duration: 300 })
+			lyricsTranslateY.value = withSpring(50, { damping: 15, stiffness: 100 })
+		}
 	}
+
+	useEffect(() => {
+		if (isPlaying) {
+			// 放大时使用 withSpring 实现弹性效果
+			artworkScale.value = withSpring(1, {
+				damping: 9,
+				stiffness: 180,
+				mass: 1,
+				velocity: 0,
+			})
+		} else {
+			// 缩小时使用 withTiming 实现线性效果
+			artworkScale.value = withTiming(0.7, {
+				duration: 300,
+				easing: Easing.linear,
+			})
+		}
+	}, [isPlaying])
+
 	const {
 		isLoading,
 		isInitialized,
@@ -125,7 +160,7 @@ const PlayerScreen = () => {
 			<View style={styles.overlayContainer}>
 				<DismissPlayerSymbol />
 				{showLyrics ? (
-					<Animated.View style={[styles.lyricContainer, animatedStyle]}>
+					<Animated.View style={[styles.lyricContainer, lyricsAnimatedStyle]}>
 						<TouchableOpacity
 							style={{ backgroundColor: 'transparent', flex: 1 }}
 							onPress={handleLyricsToggle}
@@ -145,17 +180,18 @@ const PlayerScreen = () => {
 					</Animated.View>
 				) : (
 					<View style={{ flex: 1, marginTop: top + 70, marginBottom: bottom }}>
-						<TouchableOpacity style={styles.artworkImageContainer} onPress={handleLyricsToggle}>
-							<FastImage
-								source={{
-									uri: trackToDisplay?.artwork ?? unknownTrackImageUri,
-									priority: FastImage.priority.high,
-								}}
-								resizeMode="cover"
-								style={styles.artworkImage}
-							/>
-						</TouchableOpacity>
-
+						<Animated.View style={[styles.artworkImageContainer, artworkAnimatedStyle]}>
+							<TouchableOpacity style={styles.artworkTouchable} onPress={handleLyricsToggle}>
+								<FastImage
+									source={{
+										uri: trackToDisplay?.artwork ?? unknownTrackImageUri,
+										priority: FastImage.priority.high,
+									}}
+									resizeMode="cover"
+									style={styles.artworkImage}
+								/>
+							</TouchableOpacity>
+						</Animated.View>
 						<View style={{ flex: 1 }}>
 							<View style={{ marginTop: 'auto' }}>
 								<View style={{ height: 60 }}>
@@ -273,17 +309,24 @@ const styles = StyleSheet.create({
 		backgroundColor: 'rgba(0,0,0,0.5)',
 	},
 	artworkImageContainer: {
+		aspectRatio: 1, // 保持正方形比例
+		width: '100%',
+		maxHeight: '50%', // 限制最大高度
+		alignSelf: 'center',
+		borderRadius: 12,
+		overflow: 'hidden',
+		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
 			height: 8,
 		},
 		shadowOpacity: 0.44,
 		shadowRadius: 11.0,
-		flexDirection: 'row',
-		justifyContent: 'center',
-		height: '45%',
-		borderRadius: 12,
-		backgroundColor: '#9ca3af',
+		elevation: 16,
+	},
+	artworkTouchable: {
+		width: '100%',
+		height: '100%',
 	},
 	artworkImage: {
 		width: '100%',
