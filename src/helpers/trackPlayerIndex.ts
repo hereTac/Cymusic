@@ -792,8 +792,10 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 						if (resp_url == null) {
 							nowApiState.setValue('异常')
 							throw new Error('获取音乐失败，请稍后重试。')
+						} else {
+							console.log('获取音乐 URL 成功:', resp_url)
+							nowApiState.setValue('正常')
 						}
-						console.log('获取音乐 URL 成功:', resp_url)
 					} catch (error) {
 						// todo 异常自动尝试其他源
 						nowApiState.setValue('异常')

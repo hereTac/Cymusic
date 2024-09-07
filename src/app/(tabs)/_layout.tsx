@@ -1,6 +1,6 @@
 import { FloatingPlayer } from '@/components/FloatingPlayer'
 import { colors, fontSize } from '@/constants/tokens'
-import { FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { Tabs } from 'expo-router'
 import { StyleSheet } from 'react-native'
@@ -56,7 +56,7 @@ const TabsNavigation = () => {
 					name="favorites"
 					options={{
 						title: 'Favorites',
-						tabBarIcon: ({ color }) => <FontAwesome name="heart" size={20} color={color} />,//当你定义 tabBarIcon 时，React Navigation 会自动传递一些参数给你，其中包括 color、focused 和 size。这些参数会根据当前 Tab 的选中状态和主题来动态变化。
+						tabBarIcon: ({ color }) => <FontAwesome name="heart" size={20} color={color} />, //当你定义 tabBarIcon 时，React Navigation 会自动传递一些参数给你，其中包括 color、focused 和 size。这些参数会根据当前 Tab 的选中状态和主题来动态变化。
 					}}
 				/>
 				<Tabs.Screen
@@ -68,7 +68,6 @@ const TabsNavigation = () => {
 						),
 					}}
 				/>
-
 			</Tabs>
 
 			<FloatingPlayer
