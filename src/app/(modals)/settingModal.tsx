@@ -7,6 +7,7 @@ import myTrackPlayer, {
 	useCurrentQuality,
 } from '@/helpers/trackPlayerIndex'
 import { MenuView } from '@react-native-menu/menu'
+import { Buffer } from 'buffer'
 import Constants from 'expo-constants'
 import * as DocumentPicker from 'expo-document-picker'
 import { useRouter } from 'expo-router'
@@ -27,7 +28,6 @@ import RNFS from 'react-native-fs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
 const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本'
-
 // eslint-disable-next-line react/prop-types
 const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
 	const handlePressAction = async (id: string) => {
@@ -106,8 +106,68 @@ interface ModuleExports {
 		quality: string,
 	) => Promise<string>
 }
+const importMusicSourceFromUrl = async () => {
+	Alert.prompt(
+		'导入音源',
+		'请输入音源 URL',
+		[
+			{
+				text: '取消',
+				onPress: () => console.log('取消导入'),
+				style: 'cancel',
+			},
+			{
+				text: '确定',
+				onPress: async (url) => {
+					if (!url) {
+						Alert.alert('错误', 'URL 不能为空')
+						return
+					}
 
-const importMusicSource = async () => {
+					try {
+						const response = await fetch(url)
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`)
+						}
+						const sourceCode = await response.text()
+						const utf8SourceCode = Buffer.from(sourceCode, 'utf8').toString('utf8')
+
+						console.log('获取到的源代码:', utf8SourceCode)
+
+						// 这里需要添加处理源代码的逻辑，类似于 importMusicSourceFromFile 中的逻辑
+						// 例如：解析源代码，创建 MusicApi 对象，并添加到 myTrackPlayer
+						const module: { exports: ModuleExports } = { exports: {} }
+						const require = () => {} // 如果文件中有其他 require 调用，你需要在这里实现
+						const moduleFunc = new Function('module', 'exports', 'require', utf8SourceCode)
+						moduleFunc(module, module.exports, require)
+						// const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
+						// console.log(url + '123123')
+						// 从模块导出创建 MusicApi 对象
+						const musicApi: IMusic.MusicApi = {
+							id: module.exports.id || '',
+							platform: 'tx', // 平台目前默认tx
+							author: module.exports.author || '',
+							name: module.exports.name || '',
+							version: module.exports.version || '',
+							srcUrl: module.exports.srcUrl || '',
+							script: utf8SourceCode, //
+							isSelected: false,
+							getMusicUrl: module.exports.getMusicUrl,
+						}
+
+						myTrackPlayer.addMusicApi(musicApi)
+						return
+					} catch (error) {
+						console.error('导入音源失败:', error)
+						Alert.alert('错误', '导入音源失败，请检查 URL 是否正确')
+					}
+				},
+			},
+		],
+		'plain-text',
+	)
+}
+const importMusicSourceFromFile = async () => {
 	try {
 		const result = await DocumentPicker.getDocumentAsync({
 			type: 'text/javascript',
@@ -128,8 +188,8 @@ const importMusicSource = async () => {
 		const require = () => {} // 如果文件中有其他 require 调用，你需要在这里实现
 		const moduleFunc = new Function('module', 'exports', 'require', fileContents)
 		moduleFunc(module, module.exports, require)
-		const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
-		console.log(url + '123123')
+		// const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
+		// console.log(url + '123123')
 		// 从模块导出创建 MusicApi 对象
 		const musicApi: IMusic.MusicApi = {
 			id: module.exports.id || '',
@@ -177,7 +237,7 @@ const SettingModal = () => {
 				{ id: '11', title: '切换音源', type: 'custom' },
 				{ id: '7', title: '音源状态', type: 'value', value: apiState },
 				{ id: '12', title: '删除音源', type: 'value', value: '' },
-				{ id: '8', title: '导入音源', type: 'link' },
+				{ id: '8', title: '导入音源', type: 'value' },
 			],
 		},
 		{
@@ -185,6 +245,28 @@ const SettingModal = () => {
 			data: [{ id: '10', title: '当前音质', type: 'value' }],
 		},
 	]
+	const importMusicSourceMenu = (
+		<MenuView
+			onPressAction={({ nativeEvent: { event } }) => {
+				switch (event) {
+					case 'file':
+						importMusicSourceFromFile()
+						break
+					case 'url':
+						importMusicSourceFromUrl()
+						break
+				}
+			}}
+			actions={[
+				{ id: 'file', title: '从文件导入' },
+				{ id: 'url', title: '从URL导入' },
+			]}
+		>
+			<TouchableOpacity style={styles.menuTrigger}>
+				<Text style={styles.menuTriggerText}>导入音源</Text>
+			</TouchableOpacity>
+		</MenuView>
+	)
 	const DismissPlayerSymbol = () => {
 		const { top } = useSafeAreaInsets()
 		return (
@@ -264,7 +346,7 @@ const SettingModal = () => {
 								{ text: '确定', onPress: () => myTrackPlayer.clearToBePlayed() },
 							])
 						} else if (item.title === '导入音源') {
-							importMusicSource()
+							// importMusicSourceFromFile()
 						}
 						console.log(`Navigate to ${item.title}`)
 					} else if (item.title === '检查更新') {
@@ -293,6 +375,7 @@ const SettingModal = () => {
 					{item.title === '删除音源' && (
 						<MusicSourceMenu isDelete={true} onSelectSource={handleDeleteSource} />
 					)}
+					{item.title === '导入音源' && importMusicSourceMenu}
 					{(item.type === 'link' || item.title === '项目链接') && !item.icon && (
 						<Text style={styles.arrowRight}>{'>'}</Text>
 					)}
