@@ -12,11 +12,20 @@ import { usePlayerBackground } from '@/hooks/usePlayerBackground'
 import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
 import usePlayerStore from '@/store/usePlayerStore'
 import { defaultStyles } from '@/styles'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons'
+import { MenuView } from '@react-native-menu/menu'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import {
+	ActivityIndicator,
+	Linking,
+	Share,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { Lyric } from 'react-native-lyric'
 import Animated, {
@@ -28,7 +37,6 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useActiveTrack, usePlaybackState, useProgress } from 'react-native-track-player'
-
 const PlayerScreen = () => {
 	const { top, bottom } = useSafeAreaInsets()
 	const { isFavorite, toggleFavorite } = useTrackPlayerFavorite()
@@ -149,6 +157,85 @@ const PlayerScreen = () => {
 	const handleSeek = (newPosition) => {
 		setCurrentLyricTime(newPosition * 1000)
 	}
+	const handleFavorite = () => {
+		toggleFavorite()
+	}
+
+	const handleShowAlbum = () => {
+		// 实现显示专辑的逻辑
+	}
+
+	const handleShowLyrics = () => {
+		// 实现显示歌词的逻辑
+		handleLyricsToggle()
+	}
+
+	const handleAddToPlaylist = () => {
+		// 实现添加到歌单的逻辑
+		const track = trackToDisplay
+		console.log('track', track)
+		router.push(
+			`/(modals)/addToPlaylist?title=${track.title}&album=${track.album}&artwork=${track.artwork}&artist=${track.artist}&id=${track.id}&url=${track.url}&platform=${track.platform}&duration=${track.duration}`,
+		)
+	}
+
+	const handleDownload = async () => {
+		if (trackToDisplay?.url) {
+			try {
+				const supported = await Linking.canOpenURL(trackToDisplay.url)
+
+				if (supported) {
+					await Linking.openURL(trackToDisplay.url)
+				} else {
+					console.log("Don't know how to open this URL: " + trackToDisplay.url)
+					// 可以在这里添加一个提示给用户，说明无法打开此 URL
+				}
+			} catch (error) {
+				console.error('An error occurred while trying to open the URL: ', error)
+				// 可以在这里添加一个错误提示给用户
+			}
+		} else {
+			console.log('No URL available for this track')
+			// 可以在这里添加一个提示给用户，说明没有可用的下载链接
+		}
+	}
+	const handleShare = async () => {
+		try {
+			const result = await Share.share({
+				title: trackToDisplay?.title,
+				message: `歌曲: ${trackToDisplay?.title} by ${trackToDisplay?.artist}`,
+				url: trackToDisplay?.url, // 如果有歌曲的在线链接的话
+			})
+
+			if (result.action === Share.sharedAction) {
+				if (result.activityType) {
+					// 分享成功，并且我们知道是通过哪个应用分享的
+					console.log(`Shared via ${result.activityType}`)
+				} else {
+					// 分享成功，但我们不知道是通过哪个应用分享的
+					console.log('Shared')
+				}
+			} else if (result.action === Share.dismissedAction) {
+				// 用户取消了分享
+				console.log('Share dismissed')
+			}
+		} catch (error) {
+			console.error(error.message)
+		}
+	}
+	const menuActions = [
+		{
+			id: 'favorite',
+			title: isFavorite ? '取消喜欢' : '喜欢',
+			titleColor: isFavorite ? colors.primary : undefined,
+			image: isFavorite ? 'heart.fill' : 'heart',
+		},
+		{ id: 'album', title: '显示专辑', image: 'music.note.list' },
+		{ id: 'lyrics', title: '查看歌词', image: 'text.quote' },
+		{ id: 'playlist', title: '添加到歌单', image: 'plus.circle' },
+		{ id: 'download', title: '下载', image: 'arrow.down.circle' },
+		{ id: 'share', title: '分享歌曲', image: 'square.and.arrow.up' },
+	]
 	useEffect(() => {
 		setCurrentLyricTime(position * 1000)
 	}, [position])
@@ -212,13 +299,36 @@ const PlayerScreen = () => {
 										</View>
 
 										{/* Favorite button icon */}
-										<FontAwesome
-											name={isFavorite ? 'heart' : 'heart-o'}
-											size={20}
-											color={isFavorite ? colors.primary : colors.icon}
-											style={{ marginHorizontal: 14 }}
-											onPress={toggleFavorite}
-										/>
+										<MenuView
+											title="歌曲选项"
+											onPressAction={({ nativeEvent }) => {
+												switch (nativeEvent.event) {
+													case 'favorite':
+														handleFavorite()
+														break
+													case 'album':
+														handleShowAlbum()
+														break
+													case 'lyrics':
+														handleShowLyrics()
+														break
+													case 'playlist':
+														handleAddToPlaylist()
+														break
+													case 'download':
+														handleDownload()
+														break
+													case 'share':
+														handleShare()
+														break
+												}
+											}}
+											actions={menuActions}
+										>
+											<TouchableOpacity style={styles.menuButton}>
+												<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
+											</TouchableOpacity>
+										</MenuView>
 									</View>
 
 									{/* Track artist */}
@@ -303,6 +413,14 @@ const DismissPlayerSymbol = () => {
 }
 
 const styles = StyleSheet.create({
+	menuButton: {
+		width: 32, // 增加按钮宽度
+		height: 32, // 增加按钮高度
+		borderRadius: 16, // 保持圆形（宽度/高度的一半）
+		backgroundColor: 'rgba(128, 128, 128, 0.3)', // 半透明的灰色
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
 	overlayContainer: {
 		...defaultStyles.container,
 		paddingHorizontal: screenPadding.horizontal,
@@ -315,6 +433,7 @@ const styles = StyleSheet.create({
 		alignSelf: 'center',
 		borderRadius: 12,
 		overflow: 'hidden',
+		backgroundColor: 'grey',
 		shadowColor: '#000',
 		shadowOffset: {
 			width: 0,
