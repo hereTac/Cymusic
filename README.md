@@ -46,7 +46,7 @@ https://github.com/maotoumao/MusicFree
 
 # Screenshots
 
-![WechatIMG638](https://github.com/user-attachments/assets/71529033-26b9-4319-8c0c-6c04c956d4c1)
+![WechatIMG638](https://cdn.homecloud.komect.com/gateway/share/oss/15b557e0d25406b90ad79d6344b00129a0dd0fa0aee9621199a1cc26520e304b36ba9708517eda20dc2a05de7df379322822b440b486495c300f55230c76ca48c6bb7e0ca4a265f238ee370bd3e25014fb0390eb679e2706aa76440e6dd454a1f4865c6e2fe6959746118ecff18058b891cc42931ef1ac0155625bde221bd47d327d3cf7f8ce9e7301a86084409c44391ddaee77682ea506f9fbba3409e9abf0f3075e6e8d317e2a182b963cad6ba393f8979b9ac5fc27b81cf6e56f27972654)
 
 # 开发
 
