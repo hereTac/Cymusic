@@ -40,10 +40,16 @@ export const TrackShortcutsMenu = ({ track, children, isSinger }: TrackShortcuts
 		)
 	}
 	const artists = useMemo(() => {
-		if (track.artist.includes('、')) {
-			return track.artist.split('、').map((artist) => artist.trim())
+		if (typeof track.artist === 'string') {
+			if (track.artist.includes('、')) {
+				return track.artist.split('、').map((artist) => artist.trim())
+			} else {
+				return [track.artist]
+			}
+		} else if (Array.isArray(track.artist)) {
+			return track.artist
 		} else {
-			return [...track.artist]
+			return []
 		}
 	}, [track.artist])
 
