@@ -470,6 +470,37 @@ const addSongToStoredPlayList = (playlist: IMusic.PlayList, track: IMusic.IMusic
 		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
 	}
 }
+//从歌单删除指定歌曲
+//添加歌曲到指定歌单
+const deleteSongFromStoredPlayList = (playlist: IMusic.PlayList, trackId: string) => {
+	try {
+		const nowPlayLists = playListsStore.getValue() || []
+		const updatedPlayLists = nowPlayLists.map((existingPlaylist) => {
+			if (existingPlaylist.id === playlist.id) {
+				// 检查歌曲是否已经存在于播放列表中
+				const songExists = existingPlaylist.songs.some((song) => song.id === trackId)
+
+				if (songExists) {
+					// 只有当歌曲存在时才删除
+					return {
+						...existingPlaylist,
+						songs: existingPlaylist.songs.filter((song) => song.id !== trackId),
+					}
+				} else {
+					console.log('歌曲不存在')
+				}
+			}
+			return existingPlaylist
+		})
+
+		playListsStore.setValue(updatedPlayLists)
+		PersistStatus.set('music.playLists', updatedPlayLists)
+		console.log('歌曲成功删除')
+	} catch (error) {
+		console.error('删除歌曲到歌单时出错:', error)
+		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
+	}
+}
 const addPlayLists = (playlist: IMusic.PlayList) => {
 	try {
 		const nowPlayLists = playListsStore.getValue() || []
@@ -518,7 +549,7 @@ const deletePlayLists = (playlistId: string) => {
 }
 const getPlayListById = (playlistId: string) => {
 	try {
-		console.log(playlistId + 'playlistId')
+		// console.log(playlistId + 'playlistId')
 		const nowPlayLists = playListsStore.getValue() || []
 		const playlistFiltered = nowPlayLists.filter(
 			(existingPlaylist) => existingPlaylist.id === playlistId,
@@ -996,6 +1027,7 @@ const myTrackPlayer = {
 	setMusicApiAsSelectedById,
 	deleteMusicApiById,
 	addSongToStoredPlayList,
+	deleteSongFromStoredPlayList,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,

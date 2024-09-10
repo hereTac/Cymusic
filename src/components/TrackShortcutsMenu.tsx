@@ -9,9 +9,20 @@ import { PropsWithChildren, useCallback, useMemo, useState } from 'react'
 import { Track } from 'react-native-track-player'
 import { match, P } from 'ts-pattern'
 
-type TrackShortcutsMenuProps = PropsWithChildren<{ track: Track; isSinger?: boolean }>
+type TrackShortcutsMenuProps = PropsWithChildren<{
+	track: Track
+	isSinger?: boolean
+	allowDelete?: boolean
+	onDeleteTrack?: (trackId: string) => void
+}>
 
-export const TrackShortcutsMenu = ({ track, children, isSinger }: TrackShortcutsMenuProps) => {
+export const TrackShortcutsMenu = ({
+	track,
+	children,
+	isSinger,
+	allowDelete,
+	onDeleteTrack,
+}: TrackShortcutsMenuProps) => {
 	const router = useRouter()
 	const { favorites, toggleTrackFavorite } = useFavorites()
 	const isFavorite = favorites.find((trackItem) => trackItem.id === track?.id)
@@ -115,6 +126,9 @@ export const TrackShortcutsMenu = ({ track, children, isSinger }: TrackShortcuts
 			.with('add-to-storedPlayList', async () => {
 				handleAddToStoredPlayList(track as IMusic.IMusicItem)
 			})
+			.with('delete-track', async () => {
+				onDeleteTrack?.(track.id)
+			})
 			.otherwise(() => {
 				// handleViewArtist()
 				console.warn(`Unknown menu action ${id}`)
@@ -141,6 +155,18 @@ export const TrackShortcutsMenu = ({ track, children, isSinger }: TrackShortcuts
 					image: 'text.badge.plus',
 				},
 				...(isSinger ? [] : (artistActions as MenuAction[])),
+				...(allowDelete
+					? [
+							{
+								id: 'delete-track',
+								title: '删除',
+								image: 'trash',
+								attributes: {
+									destructive: true,
+								},
+							},
+						]
+					: []),
 			]}
 		>
 			{children}

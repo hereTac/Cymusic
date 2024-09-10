@@ -1,13 +1,12 @@
 import { PlaylistListItem } from '@/components/PlaylistListItem'
 import { unknownTrackImageUri } from '@/constants/images'
-import { playlistNameFilter } from '@/helpers/filter'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { utilsStyles } from '@/styles'
 import { useMemo } from 'react'
 import { Alert, FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
-import myTrackPlayer from '@/helpers/trackPlayerIndex'
 
 type PlaylistsListProps = {
 	playlists: Playlist[]
@@ -33,35 +32,31 @@ export const PlaylistsList = ({
 		return playlists
 	}, [playlists, search])
 
-  const showDeleteAlert = (playlist: Playlist) => {
-   Alert.alert(
-    "删除歌单",
-    `确定要删除这个歌单吗 "${playlist.name}"?`,
-    [
-      { text: "取消", style: "cancel" },
-      {
-        text: "删除",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            const result = await myTrackPlayer.deletePlayLists(playlist.id);
-            if (result === 'success') {
-              // 删除成功
-              // 可以在这里添加一些成功的反馈，比如显示一个成功的提示
-              Alert.alert("成功", "歌单删除成功");
-            } else {
-              // 删除失败，显示错误信息
-              Alert.alert("错误", result);
-            }
-          } catch (error) {
-            // 处理可能发生的错误
-            Alert.alert("错误", "An error occurred while deleting the playlist");
-          }
-        }
-      }
-    ]
-  );
-  }
+	const showDeleteAlert = (playlist: Playlist) => {
+		Alert.alert('删除歌单', `确定要删除这个歌单吗 "${playlist.name}"?`, [
+			{ text: '取消', style: 'cancel' },
+			{
+				text: '删除',
+				style: 'destructive',
+				onPress: async () => {
+					try {
+						const result = await myTrackPlayer.deletePlayLists(playlist.id)
+						if (result === 'success') {
+							// 删除成功
+							// 可以在这里添加一些成功的反馈，比如显示一个成功的提示
+							Alert.alert('成功', '歌单删除成功')
+						} else {
+							// 删除失败，显示错误信息
+							Alert.alert('错误', result)
+						}
+					} catch (error) {
+						// 处理可能发生的错误
+						Alert.alert('错误', 'An error occurred while deleting the playlist')
+					}
+				},
+			},
+		])
+	}
 	return (
 		<FlatList
 			contentContainerStyle={{ paddingTop: 10, paddingBottom: 128 }}
@@ -79,7 +74,11 @@ export const PlaylistsList = ({
 			}
 			data={playlists}
 			renderItem={({ item: playlist }) => (
-				<PlaylistListItem playlist={playlist} onPress={() => handlePlaylistPress(playlist)}  onLongPress={() => showDeleteAlert(playlist)} />
+				<PlaylistListItem
+					playlist={playlist}
+					onPress={() => handlePlaylistPress(playlist)}
+					onLongPress={() => showDeleteAlert(playlist)}
+				/>
 			)}
 			{...flatListProps}
 		/>

@@ -13,6 +13,8 @@ export type TracksListItemProps = {
 	track: Track
 	onTrackSelect: (track: Track) => void
 	isSinger?: boolean
+	allowDelete?: boolean
+	onDeleteTrack?: (trackId: string) => void
 }
 //类型定义描述了 TracksListItemProps 对象的结构和属性。在这个例子中，TracksListItemProps 类型包含两个属性：
 //
@@ -23,6 +25,8 @@ export const TracksListItem = ({
 	track,
 	onTrackSelect: handleTrackSelect, //解构赋值：通过解构赋值从 props 对象中提取 track 和 onTrackSelect 属性，并将 onTrackSelect 重新命名为 handleTrackSelect。
 	isSinger = false,
+	allowDelete = false,
+	onDeleteTrack,
 }: TracksListItemProps) => {
 	const { playing } = useIsPlaying()
 
@@ -88,7 +92,12 @@ export const TracksListItem = ({
 					</View>
 					{/* 阻止触摸事件冒泡到父组件。 */}
 					<StopPropagation>
-						<TrackShortcutsMenu track={track} isSinger={isSinger}>
+						<TrackShortcutsMenu
+							track={track}
+							isSinger={isSinger}
+							allowDelete={allowDelete}
+							onDeleteTrack={onDeleteTrack}
+						>
 							<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
 						</TrackShortcutsMenu>
 					</StopPropagation>

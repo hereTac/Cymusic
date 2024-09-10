@@ -1,17 +1,26 @@
 import { fontSize } from '@/constants/tokens'
-import { trackTitleFilter } from '@/helpers/filter'
 import { generateTracksListId } from '@/helpers/miscellaneous'
 import { Playlist } from '@/helpers/types'
 import { defaultStyles } from '@/styles'
 import { StyleSheet, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
+import { Track } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 import { TracksList } from './TracksList'
-import { Track } from 'react-native-track-player'
 
-export const PlaylistTracksList = ({ playlist,tracks }: { playlist: Playlist, tracks:Track[]}) => {
+type PlaylistTracksListProps = {
+	playlist: Playlist
+	tracks: Track[]
+	allowDelete?: boolean
+	onDeleteTrack?: (trackId: string) => void
+}
 
-
+export const PlaylistTracksList = ({
+	playlist,
+	tracks,
+	allowDelete = false,
+	onDeleteTrack,
+}: PlaylistTracksListProps) => {
 	// const filteredPlaylistTracks = useMemo(() => {
 	// 	return playlist.tracks.filter(trackTitleFilter(search))
 	// }, [playlist.tracks, search])
@@ -27,7 +36,7 @@ export const PlaylistTracksList = ({ playlist,tracks }: { playlist: Playlist, tr
 					<View style={styles.artworkImageContainer}>
 						<FastImage
 							source={{
-								uri: playlist.coverImg||playlist.artwork,
+								uri: playlist.coverImg || playlist.artwork,
 								priority: FastImage.priority.high,
 							}}
 							style={styles.artworkImage}
@@ -38,11 +47,12 @@ export const PlaylistTracksList = ({ playlist,tracks }: { playlist: Playlist, tr
 						{playlist.title}
 					</Text>
 
-						<QueueControls style={{ paddingTop: 24 }} tracks={tracks} />
-
+					<QueueControls style={{ paddingTop: 24 }} tracks={tracks} />
 				</View>
 			}
 			tracks={tracks}
+			allowDelete={allowDelete}
+			onDeleteTrack={onDeleteTrack}
 		/>
 	)
 }

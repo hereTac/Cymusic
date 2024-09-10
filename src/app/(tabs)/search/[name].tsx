@@ -1,4 +1,3 @@
-import { PlaylistTracksList } from '@/components/PlaylistTracksList'
 import { screenPadding } from '@/constants/tokens'
 import { usePlaylists } from '@/store/library'
 import { defaultStyles } from '@/styles'
@@ -23,9 +22,7 @@ const PlaylistScreen = () => {
 			<ScrollView
 				contentInsetAdjustmentBehavior="automatic"
 				style={{ paddingHorizontal: screenPadding.horizontal }}
-			>
-
-			</ScrollView>
+			></ScrollView>
 		</View>
 	)
 }
