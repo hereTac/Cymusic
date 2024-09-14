@@ -13,6 +13,8 @@ type PlaylistTracksListProps = {
 	tracks: Track[]
 	allowDelete?: boolean
 	onDeleteTrack?: (trackId: string) => void
+	showImportMenu?: boolean
+	onImportTrack?: () => void
 }
 
 export const PlaylistTracksList = ({
@@ -20,6 +22,8 @@ export const PlaylistTracksList = ({
 	tracks,
 	allowDelete = false,
 	onDeleteTrack,
+	showImportMenu = false,
+	onImportTrack,
 }: PlaylistTracksListProps) => {
 	// const filteredPlaylistTracks = useMemo(() => {
 	// 	return playlist.tracks.filter(trackTitleFilter(search))
@@ -47,7 +51,12 @@ export const PlaylistTracksList = ({
 						{playlist.title}
 					</Text>
 
-					<QueueControls style={{ paddingTop: 24 }} tracks={tracks} />
+					<QueueControls
+						style={{ paddingTop: 24 }}
+						tracks={tracks}
+						showImportMenu={showImportMenu}
+						onImportTrack={onImportTrack}
+					/>
 				</View>
 			}
 			tracks={tracks}

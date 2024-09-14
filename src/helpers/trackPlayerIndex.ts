@@ -49,7 +49,8 @@ export const musicApiStore = new GlobalState<IMusic.MusicApi[] | []>(null)
 export const musicApiSelectedStore = new GlobalState<IMusic.MusicApi>(null)
 /** 音源状态*/
 export const nowApiState = new GlobalState<string>('正常')
-
+/** 已导入的本地音乐 */
+export const importedLocalMusicStore = new GlobalState<IMusic.IMusicItem[] | []>(null)
 export function useCurrentQuality() {
 	const currentQuality = qualityStore.useValue()
 	const setCurrentQuality = (newQuality: IMusic.IQualityKey) => {
@@ -89,6 +90,7 @@ async function setupTrackPlayer() {
 	const playLists = PersistStatus.get('music.playLists')
 	const musicApiLists = PersistStatus.get('music.musicApi')
 	const selectedMusicApi = PersistStatus.get('music.selectedMusicApi')
+	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -110,7 +112,9 @@ async function setupTrackPlayer() {
 		musicApiSelectedStore.setValue(selectedMusicApi)
 		await reloadNowSelectedMusicApi()
 	}
-
+	if (importedLocalMusic) {
+		importedLocalMusicStore.setValue(importedLocalMusic)
+	}
 	if (musicQueue && Array.isArray(musicQueue)) {
 		addAll(musicQueue, undefined, repeatMode === MusicRepeatMode.SHUFFLE)
 	}
@@ -992,7 +996,20 @@ function getNextMusic() {
 
 	return getPlayListMusicAt(currentIndex + 1)
 }
+const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
+	try {
+		const importedLocalMusic = importedLocalMusicStore.getValue() || []
+		const updatedImportedLocalMusic = [...importedLocalMusic, ...musicItem]
+		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
+		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
 
+		Alert.alert('成功', '音乐导入成功', [
+			{ text: '确定', onPress: () => console.log('Add alert closed') },
+		])
+	} catch (error) {
+		console.error('本地音乐保存时出错:', error)
+	}
+}
 const myTrackPlayer = {
 	setupTrackPlayer,
 	usePlayList,
@@ -1028,6 +1045,7 @@ const myTrackPlayer = {
 	deleteMusicApiById,
 	addSongToStoredPlayList,
 	deleteSongFromStoredPlayList,
+	addImportedLocalMusic,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,

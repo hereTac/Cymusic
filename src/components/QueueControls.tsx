@@ -1,29 +1,42 @@
 import { colors } from '@/constants/tokens'
+import myTrackPlayer, { MusicRepeatMode, repeatModeStore } from '@/helpers/trackPlayerIndex'
+import { setPlayList } from '@/store/playList'
 import { defaultStyles } from '@/styles'
 import { Ionicons } from '@expo/vector-icons'
+import shuffle from 'lodash.shuffle'
 import { StyleSheet, Text, View, ViewProps } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler'
-import TrackPlayer, { Track } from 'react-native-track-player'
-import myTrackPlayer, { MusicRepeatMode, repeatModeStore } from '@/helpers/trackPlayerIndex'
-import { getPlayList, setPlayList } from '@/store/playList'
-import shuffle from 'lodash.shuffle'
+import { Track } from 'react-native-track-player'
 
 type QueueControlsProps = {
 	tracks: Track[]
+	showImportMenu?: boolean
+	onImportTrack?: () => void
 } & ViewProps
 
-export const QueueControls = ({ tracks, style, ...viewProps }: QueueControlsProps) => {
+export const QueueControls = ({
+	tracks,
+	style,
+	showImportMenu,
+	onImportTrack,
+	...viewProps
+}: QueueControlsProps) => {
 	const handlePlay = async () => {
-		await myTrackPlayer.playWithReplacePlayList(tracks[0] as IMusic.IMusicItem,tracks as IMusic.IMusicItem[])
+		await myTrackPlayer.playWithReplacePlayList(
+			tracks[0] as IMusic.IMusicItem,
+			tracks as IMusic.IMusicItem[],
+		)
 		myTrackPlayer.setRepeatMode(MusicRepeatMode.QUEUE)
 	}
 
 	const handleShufflePlay = async () => {
-	const shuffledTracks =shuffle(tracks)
+		const shuffledTracks = shuffle(tracks)
 		setPlayList(shuffledTracks as IMusic.IMusicItem[])
 		repeatModeStore.setValue(MusicRepeatMode.SHUFFLE)
-		await myTrackPlayer.playWithReplacePlayList(shuffledTracks[1] as IMusic.IMusicItem, shuffledTracks as IMusic.IMusicItem[])
-
+		await myTrackPlayer.playWithReplacePlayList(
+			shuffledTracks[1] as IMusic.IMusicItem,
+			shuffledTracks as IMusic.IMusicItem[],
+		)
 	}
 
 	return (
@@ -33,7 +46,7 @@ export const QueueControls = ({ tracks, style, ...viewProps }: QueueControlsProp
 				<TouchableOpacity onPress={handlePlay} activeOpacity={0.8} style={styles.button}>
 					<Ionicons name="play" size={22} color={colors.primary} />
 
-					<Text style={styles.buttonText}>Play</Text>
+					<Text style={styles.buttonText}>播放</Text>
 				</TouchableOpacity>
 			</View>
 
@@ -42,9 +55,19 @@ export const QueueControls = ({ tracks, style, ...viewProps }: QueueControlsProp
 				<TouchableOpacity onPress={handleShufflePlay} activeOpacity={0.8} style={styles.button}>
 					<Ionicons name={'shuffle-sharp'} size={24} color={colors.primary} />
 
-					<Text style={styles.buttonText}>Shuffle</Text>
+					<Text style={styles.buttonText}>随机</Text>
 				</TouchableOpacity>
 			</View>
+			{/* import button */}
+			{showImportMenu && (
+				<View style={{ flex: 1 }}>
+					<TouchableOpacity onPress={onImportTrack} activeOpacity={0.8} style={styles.button}>
+						<Ionicons name={'enter-outline'} size={24} color={colors.primary} />
+
+						<Text style={styles.buttonText}>导入</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 		</View>
 	)
 }
