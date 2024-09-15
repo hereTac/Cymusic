@@ -1,5 +1,6 @@
 // src/app/modals/settingModal.tsx
 import { colors } from '@/constants/tokens'
+import { logError, logInfo } from '@/helpers/logger'
 import myTrackPlayer, {
 	musicApiSelectedStore,
 	musicApiStore,
@@ -113,7 +114,7 @@ const importMusicSourceFromUrl = async () => {
 		[
 			{
 				text: '取消',
-				onPress: () => console.log('取消导入'),
+				onPress: () => logInfo('取消导入'),
 				style: 'cancel',
 			},
 			{
@@ -132,7 +133,7 @@ const importMusicSourceFromUrl = async () => {
 						const sourceCode = await response.text()
 						const utf8SourceCode = Buffer.from(sourceCode, 'utf8').toString('utf8')
 
-						console.log('获取到的源代码:', utf8SourceCode)
+						logInfo('获取到的源代码:', utf8SourceCode)
 
 						// 这里需要添加处理源代码的逻辑，类似于 importMusicSourceFromFile 中的逻辑
 						// 例如：解析源代码，创建 MusicApi 对象，并添加到 myTrackPlayer
@@ -141,7 +142,7 @@ const importMusicSourceFromUrl = async () => {
 						const moduleFunc = new Function('module', 'exports', 'require', utf8SourceCode)
 						moduleFunc(module, module.exports, require)
 						// const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
-						// console.log(url + '123123')
+						// logInfo(url + '123123')
 						// 从模块导出创建 MusicApi 对象
 						const musicApi: IMusic.MusicApi = {
 							id: module.exports.id || '',
@@ -158,7 +159,7 @@ const importMusicSourceFromUrl = async () => {
 						myTrackPlayer.addMusicApi(musicApi)
 						return
 					} catch (error) {
-						console.error('导入音源失败:', error)
+						logError('导入音源失败:', error)
 						Alert.alert('错误', '导入音源失败，请检查 URL 是否正确')
 					}
 				},
@@ -175,21 +176,20 @@ const importMusicSourceFromFile = async () => {
 		})
 
 		if (result.canceled === true) {
-			console.log('User canceled document picker')
+			logInfo('User canceled document picker')
 			return
 		}
 
-		console.log('File selected:', result.assets[0].uri)
+		// logInfo('File selected:', result.assets[0].uri)
 		const fileUri = decodeURIComponent(result.assets[0].uri)
 		const fileContents = await RNFS.readFile(fileUri, 'utf8')
-		console.log('File contents:', fileContents)
+		logInfo('File contents:', fileContents)
 		// 模拟 Node.js 的模块系统
 		const module: { exports: ModuleExports } = { exports: {} }
 		const require = () => {} // 如果文件中有其他 require 调用，你需要在这里实现
 		const moduleFunc = new Function('module', 'exports', 'require', fileContents)
 		moduleFunc(module, module.exports, require)
 		// const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
-		// console.log(url + '123123')
 		// 从模块导出创建 MusicApi 对象
 		const musicApi: IMusic.MusicApi = {
 			id: module.exports.id || '',
@@ -206,8 +206,9 @@ const importMusicSourceFromFile = async () => {
 		myTrackPlayer.addMusicApi(musicApi)
 		return
 	} catch (err) {
-		console.error('Error importing music source:', err)
-		Alert.alert('导入失败', '无法导入音源，请确保文件格式正确并稍后再试。')
+		logError('Error importing music source:', err)
+		Alert.alert('导入失败', '无法导入音源，请查看日志，确保文件格式正确并稍后再试。')
+		logError('导入音源失败' + err)
 	}
 }
 const SettingModal = () => {
@@ -224,7 +225,8 @@ const SettingModal = () => {
 				{ id: '2', title: '版本号', type: 'value', value: CURRENT_VERSION },
 				{ id: '3', title: '检查更新', type: 'value' },
 				{ id: '5', title: '项目链接', type: 'value', value: '' },
-				{ id: '9', title: '清空缓存', type: 'value', value: '' },
+				// { id: '9', title: '清空缓存', type: 'value', value: '' },
+				{ id: '13', title: '查看日志', type: 'link' },
 			],
 		},
 		{
@@ -306,7 +308,7 @@ const SettingModal = () => {
 			}
 			const data = await result.json()
 			const latestVersion = data.tag_name
-			console.log(CURRENT_VERSION + 'CURRENT_VERSIONCURRENT_VERSION' + latestVersion)
+			logInfo(CURRENT_VERSION + 'CURRENT_VERSIONCURRENT_VERSION' + latestVersion)
 
 			if (latestVersion !== CURRENT_VERSION) {
 				Alert.alert('新版本可用', `发现新版本 ${latestVersion}，请更新。`, [
@@ -317,7 +319,7 @@ const SettingModal = () => {
 				Alert.alert('已是最新版本', '当前已是最新版本。')
 			}
 		} catch (error) {
-			console.error('检查更新失败', error)
+			logError('检查更新失败', error)
 			Alert.alert('检查更新失败', '无法检查更新，请稍后再试。')
 		} finally {
 			setIsLoading(false)
@@ -333,9 +335,12 @@ const SettingModal = () => {
 					index === sectionData.length - 1 && styles.lastItem,
 				]}
 				onPress={() => {
+					if (item.title === '查看日志') {
+						router.push('/(modals)/logScreen')
+					}
 					if (item.title === '项目链接') {
 						Linking.openURL('https://github.com/gyc-12/music-player-master').catch((err) =>
-							console.error("Couldn't load page", err),
+							logError("Couldn't load page", err),
 						)
 					} else if (item.title === '当前音质') {
 						setIsQualitySelectorVisible(true)
@@ -348,7 +353,7 @@ const SettingModal = () => {
 						} else if (item.title === '导入音源') {
 							// importMusicSourceFromFile()
 						}
-						console.log(`Navigate to ${item.title}`)
+						// logInfo(`Navigate to ${item.title}`)
 					} else if (item.title === '检查更新') {
 						checkForUpdates()
 					}
@@ -361,7 +366,7 @@ const SettingModal = () => {
 						<Switch
 							value={item.value}
 							onValueChange={(newValue) => {
-								console.log(`${item.title} switched to ${newValue}`)
+								logInfo(`${item.title} switched to ${newValue}`)
 							}}
 						/>
 					)}

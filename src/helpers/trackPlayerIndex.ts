@@ -33,6 +33,7 @@ import { myGetLyric } from '@/helpers/userApi/getMusicSource'
 
 import { fakeAudioMp3Uri } from '@/constants/images'
 import { useLibraryStore } from '@/store/library'
+import { logError, logInfo } from './logger'
 
 /** 当前播放 */
 const currentMusicStore = new GlobalState<IMusic.IMusicItem | null>(null)
@@ -122,7 +123,7 @@ async function setupTrackPlayer() {
 	if (!hasSetupListener) {
 		ReactNativeTrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (evt) => {
 			if (evt.index === 1 && evt.lastIndex === 0 && evt.track?.$ === internalFakeSoundKey) {
-				console.log('队列末尾，播放下一首')
+				logInfo('队列末尾，播放下一首')
 				if (repeatModeStore.getValue() === MusicRepeatMode.SINGLE) {
 					await play(null, true)
 				} else {
@@ -148,7 +149,7 @@ async function setupTrackPlayer() {
 			}
 
 			if ((await ReactNativeTrackPlayer.getActiveTrackIndex()) === 0 && e.message) {
-				console.log('播放出错', {
+				logInfo('播放出错', {
 					message: e.message,
 					code: e.code,
 				})
@@ -158,7 +159,7 @@ async function setupTrackPlayer() {
 		})
 
 		hasSetupListener = true
-		console.log('播放器初始化完成')
+		logInfo('播放器初始化完成')
 	}
 }
 
@@ -195,7 +196,7 @@ const getFakeNextTrack = () => {
 			return { url: soundAssetSource, $: internalFakeSoundKey } as Track
 		}
 	} catch (error) {
-		console.error('An error occurred while processing the track:', error)
+		logError('An error occurred while processing the track:', error)
 	}
 }
 
@@ -460,7 +461,7 @@ const addSongToStoredPlayList = (playlist: IMusic.PlayList, track: IMusic.IMusic
 						songs: [...existingPlaylist.songs, track],
 					}
 				} else {
-					console.log('歌曲已存在')
+					logInfo('歌曲已存在')
 				}
 			}
 			return existingPlaylist
@@ -468,9 +469,9 @@ const addSongToStoredPlayList = (playlist: IMusic.PlayList, track: IMusic.IMusic
 
 		playListsStore.setValue(updatedPlayLists)
 		PersistStatus.set('music.playLists', updatedPlayLists)
-		console.log('歌曲成功添加到歌单')
+		logInfo('歌曲成功添加到歌单')
 	} catch (error) {
-		console.error('添加歌曲到歌单时出错:', error)
+		logError('添加歌曲到歌单时出错:', error)
 		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
 	}
 }
@@ -491,7 +492,7 @@ const deleteSongFromStoredPlayList = (playlist: IMusic.PlayList, trackId: string
 						songs: existingPlaylist.songs.filter((song) => song.id !== trackId),
 					}
 				} else {
-					console.log('歌曲不存在')
+					logInfo('歌曲不存在')
 				}
 			}
 			return existingPlaylist
@@ -499,9 +500,9 @@ const deleteSongFromStoredPlayList = (playlist: IMusic.PlayList, trackId: string
 
 		playListsStore.setValue(updatedPlayLists)
 		PersistStatus.set('music.playLists', updatedPlayLists)
-		console.log('歌曲成功删除')
+		logInfo('歌曲成功删除')
 	} catch (error) {
-		console.error('删除歌曲到歌单时出错:', error)
+		logError('删除歌曲到歌单时出错:', error)
 		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
 	}
 }
@@ -515,7 +516,7 @@ const addPlayLists = (playlist: IMusic.PlayList) => {
 		)
 
 		if (playlistExists) {
-			// console.log(`Playlist already exists, not adding duplicate. Current playlists: ${JSON.stringify(nowPlayLists, null, 2)}`);
+			// logInfo(`Playlist already exists, not adding duplicate. Current playlists: ${JSON.stringify(nowPlayLists, null, 2)}`);
 			return // 如果播放列表已存在，直接返回，不进行任何操作
 		}
 
@@ -523,9 +524,9 @@ const addPlayLists = (playlist: IMusic.PlayList) => {
 		const updatedPlayLists = [...nowPlayLists, playlist]
 		playListsStore.setValue(updatedPlayLists)
 		PersistStatus.set('music.playLists', updatedPlayLists)
-		console.log('Playlist added successfully')
+		logInfo('Playlist added successfully')
 	} catch (error) {
-		console.error('Error adding playlist:', error)
+		logError('Error adding playlist:', error)
 		// 可以在这里添加一些错误处理逻辑，比如显示一个错误提示给用户
 	}
 }
@@ -545,22 +546,22 @@ const deletePlayLists = (playlistId: string) => {
 		const updatedPlayLists = [...playlistFiltered]
 		playListsStore.setValue(updatedPlayLists)
 		PersistStatus.set('music.playLists', updatedPlayLists)
-		console.log('Playlist deleted successfully')
+		logInfo('Playlist deleted successfully')
 		return 'success'
 	} catch (error) {
-		console.error('Error deleted playlist:', error)
+		logError('Error deleted playlist:', error)
 	}
 }
 const getPlayListById = (playlistId: string) => {
 	try {
-		// console.log(playlistId + 'playlistId')
+		// logInfo(playlistId + 'playlistId')
 		const nowPlayLists = playListsStore.getValue() || []
 		const playlistFiltered = nowPlayLists.filter(
 			(existingPlaylist) => existingPlaylist.id === playlistId,
 		)
 		return playlistFiltered
 	} catch (error) {
-		console.error('Error find playlist:', error)
+		logError('Error find playlist:', error)
 	}
 }
 const addMusicApi = (musicApi: IMusic.MusicApi) => {
@@ -585,9 +586,9 @@ const addMusicApi = (musicApi: IMusic.MusicApi) => {
 						}
 						musicApiStore.setValue(updatedMusicApiList)
 						PersistStatus.set('music.musicApi', updatedMusicApiList)
-						console.log('Music API updated successfully')
+						logInfo('Music API updated successfully')
 						Alert.alert('成功', '音源更新成功', [
-							{ text: '确定', onPress: () => console.log('Update alert closed') },
+							{ text: '确定', onPress: () => logInfo('Update alert closed') },
 						])
 					},
 				},
@@ -599,15 +600,15 @@ const addMusicApi = (musicApi: IMusic.MusicApi) => {
 			const updatedMusicApiList = [...nowMusicApiList, newMusicApi]
 			musicApiStore.setValue(updatedMusicApiList)
 			PersistStatus.set('music.musicApi', updatedMusicApiList)
-			console.log('Music API added successfully')
+			logInfo('Music API added successfully')
 			Alert.alert('成功', '音源导入成功', [
-				{ text: '确定', onPress: () => console.log('Add alert closed') },
+				{ text: '确定', onPress: () => logInfo('Add alert closed') },
 			])
 		}
 	} catch (error) {
-		console.error('Error adding/updating music API:', error)
+		logError('Error adding/updating music API:', error)
 		Alert.alert('失败', '音源导入/更新失败', [
-			{ text: '确定', onPress: () => console.log('Error alert closed') },
+			{ text: '确定', onPress: () => logInfo('Error alert closed') },
 		])
 	}
 }
@@ -620,7 +621,7 @@ const reloadNowSelectedMusicApi = async () => {
 		const selectedApi = musicApiSelectedStore.getValue()
 
 		if (selectedApi === null) {
-			console.log('No music API is currently selected.')
+			logInfo('No music API is currently selected.')
 			return null
 		}
 		// 重新加载选中的脚本
@@ -632,11 +633,11 @@ const reloadNowSelectedMusicApi = async () => {
 		// 更新 store 和持久化存储
 		PersistStatus.set('music.selectedMusicApi', reloadedApi)
 
-		console.log(`Selected music API "${reloadedApi.name}" reloaded successfully`)
+		logInfo(`Selected music API "${reloadedApi.name}" reloaded successfully`)
 
 		return reloadedApi
 	} catch (error) {
-		console.error('Error reloading selected music API:', error)
+		logError('Error reloading selected music API:', error)
 		throw error
 	}
 }
@@ -663,7 +664,7 @@ const reloadMusicApi = (musicApi: IMusic.MusicApi): IMusic.MusicApi => {
 			getMusicUrl: context.module.exports.getMusicUrl || musicApi.getMusicUrl,
 		}
 	} catch (error) {
-		console.error(`Error reloading script for API "${musicApi.name}":`, error)
+		logError(`Error reloading script for API "${musicApi.name}":`, error)
 		return musicApi // 返回原始对象，以防出错
 	}
 }
@@ -676,7 +677,7 @@ const setMusicApiAsSelectedById = async (musicApiId: string) => {
 		const targetApiIndex = musicApis.findIndex((api) => api.id === musicApiId)
 
 		if (targetApiIndex === -1) {
-			console.error(`Music API with id ${musicApiId} not found`)
+			logError(`Music API with id ${musicApiId} not found`)
 			Alert.alert('错误', '未找到指定的音源')
 			return
 		}
@@ -698,10 +699,10 @@ const setMusicApiAsSelectedById = async (musicApiId: string) => {
 		// 更新 store 和持久化存储
 		PersistStatus.set('music.selectedMusicApi', reloadedApi)
 
-		console.log(`Music API "${reloadedApi.name}" set as selected and reloaded successfully`)
+		logInfo(`Music API "${reloadedApi.name}" set as selected and reloaded successfully`)
 		Alert.alert('成功', `音源 "${reloadedApi.name}" 已设置为当前选中并重新加载`)
 	} catch (error) {
-		console.error('Error setting music API as selected:', error)
+		logError('Error setting music API as selected:', error)
 		Alert.alert('错误', '设置选中音源时发生错误')
 	}
 }
@@ -715,9 +716,9 @@ const deleteMusicApiById = (musicApiId: string) => {
 	const musicApisFiltered = musicApis.filter((musicApi) => musicApi.id !== musicApiId)
 	musicApiStore.setValue(musicApisFiltered)
 	PersistStatus.set('music.musicApi', musicApisFiltered)
-	console.log('Music API deleted successfully')
+	logInfo('Music API deleted successfully')
 	Alert.alert('成功', '音源删除成功', [
-		{ text: '确定', onPress: () => console.log('Add alert closed') },
+		{ text: '确定', onPress: () => logInfo('Add alert closed') },
 	])
 }
 /**
@@ -800,14 +801,14 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		}
 		if (!source) {
 			if ((!source && musicItem.url == 'Unknown') || musicItem.url.includes('fake')) {
-				console.log('没有源。没有url')
+				logInfo('没有url')
 				let resp_url = fakeAudioMp3Uri
 				const nowMusicApi = musicApiSelectedStore.getValue()
-				console.log(nowMusicApi)
+				// logInfo(nowMusicApi)
 
 				if (nowMusicApi == null) {
 					Alert.alert('错误', '获取音乐失败，请先导入音源。', [
-						{ text: '确定', onPress: () => console.log('Alert closed') },
+						{ text: '确定', onPress: () => logInfo('Alert closed') },
 					])
 					return
 				} else {
@@ -826,22 +827,22 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 						])
 						if (resp_url == null) {
 							nowApiState.setValue('异常')
-							throw new Error('获取音乐失败，请稍后重试。')
+							throw new Error('获取音乐url为null，请稍后重试。')
 						} else {
-							console.log('获取音乐 URL 成功:', resp_url)
+							logInfo('获取音乐 URL 成功:', resp_url)
 							nowApiState.setValue('正常')
 						}
 					} catch (error) {
 						// todo 异常自动尝试其他源
 						nowApiState.setValue('异常')
-						console.error('获取音乐 URL 失败:', error)
+						logError('获取音乐 URL 失败:', error)
 						if (error.message === '请求超时') {
 							Alert.alert('错误', '获取音乐超时，请稍后重试。', [
-								{ text: '确定', onPress: () => console.log('Timeout alert closed') },
+								{ text: '确定', onPress: () => logInfo('Timeout alert closed') },
 							])
 						} else {
 							Alert.alert('错误', '获取音乐失败，请稍后重试。', [
-								{ text: '确定', onPress: () => console.log('Error alert closed') },
+								{ text: '确定', onPress: () => logInfo('Error alert closed') },
 							])
 						}
 						resp_url = fakeAudioMp3Uri // 使用假的音频 URL 作为后备
@@ -869,7 +870,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		// eslint-disable-next-line prefer-const
 		track = mergeProps(musicItem, source) as IMusic.IMusicItem
 
-		console.log('获取音源成功：', track)
+		logInfo('获取音源成功：', track)
 		// 9. 设置音源
 		await setTrackSource(track as Track)
 
@@ -881,9 +882,9 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 			await ReactNativeTrackPlayer.setupPlayer()
 			play(musicItem, forcePlay)
 		} else if (message === PlayFailReason.FORBID_CELLUAR_NETWORK_PLAY) {
-			console.log('移动网络')
+			logInfo('移动网络')
 		} else if (message === PlayFailReason.INVALID_SOURCE) {
-			console.log('音源为空，播放失败')
+			logError('音源为空，播放失败')
 			await failToPlay()
 		} else if (message === PlayFailReason.PLAY_LIST_IS_EMPTY) {
 			// 队列是空的，不应该出现这种情况
@@ -1004,10 +1005,10 @@ const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
 		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
 
 		Alert.alert('成功', '音乐导入成功', [
-			{ text: '确定', onPress: () => console.log('Add alert closed') },
+			{ text: '确定', onPress: () => logInfo('Add alert closed') },
 		])
 	} catch (error) {
-		console.error('本地音乐保存时出错:', error)
+		logError('本地音乐保存时出错:', error)
 	}
 }
 const myTrackPlayer = {

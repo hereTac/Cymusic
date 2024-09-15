@@ -2,6 +2,7 @@ import localImage from '@/assets/local.png'
 import { PlaylistTracksList } from '@/components/PlaylistTracksList'
 import { unknownTrackImageUri } from '@/constants/images'
 import { screenPadding } from '@/constants/tokens'
+import { logError, logInfo } from '@/helpers/logger'
 import myTrackPlayer, { importedLocalMusicStore } from '@/helpers/trackPlayerIndex'
 import { Playlist } from '@/helpers/types'
 import { defaultStyles } from '@/styles'
@@ -29,10 +30,10 @@ const LocalMusicScreen = () => {
 			})
 
 			if (result.canceled) {
-				console.log('用户取消了文件选择')
+				logInfo('用户取消了文件选择')
 				return
 			}
-			// console.log('result.assets:', result.assets)
+			// logInfo('result.assets:', result.assets)
 			// const metadata = await MusicInfo.getMusicInfoAsync(result.assets[0].uri, {
 			// 	title: true,
 			// 	artist: true,
@@ -40,7 +41,7 @@ const LocalMusicScreen = () => {
 			// 	genre: true,
 			// 	picture: true,
 			// })
-			// console.log(metadata)
+			// logInfo(metadata)
 			const newTracks: IMusic.IMusicItem[] = result.assets.map((file) => ({
 				id: file.uri,
 				title: file.name || '未知标题',
@@ -54,9 +55,9 @@ const LocalMusicScreen = () => {
 
 			// setLocalTracks((prevTracks) => [...prevTracks, ...newTracks])
 			myTrackPlayer.addImportedLocalMusic(newTracks)
-			// console.log('导入的本地音乐:', newTracks)
+			// logInfo('导入的本地音乐:', newTracks)
 		} catch (err) {
-			console.error('导入本地音乐时出错:', err)
+			logError('导入本地音乐时出错:', err)
 		}
 	}
 

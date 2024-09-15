@@ -4,11 +4,11 @@ import { useLogTrackPlayerState } from '@/hooks/useLogTrackPlayerState'
 import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
 import { SplashScreen, Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useCallback, useRef } from 'react'
+import { useCallback } from 'react'
+import { Dimensions } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
-import { Platform, Dimensions, View } from 'react-native'
 
 const { width, height } = Dimensions.get('window')
 
@@ -79,33 +79,46 @@ const RootNavigation = () => {
 			<Stack.Screen
 				name="(modals)/settingModal"
 				options={{
-			presentation: 'modal',
-      headerShown: false,
-      gestureEnabled: true,
-      gestureDirection: 'vertical',
-
+					presentation: 'modal',
+					headerShown: false,
+					gestureEnabled: true,
+					gestureDirection: 'vertical',
 				}}
 			/>
-				<Stack.Screen
+			<Stack.Screen
 				name="(modals)/importPlayList"
 				options={{
-			presentation: 'modal',
-      headerShown: false,
-      gestureEnabled: true,
-      gestureDirection: 'vertical',
-
+					presentation: 'modal',
+					headerShown: false,
+					gestureEnabled: true,
+					gestureDirection: 'vertical',
 				}}
 			/>
-				<Stack.Screen
-					name="(modals)/[name]"
-					options={{
-			presentation: 'modal',
-      headerShown: false,
-      gestureEnabled: true,
-      gestureDirection: 'vertical',
-
+			<Stack.Screen
+				name="(modals)/[name]"
+				options={{
+					presentation: 'modal',
+					headerShown: false,
+					gestureEnabled: true,
+					gestureDirection: 'vertical',
 				}}
-				/>
+			/>
+			<Stack.Screen
+				name="(modals)/logScreen"
+				options={{
+					presentation: 'modal',
+					headerShown: true,
+					gestureEnabled: true,
+					gestureDirection: 'vertical',
+					headerTitle: '应用日志',
+					headerStyle: {
+						backgroundColor: colors.background,
+					},
+					headerTitleStyle: {
+						color: colors.text,
+					},
+				}}
+			/>
 		</Stack>
 	)
 }
