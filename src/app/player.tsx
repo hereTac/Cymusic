@@ -120,9 +120,52 @@ const PlayerScreen = () => {
 		[],
 	)
 	const handleViewArtist = (artist: string) => {
-		getSingerMidBySingerName(artist).then((singerMid) => {
-			router.push(`/(modals)/${singerMid}`)
-		})
+		if (!artist.includes('未知')) {
+			getSingerMidBySingerName(artist).then((singerMid) => {
+				router.navigate(`/(modals)/${singerMid}`)
+			})
+		}
+	}
+	const handleArtistSelection = (artists: string) => {
+		const artistArray = artists.split('、')
+		if (artistArray.length === 1) {
+			return (
+				<TouchableOpacity
+					activeOpacity={0.6}
+					onPress={() => handleViewArtist(artists)}
+					accessibilityRole="button"
+					accessibilityHint={`View artist ${artists}`}
+				>
+					<Text numberOfLines={1} style={[styles.trackArtistText, { marginTop: 6 }]}>
+						{artists}
+					</Text>
+				</TouchableOpacity>
+			)
+		} else {
+			// 使用 MenuView 显示歌手选择菜单
+			return (
+				<MenuView
+					title="选择歌手"
+					onPressAction={({ nativeEvent }) => {
+						handleViewArtist(nativeEvent.event)
+					}}
+					actions={artistArray.map((artist) => ({
+						id: artist,
+						title: artist,
+					}))}
+				>
+					<TouchableOpacity
+						activeOpacity={0.6}
+						accessibilityRole="button"
+						accessibilityHint={`View artist ${artists}`}
+					>
+						<Text numberOfLines={1} style={[styles.trackArtistText, { marginTop: 6 }]}>
+							{artists}
+						</Text>
+					</TouchableOpacity>
+				</MenuView>
+			)
+		}
 	}
 	useEffect(() => {
 		const checkTrackLoading = async () => {
@@ -332,18 +375,7 @@ const PlayerScreen = () => {
 									</View>
 
 									{/* Track artist */}
-									{trackToDisplay?.artist && (
-										<TouchableOpacity
-											activeOpacity={0.6}
-											onPress={() => handleViewArtist(trackToDisplay.artist.split('、')[0])}
-											accessibilityRole="button"
-											accessibilityHint={`View artist ${trackToDisplay.artist}`}
-										>
-											<Text numberOfLines={1} style={[styles.trackArtistText, { marginTop: 6 }]}>
-												{trackToDisplay.artist}
-											</Text>
-										</TouchableOpacity>
-									)}
+									{trackToDisplay?.artist && handleArtistSelection(trackToDisplay.artist)}
 								</View>
 
 								<PlayerProgressBar style={{ marginTop: 32 }} onSeek={handleSeek} />
