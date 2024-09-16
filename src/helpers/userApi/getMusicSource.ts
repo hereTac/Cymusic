@@ -6,6 +6,7 @@ import { fakeAudioMp3Uri } from '@/constants/images'
 import { getSingerInfo } from '@/helpers/userApi/qq-music-api'
 import axios from 'axios'
 import { Alert } from 'react-native'
+import { logError, logInfo } from '../logger'
 import { DEV_URL_PREFIX, KW_URL } from './third_party_url'
 
 const withTimeout = (promise, ms) => {
@@ -16,7 +17,7 @@ const withTimeout = (promise, ms) => {
 }
 
 const fetchWithTimeout = (url, options, timeout = 5000) => {
-	console.log('----start----' + url)
+	logInfo('----start----' + url)
 	return new Promise((resolve, reject) => {
 		const timer = setTimeout(() => {
 			reject(new Error('Request timed out'))
@@ -39,14 +40,14 @@ const handleBackupFetch = async (songInfo, options, type, fakeAudioMp3Uri) => {
 	//   .then((backupResponse) => parseResponse(backupResponse))
 	//   .then((backupBody) => {
 	//     if (!backupBody || !backupBody.data || !backupBody.data.src) {
-	//       console.log('Backup fetch failed or no song_url in response');
+	//       logInfo('Backup fetch failed or no song_url in response');
 	//       return { type, url: fakeAudioMp3Uri };
 	//     }
-	//     console.log('Backup fetch success:', backupBody.data.src);
+	//     logInfo('Backup fetch success:', backupBody.data.src);
 	//     return { type, url: backupBody.data.src };
 	//   })
 	//   .catch((backupError) => {
-	//     console.log('Backup fetch error:', backupError);
+	//     logInfo('Backup fetch error:', backupError);
 	//
 	//     return { type, url: fakeAudioMp3Uri };
 	//   });
@@ -54,9 +55,9 @@ const handleBackupFetch = async (songInfo, options, type, fakeAudioMp3Uri) => {
 		const url = await getMusicFromKw(songInfo, type)
 		return { type, url: url }
 	} catch (error) {
-		console.log('Backup fetch error:', error)
+		logInfo('Backup fetch error:', error)
 		Alert.alert('错误', '获取音乐失败，请稍后重试。', [
-			{ text: '确定', onPress: () => console.log('Alert closed') },
+			{ text: '确定', onPress: () => logInfo('Alert closed') },
 		])
 		return { type, url: fakeAudioMp3Uri }
 	}
@@ -76,25 +77,25 @@ export const myGetMusicUrl = (songInfo, type) => {
 	return handleBackupFetch(songInfo, options, type, fakeAudioMp3Uri)
 		.then((result) => {
 			if (result) {
-				console.log('获取成功（kw）：' + result.url)
+				logInfo('获取成功（kw）：' + result.url)
 				return result
 			}
-			console.log('kw获取失败，尝试原始 URL')
+			logInfo('kw获取失败，尝试原始 URL')
 			return fetchWithTimeout(url, options, 5000)
 				.then((response) => parseResponse(response))
 				.then((body) => {
 					if (!body.data || (typeof body.data === 'string' && body.data.includes('error'))) {
-						console.log('Fetch 失败，返回错误')
+						logInfo('Fetch 失败，返回错误')
 						return null
 					}
-					console.log('获取成功（原始）：' + body.data)
+					logInfo('获取成功（原始）：' + body.data)
 					return body.code === 0 ? { type, url: body.data } : null
 				})
 		})
 		.catch((error) => {
-			console.log('获取失败:', error)
+			logInfo('获取失败:', error)
 			Alert.alert('错误', '获取音乐失败，请稍后重试。', [
-				{ text: '确定', onPress: () => console.log('Alert closed') },
+				{ text: '确定', onPress: () => logInfo('Alert closed') },
 			])
 			return null
 		})
@@ -110,7 +111,7 @@ const parseResponse = async (response) => {
 			}
 			return await response.text()
 		} catch (e) {
-			console.log('Failed to parse response')
+			logInfo('Failed to parse response')
 		}
 	}
 }
@@ -136,7 +137,7 @@ export const myGetLyric = async (musicItem) => {
 			tlyric: decodeName(b64DecodeUnicode(body.trans)),
 		}
 	} catch (error) {
-		console.error('Error fetching lyrics:', error)
+		logError('Error fetching lyrics:', error)
 		return {
 			lyric: '[00:00.00]暂无歌词',
 			tlyric: '',
@@ -224,7 +225,7 @@ export async function getTopLists() {
 export async function getKwId(songInfo) {
 	const encodedSongInfo = encodeURIComponent(songInfo.title + ' ' + songInfo.artist)
 	const searchUrl = `https://search.kuwo.cn/r.s?client=kt&all=${encodedSongInfo}&pn=0&rn=25&uid=794762570&ver=kwplayer_ar_9.2.2.1&vipver=1&show_copyright_off=1&newver=1&ft=music&cluster=0&strategy=2012&encoding=utf8&rformat=json&vermerge=1&mobi=1&issubtitle=1`
-	console.log('searchUrl::::::' + searchUrl)
+	logInfo('searchUrl::::::' + searchUrl)
 
 	try {
 		// Make a request to the search URL
@@ -239,13 +240,13 @@ export async function getKwId(songInfo) {
 		// Extract the DC_TARGETID from the first item in abslist
 		if (data.abslist && data.abslist.length > 0) {
 			const dcTargetId = data.abslist[0].DC_TARGETID
-			console.log('DC_TARGETID::::::' + dcTargetId)
+			logInfo('DC_TARGETID::::::' + dcTargetId)
 			return dcTargetId
 		} else {
 			throw new Error('No results found')
 		}
 	} catch (error) {
-		console.error('There has been a problem with your fetch operation:', error)
+		logError('There has been a problem with your fetch operation:', error)
 	}
 }
 export async function getUrlFromKw(kwId: string, quality: string) {
@@ -264,7 +265,7 @@ export async function getUrlFromKw(kwId: string, quality: string) {
 			quality = '128kmp3'
 	}
 	const sourceUrl = `${KW_URL}${kwId}&br=${quality}`
-	console.log('sourceUrl::::::' + sourceUrl)
+	logInfo('sourceUrl::::::' + sourceUrl)
 
 	try {
 		// Make a request to the source URL
@@ -281,13 +282,13 @@ export async function getUrlFromKw(kwId: string, quality: string) {
 
 		if (urlMatch && urlMatch[1]) {
 			const url = urlMatch[1].trim() // Trim any extra whitespace or newlines
-			console.log('Extracted URL::::::' + url)
+			logInfo('Extracted URL::::::' + url)
 			return url
 		} else {
 			throw new Error('URL not found in response')
 		}
 	} catch (error) {
-		console.error('There has been a problem with your fetch operation:', error)
+		logError('There has been a problem with your fetch operation:', error)
 		return null // Return null or handle the error as needed
 	}
 }
@@ -344,7 +345,7 @@ export async function getPlayListFromQ(playListID: string) {
 			songs: formattedSongs,
 		}
 	} catch (error) {
-		console.error('Error fetching playlist:', error)
+		logError('Error fetching playlist:', error)
 		return {
 			success: false,
 			error: error.message,
@@ -384,7 +385,7 @@ export async function getAlbumList(singerMid: string): Promise<Album[]> {
 			artwork: `${coverJpgUrlPre}${item.album_mid}.jpg?max_age=2592000`,
 		}))
 	} catch (error) {
-		console.error('Error fetching album list:', error)
+		logError('Error fetching album list:', error)
 		return []
 	}
 }
@@ -413,12 +414,14 @@ export async function getMusicByAlbumId(albumMid: string, singerName: string): P
 			duration: 0,
 		}))
 	} catch (error) {
-		console.error('Error get music by album ID:', error)
+		logError('Error get music by album ID:', error)
 	}
 }
 export async function getSingerMidBySingerName(singerName: string) {
+	// 去除歌手名称中的空格
 	const url = `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=1&n=2&w=${encodeURIComponent(singerName)}&format=json`
 	try {
+		// console.log('singerName++', singerName)
 		const response = await fetch(url)
 		if (!response.ok) {
 			throw new Error('Network response was not ok')
@@ -429,25 +432,23 @@ export async function getSingerMidBySingerName(singerName: string) {
 		}
 
 		const songList = results.data.song.list
+		logInfo(songList)
 
 		// 查找匹配歌手名和歌曲名的项
 		for (const song of songList) {
 			// 在歌手列表中查找匹配的歌手
 			const matchingSinger = song.singer.find(
-				(s) => s.name.toLowerCase() === singerName.toLowerCase(),
+				(s) => similarity(s.name, singerName) > 0.3, // 0.7 是相似度阈值，可以根据需要调整
 			)
 			if (matchingSinger) {
 				return matchingSinger.mid
 			}
 		}
 
-		console.log(`没有找到歌手 ${singerName} `)
+		logInfo(`没有找到歌手 ${singerName} `)
 		return null
 	} catch (error) {
-		console.error(
-			'There has been a problem with your fetch operation of getSingerMidBySongName:',
-			error,
-		)
+		logError('There has been a problem with your fetch operation of getSingerMidBySongName:', error)
 		return null
 	}
 }
@@ -478,10 +479,7 @@ export async function searchMusicInfoByName(songName: string, singerName?: strin
 			return [filteredList[0]]
 		}
 	} catch (error) {
-		console.error(
-			'There has been a problem with your fetch operation of searchMusicInfoByName:',
-			error,
-		)
+		logError('There has been a problem with your fetch operation of searchMusicInfoByName:', error)
 		return null
 	}
 }
@@ -490,12 +488,12 @@ export async function getSingerDetail(singerMid: string) {
 	try {
 		const response = await getSingerInfo(singerMid)
 		const jsonData = await response
-		// console.log(jsonData)
+		// logInfo(jsonData)
 
 		if (!jsonData.singer || !jsonData.singer.data || !jsonData.singer.data.songlist) {
 			throw new Error('Invalid response structure')
 		}
-		// console.log(jsonData.singer.data)
+		// logInfo(jsonData.singer.data)
 
 		return {
 			singerImg: `https://y.gtimg.cn/music/photo_new/T001R500x500M000${singerMid}.jpg`,
@@ -504,7 +502,48 @@ export async function getSingerDetail(singerMid: string) {
 			musicList: jsonData.singer.data.songlist.map(formatMusicItem),
 		}
 	} catch (error) {
-		console.error('There has been a problem with your fetch operation of getSingerDetail:', error)
+		logError('There has been a problem with your fetch operation of getSingerDetail:', error)
 		return null
 	}
+}
+function similarity(s1, s2) {
+	let longer = s1
+	let shorter = s2
+	if (s1.length < s2.length) {
+		longer = s2
+		shorter = s1
+	}
+	const longerLength = longer.length
+	if (longerLength === 0) {
+		return 1.0
+	}
+	return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+}
+
+function editDistance(s1, s2) {
+	s1 = s1.toLowerCase()
+	s2 = s2.toLowerCase()
+
+	const costs = []
+	for (let i = 0; i <= s1.length; i++) {
+		let lastValue = i
+		for (let j = 0; j <= s2.length; j++) {
+			if (i === 0) {
+				costs[j] = j
+			} else {
+				if (j > 0) {
+					let newValue = costs[j - 1]
+					if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+						newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1
+					}
+					costs[j - 1] = lastValue
+					lastValue = newValue
+				}
+			}
+		}
+		if (i > 0) {
+			costs[s2.length] = lastValue
+		}
+	}
+	return costs[s2.length]
 }
