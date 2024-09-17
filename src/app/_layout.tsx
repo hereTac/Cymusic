@@ -5,12 +5,9 @@ import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
 import { SplashScreen, Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback } from 'react'
-import { Dimensions } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
-
-const { width, height } = Dimensions.get('window')
 
 SplashScreen.preventAutoHideAsync()
 
@@ -18,7 +15,7 @@ TrackPlayer.registerPlaybackService(() => playbackService)
 
 const App = () => {
 	const handleTrackPlayerLoaded = useCallback(() => {
-		SplashScreen.hideAsync()
+		setTimeout(SplashScreen.hideAsync, 1500)
 	}, [])
 
 	useSetupTrackPlayer({
@@ -70,7 +67,7 @@ const RootNavigation = () => {
 					headerStyle: {
 						backgroundColor: colors.background,
 					},
-					headerTitle: 'Add to playlist',
+					headerTitle: '添加到歌单',
 					headerTitleStyle: {
 						color: colors.text,
 					},

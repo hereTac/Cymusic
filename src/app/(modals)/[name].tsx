@@ -1,7 +1,6 @@
 import { SingerTracksList } from '@/components/SingerTracksList'
 import { colors, screenPadding } from '@/constants/tokens'
 import { getSingerDetail } from '@/helpers/userApi/getMusicSource'
-import { usePlaylists } from '@/store/library'
 import { defaultStyles } from '@/styles'
 import { useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
@@ -11,8 +10,8 @@ import { Track } from 'react-native-track-player'
 
 const SingerListScreen = () => {
 	const { name: playlistName } = useLocalSearchParams<{ name: string }>()
-	const { playlists } = usePlaylists()
-	const playlist = playlists.find((playlist) => playlist.title === playlistName)
+	// const { playlists } = usePlaylists()
+	// const playlist = playlists.find((playlist) => playlist.title === playlistName)
 	const [singerListDetail, setSingerListDetail] = useState<{ musicList: Track[] } | null>(null)
 	const [loading, setLoading] = useState(true)
 

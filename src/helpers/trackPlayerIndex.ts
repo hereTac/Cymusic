@@ -4,6 +4,7 @@ import Config from '@/store/config'
 import delay from '@/utils/delay'
 import { isSameMediaItem, mergeProps, sortByTimestampAndIndex } from '@/utils/mediaItem'
 import { GlobalState } from '@/utils/stateMapper'
+import * as FileSystem from 'expo-file-system'
 import { produce } from 'immer'
 import shuffle from 'lodash.shuffle'
 import ReactNativeTrackPlayer, {
@@ -600,7 +601,7 @@ const addMusicApi = (musicApi: IMusic.MusicApi) => {
 			const updatedMusicApiList = [...nowMusicApiList, newMusicApi]
 			musicApiStore.setValue(updatedMusicApiList)
 			PersistStatus.set('music.musicApi', updatedMusicApiList)
-			logInfo('Music API added successfully')
+			logInfo('音源导入成功')
 			Alert.alert('成功', '音源导入成功', [
 				{ text: '确定', onPress: () => logInfo('Add alert closed') },
 			])
@@ -1000,6 +1001,13 @@ function getNextMusic() {
 const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
 	try {
 		const importedLocalMusic = importedLocalMusicStore.getValue() || []
+		const newMusicItems = musicItem.filter(
+			(newItem) => !importedLocalMusic.some((existingItem) => existingItem.id === newItem.id),
+		)
+		if (newMusicItems.length === 0) {
+			// Alert.alert('提示', '所有选择的音乐已经存在，没有新的音乐被导入。')
+			return
+		}
 		const updatedImportedLocalMusic = [...importedLocalMusic, ...musicItem]
 		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
 		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
@@ -1011,6 +1019,30 @@ const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
 		logError('本地音乐保存时出错:', error)
 	}
 }
+const deleteImportedLocalMusic = (musicItemsIdToDelete: string) => {
+	try {
+		const importedLocalMusic = importedLocalMusicStore.getValue() || []
+		let fileUri = ''
+		const updatedImportedLocalMusic = importedLocalMusic.filter((item) => {
+			if (musicItemsIdToDelete === item.id) {
+				fileUri = item.url
+			}
+			return musicItemsIdToDelete !== item.id
+		})
+		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
+		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
+
+		FileSystem.deleteAsync(fileUri)
+		Alert.alert('成功', '音乐删除成功', [{ text: '确定', onPress: () => {} }])
+	} catch (error) {
+		logError('删除本地音乐时出错:', error)
+	}
+}
+const isExistImportedLocalMusic = (musicItemName: string) => {
+	const importedLocalMusic = importedLocalMusicStore.getValue() || []
+	return importedLocalMusic.some((item) => item.genre === musicItemName)
+}
+
 const myTrackPlayer = {
 	setupTrackPlayer,
 	usePlayList,
@@ -1047,6 +1079,8 @@ const myTrackPlayer = {
 	addSongToStoredPlayList,
 	deleteSongFromStoredPlayList,
 	addImportedLocalMusic,
+	deleteImportedLocalMusic,
+	isExistImportedLocalMusic,
 	useCurrentQuality: qualityStore.useValue,
 	getCurrentQuality: qualityStore.getValue,
 	getRate: ReactNativeTrackPlayer.getRate,

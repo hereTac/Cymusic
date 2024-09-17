@@ -1,4 +1,5 @@
 import { colors, screenPadding } from '@/constants/tokens'
+import { logError } from '@/helpers/logger'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { getPlayListFromQ } from '@/helpers/userApi/getMusicSource'
 import { defaultStyles } from '@/styles'
@@ -42,7 +43,7 @@ const ImportPlayList = () => {
 		} catch (err) {
 			setError('导入失败，请检查链接是否正确')
 			// myTrackPlayer.deletePlayLists('7570659434')
-			console.error('导入错误:', err)
+			logError('导入错误:', err)
 		} finally {
 			setIsLoading(false)
 		}

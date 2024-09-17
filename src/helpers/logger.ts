@@ -29,6 +29,16 @@ export const useLogger = createStore<LoggerState>((set) => ({
 	addLog: (level, ...args) =>
 		set((state) => {
 			const message = args.map(stringifyArg).join(' ')
+			const newLog = {
+				timestamp: new Date().toISOString(),
+				level,
+				message,
+				details: args.length > 1 ? args : undefined,
+			}
+
+			// 在控制台打印日志
+			console.log(`[${newLog.timestamp}] [${level}] ${message}`)
+
 			return {
 				logs: [
 					...state.logs,

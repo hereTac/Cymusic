@@ -13,6 +13,8 @@ RN新手，代码质量一般，请见谅。
 
 自定义源示例参考：https://github.com/gyc-12/CyMusic-ImportMusicApi-Example
 
+tg频道：https://t.me/gyc_123
+
 ## TODO
 
 - [ ] 下载和播放本地音乐功能

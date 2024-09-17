@@ -226,7 +226,7 @@ class MusicInfoLoader {
     async processTextFrame(frameID, frameSize) {
         // 读取编码字节
         const encodingByte = await this.read(1);
-        console.log(`处理帧 ${frameID}，编码字节: 0x${encodingByte[0].toString(16)}`);
+        // console.log(`处理帧 ${frameID}，编码字节: 0x${encodingByte[0].toString(16)}`);
 
         let encoding;
         switch (encodingByte[0]) {
@@ -244,15 +244,15 @@ class MusicInfoLoader {
                 break;
             default:
                 encoding = 'iso-8859-1';
-                console.warn(`未知的编码字节: 0x${encodingByte[0].toString(16)}，使用 'iso-8859-1'`);
+            // console.warn(`未知的编码字节: 0x${encodingByte[0].toString(16)}，使用 'iso-8859-1'`);
         }
 
         let remaining = frameSize - 1;
         let chunk = await this.read(remaining);
-        console.log(`帧 ${frameID} 的原始数据:`, chunk.map(byte => byte.toString(16)).join(' '));
+        // console.log(`帧 ${frameID} 的原始数据:`, chunk.map(byte => byte.toString(16)).join(' '));
 
         let value = this.decodeBytes(chunk, encoding);
-        console.log(`帧 ${frameID} 解码后的值:`, value);
+        // console.log(`帧 ${frameID} 解码后的值:`, value);
 
         // 去除值两端的空格
         this.frames[frameID] = value.trim();
@@ -286,24 +286,24 @@ class MusicInfoLoader {
             if (c > 127) {
                 if (c > 191 && c < 224) {
                     if (i >= bytes.length) {
-                        console.warn('UTF-8 解码: 不完整的 2 字节序列');
+                        // console.warn('UTF-8 解码: 不完整的 2 字节序列');
                         break;
                     }
                     c = ((c & 31) << 6) | (bytes[i++] & 63);
                 } else if (c > 223 && c < 240) {
                     if (i + 1 >= bytes.length) {
-                        console.warn('UTF-8 解码: 不完整的 3 字节序列');
+                        // console.warn('UTF-8 解码: 不完整的 3 字节序列');
                         break;
                     }
                     c = ((c & 15) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63);
                 } else if (c > 239 && c < 248) {
                     if (i + 2 >= bytes.length) {
-                        console.warn('UTF-8 解码: 不完整的 4 字节序列');
+                        // console.warn('UTF-8 解码: 不完整的 4 字节序列');
                         break;
                     }
                     c = ((c & 7) << 18) | ((bytes[i++] & 63) << 12) | ((bytes[i++] & 63) << 6) | (bytes[i++] & 63);
                 } else {
-                    console.warn(`UTF-8 解码: 未知的多字节起始 0x${c.toString(16)} 在索引 ${i - 1}`);
+                    // console.warn(`UTF-8 解码: 未知的多字节起始 0x${c.toString(16)} 在索引 ${i - 1}`);
                     continue; // 跳过无效字节
                 }
             }
@@ -314,7 +314,7 @@ class MusicInfoLoader {
                 result += String.fromCharCode((c >> 10) | 0xd800);
                 result += String.fromCharCode((c & 0x3ff) | 0xdc00);
             } else {
-                console.warn(`UTF-8 解码: 码点 0x${c.toString(16)} 超出 UTF-16 范围`);
+                // console.warn(`UTF-8 解码: 码点 0x${c.toString(16)} 超出 UTF-16 范围`);
                 continue; // 跳过超出范围的码点
             }
         }

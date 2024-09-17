@@ -237,7 +237,6 @@ export async function getKwId(songInfo) {
 		// Parse the JSON response
 		const data = await response.json()
 
-		// Extract the DC_TARGETID from the first item in abslist
 		if (data.abslist && data.abslist.length > 0) {
 			const dcTargetId = data.abslist[0].DC_TARGETID
 			logInfo('DC_TARGETID::::::' + dcTargetId)
@@ -246,7 +245,7 @@ export async function getKwId(songInfo) {
 			throw new Error('No results found')
 		}
 	} catch (error) {
-		logError('There has been a problem with your fetch operation:', error)
+		logError('请求出错:', error)
 	}
 }
 export async function getUrlFromKw(kwId: string, quality: string) {
@@ -288,7 +287,7 @@ export async function getUrlFromKw(kwId: string, quality: string) {
 			throw new Error('URL not found in response')
 		}
 	} catch (error) {
-		logError('There has been a problem with your fetch operation:', error)
+		logError('请求出错:', error)
 		return null // Return null or handle the error as needed
 	}
 }
@@ -371,7 +370,7 @@ export async function getAlbumList(singerMid: string): Promise<Album[]> {
 	const headers = {
 		Referer: `https://y.qq.com/n/yqq/singer/${singerMid}.html`,
 	}
-	const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R180x180M000'
+	const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R800x800M000'
 	try {
 		const response = await axios.get(url, { headers })
 		const data = JSON.parse(response.data.slice(24, -1))
@@ -393,7 +392,7 @@ export async function getAlbumList(singerMid: string): Promise<Album[]> {
 // 根据专辑ID
 export async function getMusicByAlbumId(albumMid: string, singerName: string): Promise<void> {
 	const url = `https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid=${albumMid}&g_tk=5381&jsonpCallback=albuminfoCallback&loginUin=0&hostUin=0&format=jsonp&inCharset=utf8&outCharset=utf-8&notice=0&platform=yqq&needNewCode=0`
-	const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R180x180M000'
+	const coverJpgUrlPre = 'https://y.gtimg.cn/music/photo_new/T002R800x800M000'
 	const headers = {
 		Referer: 'https://y.qq.com/portal/player.html',
 	}
@@ -432,15 +431,22 @@ export async function getSingerMidBySingerName(singerName: string) {
 		}
 
 		const songList = results.data.song.list
-		logInfo(songList)
+		// logInfo(songList)
 
 		// 查找匹配歌手名和歌曲名的项
 		for (const song of songList) {
 			// 在歌手列表中查找匹配的歌手
+			// 先尝试完全匹配
+			const exactMatch = song.singer.find((s) => s.name.toLowerCase() === singerName.toLowerCase())
+			if (exactMatch) {
+				return exactMatch.mid
+			}
+			// 如果没有完全匹配，再尝试模糊匹配
 			const matchingSinger = song.singer.find(
 				(s) => similarity(s.name, singerName) > 0.3, // 0.7 是相似度阈值，可以根据需要调整
 			)
 			if (matchingSinger) {
+				logInfo('模糊匹配歌手:', matchingSinger.name)
 				return matchingSinger.mid
 			}
 		}
@@ -448,22 +454,21 @@ export async function getSingerMidBySingerName(singerName: string) {
 		logInfo(`没有找到歌手 ${singerName} `)
 		return null
 	} catch (error) {
-		logError('There has been a problem with your fetch operation of getSingerMidBySongName:', error)
+		logError('请求出错 of getSingerMidBySongName:', error)
 		return null
 	}
 }
 
 export async function searchMusicInfoByName(songName: string, singerName?: string) {
 	const url = `https://c.y.qq.com/soso/fcgi-bin/music_search_new_platform?searchid=53806572956004615&t=1&aggr=1&cr=1&catZhida=1&lossless=0&flag_qc=0&p=1&n=20&w=${encodeURIComponent(songName)}`
+	const url1 = `https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=1&n=5&w=${encodeURIComponent(songName)}&format=json`
 	try {
-		const response = await fetch(url)
+		const response = await fetch(url1)
 		if (!response.ok) {
 			throw new Error('Network response was not ok')
 		}
-
-		const rawData = await response.text()
-		const jsonData = JSON.parse(rawData.replace(/^callback\(|\)$/g, ''))
-
+		const jsonData = await response.json()
+		// console.log('data::::::' + JSON.stringify(jsonData.data.song.list))
 		if (jsonData.code !== 0 || !jsonData.data || !jsonData.data.song || !jsonData.data.song.list) {
 			throw new Error('Invalid response structure')
 		}
@@ -471,16 +476,93 @@ export async function searchMusicInfoByName(songName: string, singerName?: strin
 		let filteredList = jsonData.data.song.list
 
 		if (singerName) {
-			filteredList = filteredList.filter((item: any) =>
-				JSON.stringify(item).toLowerCase().includes(singerName.toLowerCase()),
-			)
-			return filteredList
+			filteredList = filteredList.filter((item: any) => {
+				if (item.songmid == '') {
+					return false
+				}
+
+				return JSON.stringify(item).toLowerCase().includes(singerName.toLowerCase())
+			})
+
+			return {
+				songmid: filteredList[0].songmid,
+				singerName:
+					formatSingerName(filteredList[0].singer.replace(/;/g, '、'), 'name') || 'Unknown Artist',
+				songName: filteredList[0].songname,
+				albummid: filteredList[0].albummid,
+				albumName: filteredList[0].albumname,
+				artwork: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${filteredList[0].albummid}.jpg`,
+			}
 		} else {
-			return [filteredList[0]]
+			filteredList = filteredList.filter((item: any) => {
+				if (item.songmid == '') {
+					return false
+				}
+				return true
+			})
+			return {
+				songmid: filteredList[0].songmid,
+				singerName: formatSingerName(filteredList[0].singer, 'name') || 'Unknown Artist',
+				songName: filteredList[0].songname,
+				albummid: filteredList[0].albummid,
+				albumName: filteredList[0].albumname,
+				artwork: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${filteredList[0].albummid}.jpg?max_age=2592000`,
+			}
 		}
 	} catch (error) {
-		logError('There has been a problem with your fetch operation of searchMusicInfoByName:', error)
-		return null
+		logError('请求url1出错 of searchMusicInfoByName:', error)
+		try {
+			console.log('url::::::' + url)
+			const response = await fetch(url)
+			if (!response.ok) {
+				throw new Error('Network response was not ok')
+			}
+
+			const rawData = await response.text()
+			const jsonData = JSON.parse(rawData.replace(/^callback\(|\)$/g, ''))
+
+			if (
+				jsonData.code !== 0 ||
+				!jsonData.data ||
+				!jsonData.data.song ||
+				!jsonData.data.song.list
+			) {
+				throw new Error('Invalid response structure')
+			}
+
+			let filteredList = jsonData.data.song.list
+
+			if (singerName) {
+				filteredList = filteredList.filter((item: any) =>
+					JSON.stringify(item).toLowerCase().includes(singerName.toLowerCase()),
+				)
+				const matchedTrack = filteredList[0]
+				const fields = matchedTrack.f.split('|')
+				return {
+					songmid: fields[20] || undefined,
+					singerName: fields[3]?.replace(/;/g, '、') || 'Unknown Artist',
+					songName: songName,
+					albummid: fields[22],
+					albumName: filteredList[0].albumName_hilight,
+					artwork:
+						fields[22] != undefined
+							? `https://y.gtimg.cn/music/photo_new/T002R800x800M000${fields[22]}.jpg?max_age=2592000`
+							: undefined,
+				}
+			} else {
+				return {
+					songmid: filteredList[0].songmid,
+					singerName: formatSingerName(filteredList[0].singer, 'name') || 'Unknown Artist',
+					songName: filteredList[0].songname,
+					albummid: filteredList[0].albummid,
+					albumName: filteredList[0].albumname,
+					artwork: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${filteredList[0].albummid}.jpg?max_age=2592000`,
+				}
+			}
+		} catch (error) {
+			logError('请求url出错 of searchMusicInfoByName:', error)
+			return null
+		}
 	}
 }
 
@@ -502,7 +584,7 @@ export async function getSingerDetail(singerMid: string) {
 			musicList: jsonData.singer.data.songlist.map(formatMusicItem),
 		}
 	} catch (error) {
-		logError('There has been a problem with your fetch operation of getSingerDetail:', error)
+		logError('请求出错 of getSingerDetail:', error)
 		return null
 	}
 }

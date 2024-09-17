@@ -97,7 +97,7 @@ const PlayerScreen = () => {
 		setPrevTrack,
 		setActiveTrack,
 	} = usePlayerStore()
-	const nowLyric = nowLyricState.getValue()
+	const nowLyric = nowLyricState.getValue() || '[00:00.00]暂无歌词'
 	const currentActiveTrack = useActiveTrack()
 
 	const { imageColors } = usePlayerBackground(currentActiveTrack?.artwork ?? unknownTrackImageUri)
@@ -122,11 +122,16 @@ const PlayerScreen = () => {
 	const handleViewArtist = (artist: string) => {
 		if (!artist.includes('未知')) {
 			getSingerMidBySingerName(artist).then((singerMid) => {
-				router.navigate(`/(modals)/${singerMid}`)
+				if (singerMid) {
+					router.navigate(`/(modals)/${singerMid}`)
+				} else {
+					console.log('没有匹配到歌手')
+				}
 			})
 		}
 	}
 	const handleArtistSelection = (artists: string) => {
+		artists = artists.trim()
 		const artistArray = artists.split('、')
 		if (artistArray.length === 1) {
 			return (
@@ -276,9 +281,12 @@ const PlayerScreen = () => {
 		{ id: 'album', title: '显示专辑', image: 'music.note.list' },
 		{ id: 'lyrics', title: '查看歌词', image: 'text.quote' },
 		{ id: 'playlist', title: '添加到歌单', image: 'plus.circle' },
-		{ id: 'download', title: '下载', image: 'arrow.down.circle' },
+
 		{ id: 'share', title: '分享歌曲', image: 'square.and.arrow.up' },
 	]
+	if (trackToDisplay?.platform !== 'local') {
+		menuActions.splice(4, 0, { id: 'download', title: '下载', image: 'arrow.down.circle' })
+	}
 	useEffect(() => {
 		setCurrentLyricTime(position * 1000)
 	}, [position])
