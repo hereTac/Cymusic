@@ -1,18 +1,17 @@
 import { colors } from '@/constants/tokens'
-import { useTrackPlayerVolume } from '@/hooks/useTrackPlayerVolume'
 import { utilsStyles } from '@/styles'
 import { Ionicons } from '@expo/vector-icons'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, ViewProps } from 'react-native'
 import { Slider } from 'react-native-awesome-slider'
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import { VolumeManager } from 'react-native-volume-manager'
 
 const NORMAL_HEIGHT = 4
 const EXPANDED_HEIGHT = 4
 
 export const PlayerVolumeBar = ({ style }: ViewProps) => {
-	const { volume, updateVolume } = useTrackPlayerVolume()
-
+	const [volume, setVolume] = useState(0)
 	const progress = useSharedValue(0)
 	const min = useSharedValue(0)
 	const max = useSharedValue(1)
@@ -20,7 +19,24 @@ export const PlayerVolumeBar = ({ style }: ViewProps) => {
 
 	const [trackColor, setTrackColor] = useState(colors.maximumTrackTintColor)
 
-	progress.value = volume ?? 0
+	useEffect(() => {
+		VolumeManager.showNativeVolumeUI({ enabled: true })
+		const getInitialVolume = async () => {
+			const initialVolume = await VolumeManager.getVolume()
+			setVolume(initialVolume.volume)
+			progress.value = initialVolume.volume
+		}
+		getInitialVolume()
+
+		const volumeListener = VolumeManager.addVolumeListener((result) => {
+			setVolume(result.volume)
+			progress.value = result.volume
+		})
+
+		return () => {
+			volumeListener.remove()
+		}
+	}, [])
 
 	const animatedSliderStyle = useAnimatedStyle(() => {
 		return {
@@ -43,14 +59,14 @@ export const PlayerVolumeBar = ({ style }: ViewProps) => {
 						containerStyle={utilsStyles.slider}
 						onSlidingStart={() => {
 							isSliding.value = true
-							setTrackColor('#fff') // 触摸时颜色变为白色
+							setTrackColor('#fff')
 						}}
 						onSlidingComplete={() => {
 							isSliding.value = false
-							setTrackColor(colors.maximumTrackTintColor) // 释放时恢复原始颜色
+							setTrackColor(colors.maximumTrackTintColor)
 						}}
 						onValueChange={(value) => {
-							updateVolume(value)
+							VolumeManager.setVolume(value)
 						}}
 						renderBubble={() => null}
 						theme={{

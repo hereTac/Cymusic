@@ -7128,6 +7128,11 @@ react-native-track-player@^4.1.1:
   resolved "https://registry.npmjs.org/react-native-track-player/-/react-native-track-player-4.1.1.tgz"
   integrity sha512-E5N/eK/+HtAVJUAzXpm1cWz8ROheV9jb0TI6h2bM+333U+DWibTTnT2T1122FkCoXLXIYavtm2FR2if+5jH8cA==
 
+react-native-volume-manager@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/react-native-volume-manager/-/react-native-volume-manager-1.10.0.tgz#4e73d284b31cf3b9b41df7c8ce9115454ad3e0af"
+  integrity sha512-MJbUyXCEz5q2GDJoOImvVZ+aC39mdxqvD6ZYVXPBuhbdhoThOIDZoaVAf+vC7H8ahGToLtNWVfcbgds8zzgHAg==
+
 react-native@0.73.6:
   version "0.73.6"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.73.6.tgz"
