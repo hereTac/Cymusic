@@ -18,8 +18,7 @@ const AddToPlaylistModal = () => {
 		album: params.album as string,
 		artwork: params.artwork as string,
 		artist: params.artist as string,
-		// 根据需要添加其他必要的属性，可能需要设置默认值
-		id: params.id as string, // 如果需要 id，可能需要另外生成
+		id: params.id as string,
 		url: (params.url as string) || 'Unknown',
 		platform: (params.platform as string) || 'tx',
 		duration: typeof params.duration === 'string' ? parseInt(params.duration, 10) : 0,
