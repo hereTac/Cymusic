@@ -64,7 +64,8 @@ const setNowLyric = useLibraryStore.getState().setNowLyric
 export const nowLyricState = new GlobalState<string>(null)
 
 let currentIndex = -1
-
+// 定义缓存目录
+const cacheDir = FileSystem.documentDirectory + 'musicCache/'
 // TODO: 下个版本最大限制调大一些
 // const maxMusicQueueLength = 1500; // 当前播放最大限制
 
@@ -796,7 +797,14 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		// );
 		// 5.3 插件返回的音源为source
 		let source: IPlugin.IMediaSourceResult | null = null
-
+		const cached = await isCached(musicItem)
+		if (cached) {
+			const localPath = getLocalFilePath(musicItem)
+			source = {
+				url: localPath,
+			}
+			logInfo('使用缓存的音频路径播放:', localPath)
+		}
 		if (!isCurrentMusic(musicItem)) {
 			return
 		}
@@ -855,9 +863,19 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 					url: resp_url,
 				}
 			} else {
-				source = {
-					url: musicItem.url,
+				const cached = await isCached(musicItem)
+				if (cached) {
+					const localPath = getLocalFilePath(musicItem)
+					source = {
+						url: localPath,
+					}
+					logInfo('使用缓存的音频路径播放:', localPath)
+				} else {
+					source = {
+						url: musicItem.url,
+					}
 				}
+
 				// setQuality('128k')
 			}
 		}
@@ -874,6 +892,19 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		logInfo('获取音源成功：', track)
 		// 9. 设置音源
 		await setTrackSource(track as Track)
+		if (track.url !== fakeAudioMp3Uri && !cached) {
+			// 下载到缓存，延迟5秒后执行
+			logInfo('将在5秒后下载缓存:', track.url)
+			setTimeout(() => {
+				downloadToCache(track)
+					.then((localUri) => {
+						logInfo('音乐已缓存到本地:', localUri)
+					})
+					.catch((error) => {
+						logError('缓存音乐时出错:', error)
+					})
+			}, 5000) // 延迟5000毫秒（5秒）
+		}
 
 		// 10. 获取补充信息
 		const info: Partial<IMusic.IMusicItem> | null = null
@@ -1042,7 +1073,58 @@ const isExistImportedLocalMusic = (musicItemName: string) => {
 	const importedLocalMusic = importedLocalMusicStore.getValue() || []
 	return importedLocalMusic.some((item) => item.genre === musicItemName)
 }
+/**
+ * 确保缓存目录存在
+ */
+const ensureCacheDirExists = async () => {
+	const dirInfo = await FileSystem.getInfoAsync(cacheDir)
+	if (!dirInfo.exists) {
+		await FileSystem.makeDirectoryAsync(cacheDir, { intermediates: true })
+	}
+}
 
+/**
+ * 获取音频文件的本地路径
+ * @param musicItem 音乐项
+ * @returns 本地文件路径
+ */
+const getLocalFilePath = (musicItem: IMusic.IMusicItem): string => {
+	return `${cacheDir}${musicItem.id}.mp3`
+}
+
+/**
+ * 检查本地是否存在音频缓存
+ * @param musicItem 音乐项
+ * @returns 是否存在
+ */
+const isCached = async (musicItem: IMusic.IMusicItem): Promise<boolean> => {
+	const filePath = getLocalFilePath(musicItem)
+	const fileInfo = await FileSystem.getInfoAsync(filePath)
+	return fileInfo.exists
+}
+/**
+ * 下载音频文件并保存到本地
+ * @param musicItem 音乐项
+ * @returns 本地文件路径
+ */
+const downloadToCache = async (musicItem: IMusic.IMusicItem): Promise<string> => {
+	await ensureCacheDirExists()
+	const localPath = getLocalFilePath(musicItem)
+	const { uri } = await FileSystem.downloadAsync(musicItem.url, localPath)
+	return uri
+}
+/**
+ * 清理所有缓存的音频文件
+ */
+const clearCache = async () => {
+	const dirInfo = await FileSystem.getInfoAsync(cacheDir)
+	if (dirInfo.exists) {
+		await FileSystem.deleteAsync(cacheDir, { idempotent: true })
+		logInfo('缓存已清理')
+	} else {
+		logInfo('缓存目录不存在，无需清理')
+	}
+}
 const myTrackPlayer = {
 	setupTrackPlayer,
 	usePlayList,
@@ -1089,6 +1171,7 @@ const myTrackPlayer = {
 	reset: ReactNativeTrackPlayer.reset,
 	getPreviousMusic,
 	getNextMusic,
+	clearCache,
 }
 
 export default myTrackPlayer
