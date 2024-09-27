@@ -1,15 +1,16 @@
 import { SingerTracksList } from '@/components/SingerTracksList'
 import { colors, screenPadding } from '@/constants/tokens'
-import { getSingerDetail } from '@/helpers/userApi/getMusicSource'
+import { getAlbumSongList, getSingerDetail } from '@/helpers/userApi/getMusicSource'
 import { defaultStyles } from '@/styles'
 import { useLocalSearchParams } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Track } from 'react-native-track-player'
-
+// 专辑页面or歌手页面
 const SingerListScreen = () => {
-	const { name: playlistName } = useLocalSearchParams<{ name: string }>()
+	const { name: playlistName, album } = useLocalSearchParams<{ name: string; album?: string }>()
+	const isAlbum = !!album
 	// const { playlists } = usePlaylists()
 	// const playlist = playlists.find((playlist) => playlist.title === playlistName)
 	const [singerListDetail, setSingerListDetail] = useState<{ musicList: Track[] } | null>(null)
@@ -17,8 +18,14 @@ const SingerListScreen = () => {
 
 	useEffect(() => {
 		const fetchSingerListDetail = async () => {
+			let detail
+			if (isAlbum) {
+				detail = await getAlbumSongList(playlistName)
+			} else {
+				detail = await getSingerDetail(playlistName)
+			}
 			// console.log(playlistName+'123123')
-			const detail = await getSingerDetail(playlistName)
+			// const detail = await getSingerDetail(playlistName)
 			// console.log(JSON.stringify(detail.musicList));
 			setSingerListDetail(detail)
 

@@ -211,6 +211,7 @@ const PlayerScreen = () => {
 
 	const handleShowAlbum = () => {
 		// 实现显示专辑的逻辑
+		router.push(`/(modals)/${trackToDisplay.album}?album=true`)
 	}
 
 	const handleShowLyrics = () => {
