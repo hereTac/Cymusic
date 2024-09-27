@@ -19,7 +19,7 @@ const LocalMusicScreen = () => {
 		name: 'Local',
 		id: 'local',
 		tracks: [],
-		title: '本地的歌曲',
+		title: '本地/缓存的歌曲',
 		coverImg: Image.resolveAssetSource(localImage).uri,
 		description: '在本地的歌曲',
 	}

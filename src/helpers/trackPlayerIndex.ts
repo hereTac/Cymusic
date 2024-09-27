@@ -899,6 +899,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 				downloadToCache(track)
 					.then((localUri) => {
 						logInfo('音乐已缓存到本地:', localUri)
+						addImportedLocalMusic([track], false)
 					})
 					.catch((error) => {
 						logError('缓存音乐时出错:', error)
@@ -1029,7 +1030,7 @@ function getNextMusic() {
 
 	return getPlayListMusicAt(currentIndex + 1)
 }
-const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
+const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[], isAlert: boolean = true) => {
 	try {
 		const importedLocalMusic = importedLocalMusicStore.getValue() || []
 		const newMusicItems = musicItem.filter(
@@ -1042,10 +1043,11 @@ const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[]) => {
 		const updatedImportedLocalMusic = [...importedLocalMusic, ...musicItem]
 		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
 		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
-
-		Alert.alert('成功', '音乐导入成功', [
-			{ text: '确定', onPress: () => logInfo('Add alert closed') },
-		])
+		if (isAlert) {
+			Alert.alert('成功', '音乐导入成功', [
+				{ text: '确定', onPress: () => logInfo('Add alert closed') },
+			])
+		}
 	} catch (error) {
 		logError('本地音乐保存时出错:', error)
 	}
