@@ -588,6 +588,35 @@ export async function getSingerDetail(singerMid: string) {
 		return null
 	}
 }
+
+// 获取专辑歌曲信息
+// API: https://i.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg
+//
+// albummid: 专辑的 MID
+export const getAlbumSongList = async (albummid, origin = false) => {
+	return await fetch(
+		'https://i.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?platform=h5page&albummid=ALBUMMID&g_tk=938407465&uin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=h5&needNewCode=1&_=1459961045571'.replaceAll(
+			'ALBUMMID',
+			albummid,
+		),
+	)
+		.then((res) => res.json())
+		.then((data) => {
+			if (origin) return data
+			else {
+				return {
+					singerImg: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albummid}.jpg`,
+					title: data.data.name,
+					id: albummid,
+					musicList: data.data.list.map(formatMusicItem),
+				}
+			}
+		})
+		.catch((err) => {
+			console.log(err)
+		})
+}
+
 function similarity(s1, s2) {
 	let longer = s1
 	let shorter = s2

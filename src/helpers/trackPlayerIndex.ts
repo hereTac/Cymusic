@@ -51,6 +51,8 @@ export const musicApiStore = new GlobalState<IMusic.MusicApi[] | []>(null)
 export const musicApiSelectedStore = new GlobalState<IMusic.MusicApi>(null)
 /** 音源状态*/
 export const nowApiState = new GlobalState<string>('正常')
+/** 是否自动缓存本地 */
+export const autoCacheLocalStore = new GlobalState<boolean>(true)
 /** 已导入的本地音乐 */
 export const importedLocalMusicStore = new GlobalState<IMusic.IMusicItem[] | []>(null)
 export function useCurrentQuality() {
@@ -94,6 +96,7 @@ async function setupTrackPlayer() {
 	const musicApiLists = PersistStatus.get('music.musicApi')
 	const selectedMusicApi = PersistStatus.get('music.selectedMusicApi')
 	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
+	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') || true
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -120,6 +123,9 @@ async function setupTrackPlayer() {
 	}
 	if (musicQueue && Array.isArray(musicQueue)) {
 		addAll(musicQueue, undefined, repeatMode === MusicRepeatMode.SHUFFLE)
+	}
+	if (autoCacheLocal) {
+		autoCacheLocalStore.setValue(autoCacheLocal)
 	}
 
 	if (!hasSetupListener) {
@@ -892,7 +898,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		logInfo('获取音源成功：', track)
 		// 9. 设置音源
 		await setTrackSource(track as Track)
-		if (track.url !== fakeAudioMp3Uri && !cached) {
+		if (track.url !== fakeAudioMp3Uri && !cached && autoCacheLocalStore.getValue()) {
 			// 下载到缓存，延迟5秒后执行
 			logInfo('将在5秒后下载缓存:', track.url)
 			setTimeout(() => {
@@ -1127,6 +1133,10 @@ const clearCache = async () => {
 		logInfo('缓存目录不存在，无需清理')
 	}
 }
+const toggleAutoCacheLocal = (bool: boolean) => {
+	PersistStatus.set('music.autoCacheLocal', bool)
+	autoCacheLocalStore.setValue(bool)
+}
 const myTrackPlayer = {
 	setupTrackPlayer,
 	usePlayList,
@@ -1174,6 +1184,7 @@ const myTrackPlayer = {
 	getPreviousMusic,
 	getNextMusic,
 	clearCache,
+	toggleAutoCacheLocal,
 }
 
 export default myTrackPlayer
