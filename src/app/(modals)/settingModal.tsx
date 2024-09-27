@@ -2,6 +2,7 @@
 import { colors } from '@/constants/tokens'
 import { logError, logInfo } from '@/helpers/logger'
 import myTrackPlayer, {
+	autoCacheLocalStore,
 	musicApiSelectedStore,
 	musicApiStore,
 	nowApiState,
@@ -217,6 +218,7 @@ const SettingModal = () => {
 	const [isQualitySelectorVisible, setIsQualitySelectorVisible] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
 	const apiState = nowApiState.useValue()
+	const autoCacheLocal = autoCacheLocalStore.useValue()
 	const settingsData = [
 		{
 			title: '应用信息',
@@ -231,7 +233,15 @@ const SettingModal = () => {
 		},
 		{
 			title: '音频设置',
-			data: [{ id: '6', title: '清空待播清单', type: 'link' }],
+			data: [
+				{ id: '6', title: '清空待播清单', type: 'link' },
+				{
+					id: '14',
+					title: '是否自动缓存歌曲到本地',
+					type: 'value',
+					value: autoCacheLocal ? '是' : '否',
+				},
+			],
 		},
 		{
 			title: '自定义音源',
@@ -262,6 +272,28 @@ const SettingModal = () => {
 			actions={[
 				{ id: 'file', title: '从文件导入' },
 				{ id: 'url', title: '从URL导入' },
+			]}
+		>
+			<TouchableOpacity style={styles.menuTrigger}>
+				<Text style={styles.menuTriggerText}>导入音源</Text>
+			</TouchableOpacity>
+		</MenuView>
+	)
+	const toggleAutoCacheLocalMenu = (
+		<MenuView
+			onPressAction={({ nativeEvent: { event } }) => {
+				switch (event) {
+					case 'on':
+						myTrackPlayer.toggleAutoCacheLocal(true)
+						break
+					case 'off':
+						myTrackPlayer.toggleAutoCacheLocal(false)
+						break
+				}
+			}}
+			actions={[
+				{ id: 'on', title: '是' },
+				{ id: 'off', title: '否' },
 			]}
 		>
 			<TouchableOpacity style={styles.menuTrigger}>
@@ -394,6 +426,7 @@ const SettingModal = () => {
 					{(item.type === 'link' || item.title === '项目链接') && !item.icon && (
 						<Text style={styles.arrowRight}>{'>'}</Text>
 					)}
+					{item.title === '是否自动缓存歌曲到本地' && toggleAutoCacheLocalMenu}
 				</View>
 			</TouchableOpacity>
 			{index !== sectionData.length - 1 && <View style={styles.separator} />}
