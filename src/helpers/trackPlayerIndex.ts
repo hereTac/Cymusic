@@ -460,7 +460,10 @@ const addSongToStoredPlayList = (playlist: IMusic.PlayList, track: IMusic.IMusic
 		const updatedPlayLists = nowPlayLists.map((existingPlaylist) => {
 			if (existingPlaylist.id === playlist.id) {
 				// 检查歌曲是否已经存在于播放列表中
-				const songExists = existingPlaylist.songs.some((song) => song.id === track.id)
+				// console.log('track', JSON.stringify(track))
+				// console.log('existingPlaylist.songs', JSON.stringify(existingPlaylist.songs))
+				const songExists = existingPlaylist.songs.some((song) => song.id == track.id)
+				// console.log('songExists', songExists)
 
 				if (!songExists) {
 					// 只有当歌曲不存在时才添加

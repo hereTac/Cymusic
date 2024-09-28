@@ -11,8 +11,8 @@ import { Track } from 'react-native-track-player'
 const SingerListScreen = () => {
 	const { name: playlistName, album } = useLocalSearchParams<{ name: string; album?: string }>()
 	const isAlbum = !!album
-	// const { playlists } = usePlaylists()
-	// const playlist = playlists.find((playlist) => playlist.title === playlistName)
+	console.log('album', album)
+
 	const [singerListDetail, setSingerListDetail] = useState<{ musicList: Track[] } | null>(null)
 	const [loading, setLoading] = useState(true)
 
@@ -21,12 +21,12 @@ const SingerListScreen = () => {
 			let detail
 			if (isAlbum) {
 				detail = await getAlbumSongList(playlistName)
+				// console.log('detail', detail)
+				// console.log('playlistName', playlistName)
 			} else {
 				detail = await getSingerDetail(playlistName)
 			}
-			// console.log(playlistName+'123123')
-			// const detail = await getSingerDetail(playlistName)
-			// console.log(JSON.stringify(detail.musicList));
+
 			setSingerListDetail(detail)
 
 			setLoading(false)

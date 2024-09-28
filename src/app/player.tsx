@@ -210,10 +210,17 @@ const PlayerScreen = () => {
 	}
 
 	const handleShowAlbum = () => {
+		// console.log('trackToDisplay', trackToDisplay)
+		const albumId = extractAlbumId(trackToDisplay.artwork)
+		// console.log('albumId', albumId)
 		// 实现显示专辑的逻辑
-		router.push(`/(modals)/${trackToDisplay.album}?album=true`)
+		router.push(`/(modals)/${albumId}?album=true`)
 	}
-
+	const extractAlbumId = (artworkUrl: string): string => {
+		const regex = /T002R500x500M000(.+)\.jpg/
+		const match = artworkUrl.match(regex)
+		return match ? match[1] : ''
+	}
 	const handleShowLyrics = () => {
 		// 实现显示歌词的逻辑
 		handleLyricsToggle()

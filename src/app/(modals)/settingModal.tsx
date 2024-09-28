@@ -237,9 +237,8 @@ const SettingModal = () => {
 				{ id: '6', title: '清空待播清单', type: 'link' },
 				{
 					id: '14',
-					title: '是否自动缓存歌曲到本地',
+					title: '自动缓存歌曲到本地',
 					type: 'value',
-					value: autoCacheLocal ? '是' : '否',
 				},
 			],
 		},
@@ -297,7 +296,7 @@ const SettingModal = () => {
 			]}
 		>
 			<TouchableOpacity style={styles.menuTrigger}>
-				<Text style={styles.menuTriggerText}>导入音源</Text>
+				<Text style={styles.menuTriggerText}>{autoCacheLocal ? '是' : '否'}</Text>
 			</TouchableOpacity>
 		</MenuView>
 	)
@@ -426,7 +425,7 @@ const SettingModal = () => {
 					{(item.type === 'link' || item.title === '项目链接') && !item.icon && (
 						<Text style={styles.arrowRight}>{'>'}</Text>
 					)}
-					{item.title === '是否自动缓存歌曲到本地' && toggleAutoCacheLocalMenu}
+					{item.title === '自动缓存歌曲到本地' && toggleAutoCacheLocalMenu}
 				</View>
 			</TouchableOpacity>
 			{index !== sectionData.length - 1 && <View style={styles.separator} />}

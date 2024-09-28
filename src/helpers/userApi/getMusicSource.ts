@@ -197,7 +197,38 @@ function formatMusicItem(_) {
 		url: 'Unknown',
 	}
 }
+function formatMusicItemOfAlbum(item: any) {
+	try {
+		const albumid = item.albumid || item.album?.id
+		const albummid = item.albummid || item.album?.mid
+		const albumname = item.albumname || item.album?.title
 
+		let artwork = ''
+		if (item.album?.name === '' || item.album?.name === '空') {
+			if (item.singer && item.singer.length > 0) {
+				artwork = `https://y.gtimg.cn/music/photo_new/T001R500x500M000${item.singer[0].mid}.jpg`
+			}
+		} else {
+			artwork = `https://y.gtimg.cn/music/photo_new/T002R500x500M000${albummid}.jpg`
+		}
+
+		return {
+			id: item.mid || item.songid,
+			songmid: item.id || item.songmid,
+			title: item.title || item.songname,
+			artist: item.singer.map((s: any) => s.name).join(', '),
+			artwork: artwork || undefined,
+			album: albumname,
+			lrc: item.lyric || undefined,
+			albumid: albumid,
+			albummid: albummid,
+			url: 'Unknown',
+		}
+	} catch (error) {
+		console.error('Error in formatMusicItem:', error, 'for item:', item)
+		return null // 或者返回一个默认对象
+	}
+}
 export async function getTopLists() {
 	const list = await fetch(
 		'https://u.y.qq.com/cgi-bin/musicu.fcg?_=1577086820633&data=%7B%22comm%22%3A%7B%22g_tk%22%3A5381%2C%22uin%22%3A123456%2C%22format%22%3A%22json%22%2C%22inCharset%22%3A%22utf-8%22%2C%22outCharset%22%3A%22utf-8%22%2C%22notice%22%3A0%2C%22platform%22%3A%22h5%22%2C%22needNewCode%22%3A1%2C%22ct%22%3A23%2C%22cv%22%3A0%7D%2C%22topList%22%3A%7B%22module%22%3A%22musicToplist.ToplistInfoServer%22%2C%22method%22%3A%22GetAll%22%2C%22param%22%3A%7B%7D%7D%7D',
@@ -594,27 +625,48 @@ export async function getSingerDetail(singerMid: string) {
 //
 // albummid: 专辑的 MID
 export const getAlbumSongList = async (albummid, origin = false) => {
-	return await fetch(
-		'https://i.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?platform=h5page&albummid=ALBUMMID&g_tk=938407465&uin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=h5&needNewCode=1&_=1459961045571'.replaceAll(
-			'ALBUMMID',
-			albummid,
-		),
-	)
-		.then((res) => res.json())
-		.then((data) => {
-			if (origin) return data
-			else {
-				return {
-					singerImg: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albummid}.jpg`,
-					title: data.data.name,
-					id: albummid,
-					musicList: data.data.list.map(formatMusicItem),
-				}
+	try {
+		const response = await fetch(
+			'https://i.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?platform=h5page&albummid=ALBUMMID&g_tk=938407465&uin=0&format=json&inCharset=utf-8&outCharset=utf-8&notice=0&platform=h5&needNewCode=1&_=1459961045571'.replaceAll(
+				'ALBUMMID',
+				albummid,
+			),
+		)
+		const jsonData = await response.json()
+		// console.log('Raw jsonData:', JSON.stringify(jsonData, null, 2))
+
+		if (origin) return jsonData
+
+		// console.log('jsonData.data:', jsonData.data)
+		// console.log('jsonData.data.name:', jsonData.data?.name)
+
+		if (jsonData && jsonData.data) {
+			const result = {
+				singerImg: `https://y.gtimg.cn/music/photo_new/T002R800x800M000${albummid}.jpg`,
+				title: jsonData.data.name || '未知专辑',
+				id: albummid,
+				musicList: (jsonData.data.list || []).map(formatMusicItemOfAlbum),
 			}
-		})
-		.catch((err) => {
-			console.log(err)
-		})
+			// console.log('Returning result:', result)
+			return result
+		} else {
+			console.error('Invalid data structure:', jsonData)
+			return {
+				singerImg: '',
+				title: '未知专辑',
+				id: albummid,
+				musicList: [],
+			}
+		}
+	} catch (err) {
+		console.error('Error in getAlbumSongList:', err)
+		return {
+			singerImg: '',
+			title: '未知专辑',
+			id: albummid,
+			musicList: [],
+		}
+	}
 }
 
 function similarity(s1, s2) {
