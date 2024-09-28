@@ -7,6 +7,7 @@ import { GlobalState } from '@/utils/stateMapper'
 import * as FileSystem from 'expo-file-system'
 import { produce } from 'immer'
 import shuffle from 'lodash.shuffle'
+import RNFS from 'react-native-fs'
 import ReactNativeTrackPlayer, {
 	Event,
 	State,
@@ -799,7 +800,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		// 5.1 通过插件获取音源
 		// const plugin = PluginManager.getByName(musicItem.platform);
 		// 5.2 获取音质排序
-		const qualityOrder = ['128k', 'low']
+		// const qualityOrder = ['128k', 'low']
 		// const qualityOrder = getQualityOrder(
 		//     Config.get('setting.basic.defaultPlayQuality') ?? 'standard',
 		//     Config.get('setting.basic.playQualityOrder') ?? 'asc',
@@ -908,7 +909,9 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 				downloadToCache(track)
 					.then((localUri) => {
 						logInfo('音乐已缓存到本地:', localUri)
-						addImportedLocalMusic([track], false)
+						// 更新url,为了删除能够正常删除
+						const newTrack = { ...track, url: localUri }
+						addImportedLocalMusic([newTrack], false)
 					})
 					.catch((error) => {
 						logError('缓存音乐时出错:', error)
@@ -917,7 +920,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		}
 
 		// 10. 获取补充信息
-		const info: Partial<IMusic.IMusicItem> | null = null
+		// const info: Partial<IMusic.IMusicItem> | null = null
 	} catch (e: any) {
 		const message = e?.message
 		if (message === 'The player is not initialized. Call setupPlayer first.') {
@@ -935,24 +938,41 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 }
 const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 	try {
-		const isCacheExist = await isCached(track)
+		await ensureCacheDirExists()
+		const CACHE_DIR = `${RNFS.DocumentDirectoryPath}/musicCache/`
+
+		const localFilePath = `${CACHE_DIR}${track.id}.mp3`
+
+		const isCacheExist = await RNFS.exists(localFilePath)
 		if (isCacheExist) {
-			logInfo('音乐已缓存到本地')
-			const localUri = await getLocalFilePath(track)
-			const newTrack = { ...track, url: localUri }
+			logInfo('音乐已缓存到本地:', localFilePath)
+			const newTrack = { ...track, url: `file://${localFilePath}` }
 			await addImportedLocalMusic([newTrack], false)
 		} else {
-			const localUri = await downloadToCache(track)
-			logInfo('音乐已缓存到本地:', localUri)
-			const newTrack = { ...track, url: localUri }
-			await addImportedLocalMusic([newTrack], false)
+			logInfo('开始下载音乐:', track.url)
+			const downloadResult = await RNFS.downloadFile({
+				fromUrl: track.url,
+				toFile: localFilePath,
+				progressDivider: 1,
+				progress: (res) => {
+					const progress = res.bytesWritten / res.contentLength
+					logInfo(`下载进度: ${(progress * 100).toFixed(2)}%`)
+				},
+			}).promise
+
+			if (downloadResult.statusCode === 200) {
+				logInfo('音乐已缓存到本地:', `file://${localFilePath}`)
+				const newTrack = { ...track, url: `file://${localFilePath}` }
+				await addImportedLocalMusic([newTrack], false)
+			} else {
+				throw new Error(`下载失败，状态码: ${downloadResult.statusCode}`)
+			}
 		}
-		Alert.alert('成功', '音乐已缓存到本地', [
-			{ text: '确定', onPress: () => logInfo('Add alert closed') },
-		])
+
+		Alert.alert('成功', '音乐已缓存到本地', [{ text: '确定', onPress: () => {} }])
 	} catch (error) {
 		logError('缓存音乐时出错:', error)
-		await addImportedLocalMusic([track], false)
+		// await addImportedLocalMusic([track], false)
 	}
 }
 
@@ -1063,6 +1083,7 @@ function getNextMusic() {
 }
 const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[], isAlert: boolean = true) => {
 	try {
+		// console.log('addImportedLocalMusic', musicItem[0])
 		const importedLocalMusic = importedLocalMusicStore.getValue() || []
 		const newMusicItems = musicItem.filter(
 			(newItem) => !importedLocalMusic.some((existingItem) => existingItem.id == newItem.id),
@@ -1144,8 +1165,22 @@ const downloadToCache = async (musicItem: IMusic.IMusicItem): Promise<string> =>
 	try {
 		await ensureCacheDirExists()
 		const localPath = getLocalFilePath(musicItem)
-		const { uri } = await FileSystem.downloadAsync(musicItem.url, localPath)
-		return uri
+		const downloadResult = await RNFS.downloadFile({
+			fromUrl: musicItem.url,
+			toFile: localPath,
+			progressDivider: 1,
+			progress: (res) => {
+				const progress = res.bytesWritten / res.contentLength
+				logInfo(`下载进度: ${(progress * 100).toFixed(2)}%`)
+			},
+		}).promise
+
+		if (downloadResult.statusCode === 200) {
+			logInfo('音频文件已缓存到本地:', localPath)
+			return localPath
+		} else {
+			throw new Error(`下载失败，状态码: ${downloadResult.statusCode}`)
+		}
 	} catch (error) {
 		logError('下载音频文件时出错:', error)
 	}
