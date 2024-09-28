@@ -1138,10 +1138,14 @@ const isCached = async (musicItem: IMusic.IMusicItem): Promise<boolean> => {
  * @returns 本地文件路径
  */
 const downloadToCache = async (musicItem: IMusic.IMusicItem): Promise<string> => {
-	await ensureCacheDirExists()
-	const localPath = getLocalFilePath(musicItem)
-	const { uri } = await FileSystem.downloadAsync(musicItem.url, localPath)
-	return uri
+	try {
+		await ensureCacheDirExists()
+		const localPath = getLocalFilePath(musicItem)
+		const { uri } = await FileSystem.downloadAsync(musicItem.url, localPath)
+		return uri
+	} catch (error) {
+		logError('下载音频文件时出错:', error)
+	}
 }
 /**
  * 清理所有缓存的音频文件

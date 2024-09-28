@@ -296,7 +296,9 @@ const SettingModal = () => {
 			]}
 		>
 			<TouchableOpacity style={styles.menuTrigger}>
-				<Text style={styles.menuTriggerText}>{autoCacheLocal ? '是' : '否'}</Text>
+				<Text style={styles.menuTriggerText}>
+					{autoCacheLocal ? '               是' : '               否'}
+				</Text>
 			</TouchableOpacity>
 		</MenuView>
 	)
