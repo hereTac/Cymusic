@@ -494,7 +494,7 @@ const deleteSongFromStoredPlayList = (playlist: IMusic.PlayList, trackId: string
 		const updatedPlayLists = nowPlayLists.map((existingPlaylist) => {
 			if (existingPlaylist.id === playlist.id) {
 				// 检查歌曲是否已经存在于播放列表中
-				const songExists = existingPlaylist.songs.some((song) => song.id === trackId)
+				const songExists = existingPlaylist.songs.some((song) => song.id == trackId)
 
 				if (songExists) {
 					// 只有当歌曲存在时才删除
@@ -523,7 +523,7 @@ const addPlayLists = (playlist: IMusic.PlayList) => {
 
 		// 检查播放列表是否已存在
 		const playlistExists = nowPlayLists.some(
-			(existingPlaylist) => existingPlaylist.id === playlist.id,
+			(existingPlaylist) => existingPlaylist.id == playlist.id,
 		)
 
 		if (playlistExists) {
@@ -933,6 +933,25 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		}
 	}
 }
+const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
+	try {
+		const isCacheExist = await isCached(track)
+		if (isCacheExist) {
+			logInfo('音乐已缓存到本地')
+			await addImportedLocalMusic([track], false)
+		} else {
+			const localUri = await downloadToCache(track)
+			logInfo('音乐已缓存到本地:', localUri)
+			await addImportedLocalMusic([track], false)
+		}
+		Alert.alert('成功', '音乐已缓存到本地', [
+			{ text: '确定', onPress: () => logInfo('Add alert closed') },
+		])
+	} catch (error) {
+		logError('缓存音乐时出错:', error)
+		await addImportedLocalMusic([track], false)
+	}
+}
 
 /**
  * 播放音乐，同时替换播放队列
@@ -1043,7 +1062,7 @@ const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[], isAlert: boolean 
 	try {
 		const importedLocalMusic = importedLocalMusicStore.getValue() || []
 		const newMusicItems = musicItem.filter(
-			(newItem) => !importedLocalMusic.some((existingItem) => existingItem.id === newItem.id),
+			(newItem) => !importedLocalMusic.some((existingItem) => existingItem.id == newItem.id),
 		)
 		if (newMusicItems.length === 0) {
 			// Alert.alert('提示', '所有选择的音乐已经存在，没有新的音乐被导入。')
@@ -1188,6 +1207,7 @@ const myTrackPlayer = {
 	getNextMusic,
 	clearCache,
 	toggleAutoCacheLocal,
+	cacheAndImportMusic,
 }
 
 export default myTrackPlayer

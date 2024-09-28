@@ -6,7 +6,7 @@ import { PlayerVolumeBar } from '@/components/PlayerVolumeBar'
 import { ShowPlayerListToggle } from '@/components/ShowPlayerListToggle'
 import { unknownTrackImageUri } from '@/constants/images'
 import { colors, fontSize, screenPadding } from '@/constants/tokens'
-import { nowLyricState } from '@/helpers/trackPlayerIndex'
+import myTrackPlayer, { nowLyricState } from '@/helpers/trackPlayerIndex'
 import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 import { usePlayerBackground } from '@/hooks/usePlayerBackground'
 import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
@@ -17,15 +17,7 @@ import { MenuView } from '@react-native-menu/menu'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
-import {
-	ActivityIndicator,
-	Linking,
-	Share,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from 'react-native'
+import { ActivityIndicator, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { Lyric } from 'react-native-lyric'
 import Animated, {
@@ -236,24 +228,7 @@ const PlayerScreen = () => {
 	}
 
 	const handleDownload = async () => {
-		if (trackToDisplay?.url) {
-			try {
-				const supported = await Linking.canOpenURL(trackToDisplay.url)
-
-				if (supported) {
-					await Linking.openURL(trackToDisplay.url)
-				} else {
-					console.log("Don't know how to open this URL: " + trackToDisplay.url)
-					// 可以在这里添加一个提示给用户，说明无法打开此 URL
-				}
-			} catch (error) {
-				console.error('An error occurred while trying to open the URL: ', error)
-				// 可以在这里添加一个错误提示给用户
-			}
-		} else {
-			console.log('No URL available for this track')
-			// 可以在这里添加一个提示给用户，说明没有可用的下载链接
-		}
+		myTrackPlayer.cacheAndImportMusic(trackToDisplay as IMusic.IMusicItem)
 	}
 	const handleShare = async () => {
 		try {
