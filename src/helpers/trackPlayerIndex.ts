@@ -938,11 +938,14 @@ const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 		const isCacheExist = await isCached(track)
 		if (isCacheExist) {
 			logInfo('音乐已缓存到本地')
-			await addImportedLocalMusic([track], false)
+			const localUri = await getLocalFilePath(track)
+			const newTrack = { ...track, url: localUri }
+			await addImportedLocalMusic([newTrack], false)
 		} else {
 			const localUri = await downloadToCache(track)
 			logInfo('音乐已缓存到本地:', localUri)
-			await addImportedLocalMusic([track], false)
+			const newTrack = { ...track, url: localUri }
+			await addImportedLocalMusic([newTrack], false)
 		}
 		Alert.alert('成功', '音乐已缓存到本地', [
 			{ text: '确定', onPress: () => logInfo('Add alert closed') },
