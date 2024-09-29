@@ -36,9 +36,13 @@ const ImportPlayList = () => {
 			const match = playlistUrl.match(/[?&]id=(\d+)/)
 			const response = await getPlayListFromQ(match ? match[1] : null)
 			// 设置数据
-			//  console.log(JSON.stringify(response.songs)+'12312312')
-			setPlaylistData(response)
-			myTrackPlayer.addPlayLists(response as IMusic.PlayList)
+			// console.log(JSON.stringify(response) + '12312312')
+			const processedResponse: any = {
+				...response,
+				title: response.title || response.name || '未知歌单', // 如果 title 为空，使用 name
+			}
+			setPlaylistData(processedResponse)
+			myTrackPlayer.addPlayLists(processedResponse as IMusic.PlayList)
 			router.dismiss()
 		} catch (err) {
 			setError('导入失败，请检查链接是否正确')
