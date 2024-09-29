@@ -298,7 +298,7 @@ const SettingModal = () => {
 			<TouchableOpacity style={styles.menuTrigger}>
 				<Text style={styles.menuTriggerText}>
 					{/* 此处加空格为了增大点击区域 */}
-					{autoCacheLocal ? '               是' : '               否'}
+					{autoCacheLocal == true ? '               是' : '               否'}
 				</Text>
 			</TouchableOpacity>
 		</MenuView>

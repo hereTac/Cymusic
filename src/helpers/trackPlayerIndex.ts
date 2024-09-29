@@ -97,7 +97,8 @@ async function setupTrackPlayer() {
 	const musicApiLists = PersistStatus.get('music.musicApi')
 	const selectedMusicApi = PersistStatus.get('music.selectedMusicApi')
 	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
-	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') || true
+	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') ?? true
+	// console.log('autoCacheLocal', autoCacheLocal, PersistStatus.get('music.autoCacheLocal'))
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -125,7 +126,7 @@ async function setupTrackPlayer() {
 	if (musicQueue && Array.isArray(musicQueue)) {
 		addAll(musicQueue, undefined, repeatMode === MusicRepeatMode.SHUFFLE)
 	}
-	if (autoCacheLocal) {
+	if (autoCacheLocal == true || autoCacheLocal == false) {
 		autoCacheLocalStore.setValue(autoCacheLocal)
 	}
 
