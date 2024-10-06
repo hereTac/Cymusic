@@ -1,58 +1,28 @@
-import {
-    internalSerializeKey,
-    localPluginPlatform,
-    sortIndexSymbol,
-    timeStampSymbol,
-} from '@/constants/commonConst';
-import MediaMeta from '@/store/mediaExtra';
-import { produce } from 'immer';
-
+import { internalSerializeKey, sortIndexSymbol, timeStampSymbol } from '@/constants/commonConst'
+import MediaMeta from '@/store/mediaExtra'
 
 /** 获取mediakey */
 export function getMediaKey(mediaItem: ICommon.IMediaBase) {
-    return `${mediaItem.platform}@${mediaItem.id}`;
-}
-
-/** 解析mediakey */
-export function parseMediaKey(key: string): ICommon.IMediaBase {
-    try {
-        const str = JSON.parse(key.trim());
-        let platform, id;
-        if (typeof str === 'string') {
-            [platform, id] = str.split('@');
-        } else {
-            platform = str?.platform;
-            id = str?.id;
-        }
-        if (!platform || !id) {
-            throw new Error('mediakey不完整');
-        }
-        return {
-            platform,
-            id,
-        };
-    } catch (e: any) {
-        throw e;
-    }
+	return `${mediaItem.platform}@${mediaItem.id}`
 }
 
 /** 比较两media是否相同 */
 export function isSameMediaItem(
-    a: ICommon.IMediaBase | null | undefined,
-    b: ICommon.IMediaBase | null | undefined,
+	a: ICommon.IMediaBase | null | undefined,
+	b: ICommon.IMediaBase | null | undefined,
 ) {
-    return a && b && a.id == b.id && a.platform === b.platform;
+	return a && b && a.id == b.id && a.platform === b.platform
 }
 
 /** 查找是否存在 */
 export function includesMedia(
-    a: ICommon.IMediaBase[] | null | undefined,
-    b: ICommon.IMediaBase | null | undefined,
+	a: ICommon.IMediaBase[] | null | undefined,
+	b: ICommon.IMediaBase | null | undefined,
 ) {
-    if (!a || !b) {
-        return false;
-    }
-    return a.findIndex(_ => isSameMediaItem(_, b)) !== -1;
+	if (!a || !b) {
+		return false
+	}
+	return a.findIndex((_) => isSameMediaItem(_, b)) !== -1
 }
 
 /** 获取复位的mediaItem */
@@ -81,63 +51,56 @@ export function includesMedia(
 // }
 
 export function mergeProps(
-    mediaItem: ICommon.IMediaBase,
-    props: Record<string, any> | undefined,
-    anotherProps?: Record<string, any> | undefined | null,
+	mediaItem: ICommon.IMediaBase,
+	props: Record<string, any> | undefined,
+	anotherProps?: Record<string, any> | undefined | null,
 ) {
-    return props
-        ? {
-              ...mediaItem,
-              ...props,
-              ...(anotherProps ?? {}),
-              id: mediaItem.id,
-              platform: mediaItem.platform,
-          }
-        : mediaItem;
+	return props
+		? {
+				...mediaItem,
+				...props,
+				...(anotherProps ?? {}),
+				id: mediaItem.id,
+				platform: mediaItem.platform,
+			}
+		: mediaItem
 }
 
 export enum InternalDataType {
-    LOCALPATH = 'localPath',
+	LOCALPATH = 'localPath',
 }
 
-
-
-export function trimInternalData(
-    mediaItem: ICommon.IMediaBase | null | undefined,
-) {
-    if (!mediaItem) {
-        return undefined;
-    }
-    return {
-        ...mediaItem,
-        [internalSerializeKey]: undefined,
-    };
+export function trimInternalData(mediaItem: ICommon.IMediaBase | null | undefined) {
+	if (!mediaItem) {
+		return undefined
+	}
+	return {
+		...mediaItem,
+		[internalSerializeKey]: undefined,
+	}
 }
 
 /** 关联歌词 */
-export async function associateLrc(
-    musicItem: ICommon.IMediaBase,
-    linkto: ICommon.IMediaBase,
-) {
-    if (!musicItem || !linkto) {
-        throw new Error('');
-    }
+export async function associateLrc(musicItem: ICommon.IMediaBase, linkto: ICommon.IMediaBase) {
+	if (!musicItem || !linkto) {
+		throw new Error('')
+	}
 
-    // 如果相同直接断链
-    MediaMeta.update(musicItem, {
-        associatedLrc: isSameMediaItem(musicItem, linkto) ? undefined : linkto,
-    });
+	// 如果相同直接断链
+	MediaMeta.update(musicItem, {
+		associatedLrc: isSameMediaItem(musicItem, linkto) ? undefined : linkto,
+	})
 }
 
 export function sortByTimestampAndIndex(array: any[], newArray = false) {
-    if (newArray) {
-        array = [...array];
-    }
-    return array.sort((a, b) => {
-        const ts = a[timeStampSymbol] - b[timeStampSymbol];
-        if (ts !== 0) {
-            return ts;
-        }
-        return a[sortIndexSymbol] - b[sortIndexSymbol];
-    });
+	if (newArray) {
+		array = [...array]
+	}
+	return array.sort((a, b) => {
+		const ts = a[timeStampSymbol] - b[timeStampSymbol]
+		if (ts !== 0) {
+			return ts
+		}
+		return a[sortIndexSymbol] - b[sortIndexSymbol]
+	})
 }

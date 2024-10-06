@@ -1,4 +1,5 @@
 import { colors, fontSize } from '@/constants/tokens'
+import { durationStore } from '@/helpers/lyricManager'
 import { formatSecondsToMinutes } from '@/helpers/miscellaneous'
 import { defaultStyles, utilsStyles } from '@/styles'
 import PropTypes from 'prop-types'
@@ -32,8 +33,8 @@ export const PlayerProgressBar = ({
 	style,
 	onSeek,
 }: ViewProps & { onSeek?: (position: number) => void }) => {
-	const { duration, position } = useProgress(250)
-
+	const { position } = useProgress(250)
+	const duration = durationStore.useValue()
 	const isSliding = useSharedValue(false)
 	const progress = useSharedValue(0)
 	const min = useSharedValue(0)

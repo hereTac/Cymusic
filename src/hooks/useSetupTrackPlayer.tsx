@@ -14,6 +14,7 @@ const setupPlayer = async () => {
 			Capability.SkipToPrevious,
 			Capability.Stop,
 		],
+		progressUpdateEventInterval: 1,
 	})
 
 	await TrackPlayer.setVolume(0.3) // not too loud

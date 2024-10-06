@@ -1,5 +1,6 @@
 import { playbackService } from '@/constants/playbackService'
 import { colors } from '@/constants/tokens'
+import LyricManager from '@/helpers/lyricManager'
 import { useLogTrackPlayerState } from '@/hooks/useLogTrackPlayerState'
 import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
 import { SplashScreen, Stack } from 'expo-router'
@@ -24,6 +25,8 @@ const App = () => {
 
 	useLogTrackPlayerState()
 	// myTrackPlayer.setupTrackPlayer()
+
+	LyricManager.setup()
 
 	return (
 		<SafeAreaProvider>

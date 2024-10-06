@@ -1,7 +1,14 @@
-import TrackPlayer, { Event, useTrackPlayerEvents } from 'react-native-track-player'
-import { useLibraryStore } from '@/store/library'
+import { Event, useTrackPlayerEvents } from 'react-native-track-player'
 
-const events = [Event.PlaybackState, Event.PlaybackError, Event.PlaybackQueueEnded, Event.PlaybackActiveTrackChanged, Event.PlaybackPlayWhenReadyChanged,Event.PlaybackTrackChanged]
+const events = [
+	Event.PlaybackState,
+	Event.PlaybackError,
+	Event.PlaybackQueueEnded,
+	Event.PlaybackActiveTrackChanged,
+	Event.PlaybackPlayWhenReadyChanged,
+	Event.PlaybackTrackChanged,
+	Event.PlaybackProgressUpdated,
+]
 
 export const useLogTrackPlayerState = () => {
 	useTrackPlayerEvents(events, async (event) => {
@@ -15,8 +22,17 @@ export const useLogTrackPlayerState = () => {
 			console.log(' PlaybackQueueEnded: ', event.track)
 		} else if (event.type === Event.PlaybackPlayWhenReadyChanged) {
 			console.log('Ready ?:', event.playWhenReady)
-		} else {
-			console.log('Track other type:', event.type)
+		}
+		// else if (event.type === Event.PlaybackProgressUpdated) {
+		// 	const currentPosition = event.position
+		// 	const currentLyric =
+		// 		LyricManager.getLyricState().lyricParser?.getPosition(currentPosition).lrc
+		// 	console.log('PlaybackProgressUpdated: ', currentLyric)
+		// 	LyricManager.setCurrentLyric(currentLyric || null)
+		// 	// LyricManager.refreshLyric()
+		// }
+		else {
+			// console.log('Track other type:', event.type)
 		}
 	})
 }

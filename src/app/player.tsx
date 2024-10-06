@@ -1,3 +1,4 @@
+import Lyric from '@/components/lyric'
 import { MovingText } from '@/components/MovingText'
 import { PlayerControls } from '@/components/PlayerControls'
 import { PlayerProgressBar } from '@/components/PlayerProgressbar'
@@ -19,7 +20,6 @@ import { router } from 'expo-router'
 import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
-import { Lyric } from 'react-native-lyric'
 import Animated, {
 	Easing,
 	useAnimatedStyle,
@@ -282,22 +282,9 @@ const PlayerScreen = () => {
 				<DismissPlayerSymbol />
 				{showLyrics ? (
 					<Animated.View style={[styles.lyricContainer, lyricsAnimatedStyle]}>
-						<TouchableOpacity
-							style={{ backgroundColor: 'transparent', flex: 1 }}
-							onPress={handleLyricsToggle}
-						>
-							<Lyric
-								style={styles.lyric}
-								lrc={nowLyric}
-								currentTime={currentLyricTime}
-								autoScroll
-								autoScrollAfterUserScroll={500}
-								lineHeight={50}
-								activeLineHeight={65}
-								height={850}
-								lineRenderer={lineRenderer}
-							/>
-						</TouchableOpacity>
+						{/* <Pressable style={styles.artworkTouchable} onPress={handleLyricsToggle}> */}
+						<Lyric onTurnPageClick={handleLyricsToggle} />
+						{/* </Pressable> */}
 					</Animated.View>
 				) : (
 					<View style={{ flex: 1, marginTop: top + 70, marginBottom: bottom }}>
