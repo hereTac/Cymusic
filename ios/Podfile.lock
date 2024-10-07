@@ -83,6 +83,8 @@ PODS:
     - ExpoModulesCore
   - ExpoFileSystem (16.0.8):
     - ExpoModulesCore
+  - ExpoHaptics (12.8.1):
+    - ExpoModulesCore
   - ExpoHead (3.4.8):
     - ExpoModulesCore
   - ExpoKeepAwake (12.8.2):
@@ -1256,6 +1258,7 @@ DEPENDENCIES:
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
   - ExpoDocumentPicker (from `../node_modules/expo-document-picker/ios`)
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
+  - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
@@ -1374,6 +1377,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-document-picker/ios"
   ExpoFileSystem:
     :path: "../node_modules/expo-file-system/ios"
+  ExpoHaptics:
+    :path: "../node_modules/expo-haptics/ios"
   ExpoHead:
     :path: "../node_modules/expo-router/ios"
   ExpoKeepAwake:
@@ -1531,6 +1536,7 @@ SPEC CHECKSUMS:
   ExpoBlur: e832d874bd94afc0645daddbd3162ec1ce172080
   ExpoDocumentPicker: a82eaccc62ecb62662d5a6ca7a8ef40b71daa521
   ExpoFileSystem: eecaf6796aed0f4dd20042dc2ca2cac6c4bc1185
+  ExpoHaptics: 28a771b630353cd6e8dcf1b1e3e693e38ad7c3c3
   ExpoHead: 8224345e80abcf4c97b31c99805dd5a3c8d3404d
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
   ExpoLinearGradient: 4ad1449a2408e0435ac959076562b3921f2e32a1
