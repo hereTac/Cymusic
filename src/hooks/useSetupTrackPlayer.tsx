@@ -17,7 +17,7 @@ const setupPlayer = async () => {
 		progressUpdateEventInterval: 1,
 	})
 
-	await TrackPlayer.setVolume(0.3) // not too loud
+	await TrackPlayer.setVolume(1) // 默认音量1
 	await TrackPlayer.setRepeatMode(RepeatMode.Queue)
 }
 

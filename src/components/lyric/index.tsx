@@ -7,12 +7,9 @@ import useDelayFalsy from '@/hooks/useDelayFalsy'
 import PersistStatus from '@/store/PersistStatus'
 import delay from '@/utils/delay'
 import { musicIsPaused } from '@/utils/trackUtils'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { FlatList, Gesture, GestureDetector } from 'react-native-gesture-handler'
+import { FlatList, Gesture } from 'react-native-gesture-handler'
 import rpx from '../../utils/rpx'
-import DraggingTime from './draggingTime'
 import LyricItemComponent from './lyricItem'
-import LyricOperations from './lyricOperations'
 const ITEM_HEIGHT = rpx(92)
 
 interface IItemHeights {
@@ -200,7 +197,18 @@ export default function Lyric(props: IProps) {
 			}
 		}
 	}
-
+	const handleLyricItemPress = useCallback(
+		async (index: number) => {
+			if (index >= 0 && index < lyrics.length) {
+				const time = lyrics[index].time + +(meta?.offset ?? 0)
+				if (time !== undefined && !isNaN(time)) {
+					await myTrackPlayer.seekTo(time)
+					await myTrackPlayer.play()
+				}
+			}
+		},
+		[lyrics, meta?.offset],
+	)
 	const tapGesture = Gesture.Tap()
 		.onStart(() => {
 			onTurnPageClick?.()
@@ -220,74 +228,74 @@ export default function Lyric(props: IProps) {
 
 	return (
 		<>
-			<GestureDetector gesture={tapGesture}>
-				<View style={styles.fwflex1}>
-					{loading ? (
-						<View style={styles.fwflex1}>
-							<ActivityIndicator size="large" color="#fff" />
-						</View>
-					) : lyrics?.length ? (
-						<FlatList
-							ref={(_) => {
-								listRef.current = _
-							}}
-							onLayout={(e) => {
-								setLayout(e.nativeEvent.layout)
-							}}
-							viewabilityConfig={{
-								itemVisiblePercentThreshold: 100,
-							}}
-							onScrollToIndexFailed={({ index }) => {
-								delay(120).then(() => {
-									listRef.current?.scrollToIndex({
-										index: Math.min(index ?? 0, lyrics.length - 1),
-										viewPosition: 0.5,
-									})
+			<View style={styles.fwflex1}>
+				{loading ? (
+					<View style={styles.fwflex1}>
+						<ActivityIndicator size="large" color="#fff" />
+					</View>
+				) : lyrics?.length ? (
+					<FlatList
+						ref={(_) => {
+							listRef.current = _
+						}}
+						onLayout={(e) => {
+							setLayout(e.nativeEvent.layout)
+						}}
+						viewabilityConfig={{
+							itemVisiblePercentThreshold: 100,
+						}}
+						onScrollToIndexFailed={({ index }) => {
+							delay(120).then(() => {
+								listRef.current?.scrollToIndex({
+									index: Math.min(index ?? 0, lyrics.length - 1),
+									viewPosition: 0.5,
 								})
-							}}
-							fadingEdgeLength={120}
-							ListHeaderComponent={
-								<>
-									{blankComponent}
-									<View style={styles.lyricMeta}></View>
-								</>
-							}
-							ListFooterComponent={blankComponent}
-							onScrollBeginDrag={onScrollBeginDrag}
-							onMomentumScrollEnd={onScrollEndDrag}
-							onScroll={onScroll}
-							scrollEventThrottle={32}
-							style={styles.wrapper}
-							data={lyrics}
-							initialNumToRender={30}
-							overScrollMode="never"
-							extraData={currentLrcItem}
-							renderItem={({ item, index }) => {
-								const text = item.lrc
+							})
+						}}
+						fadingEdgeLength={120}
+						ListHeaderComponent={
+							<>
+								{blankComponent}
+								<View style={styles.lyricMeta}></View>
+							</>
+						}
+						ListFooterComponent={blankComponent}
+						onScrollBeginDrag={onScrollBeginDrag}
+						onMomentumScrollEnd={onScrollEndDrag}
+						onScroll={onScroll}
+						scrollEventThrottle={32}
+						style={styles.wrapper}
+						data={lyrics}
+						initialNumToRender={30}
+						overScrollMode="never"
+						extraData={currentLrcItem}
+						renderItem={({ item, index }) => {
+							const text = item.lrc
 
-								// if (showTranslation && hasTranslation) {
-								// 	const transLrc = translationLyrics?.[index]?.lrc
-								// 	if (transLrc) {
-								// 		text += `\n${transLrc}`
-								// 	}
-								// }
+							// if (showTranslation && hasTranslation) {
+							// 	const transLrc = translationLyrics?.[index]?.lrc
+							// 	if (transLrc) {
+							// 		text += `\n${transLrc}`
+							// 	}
+							// }
 
-								return (
-									<LyricItemComponent
-										index={index}
-										text={text}
-										fontSize={fontSizeStyle.fontSize}
-										onLayout={handleLyricItemLayout}
-										light={draggingIndex === index}
-										highlight={currentLrcItem?.index === index}
-									/>
-								)
-							}}
-						/>
-					) : (
-						<View style={styles.fullCenter}>
-							<Text style={[styles.white, fontSizeStyle]}>暂无歌词</Text>
-							{/* <TapGestureHandler
+							return (
+								<LyricItemComponent
+									index={index}
+									text={text}
+									fontSize={fontSizeStyle.fontSize}
+									onLayout={handleLyricItemLayout}
+									light={draggingIndex === index}
+									highlight={currentLrcItem?.index === index}
+									onPress={() => handleLyricItemPress(index)}
+								/>
+							)
+						}}
+					/>
+				) : (
+					<View style={styles.fullCenter}>
+						<Text style={[styles.white, fontSizeStyle]}>暂无歌词</Text>
+						{/* <TapGestureHandler
 								onActivated={() => {
 									showPanel('SearchLrc', {
 										musicItem: myTrackPlayer.getCurrentMusic(),
@@ -296,9 +304,9 @@ export default function Lyric(props: IProps) {
 							>
 								<Text style={[styles.searchLyric, fontSizeStyle]}>搜索歌词</Text>
 							</TapGestureHandler> */}
-						</View>
-					)}
-					{draggingIndex !== undefined && (
+					</View>
+				)}
+				{/* {draggingIndex !== undefined && (
 						<View
 							style={[
 								styles.draggingTime,
@@ -319,10 +327,10 @@ export default function Lyric(props: IProps) {
 								onPress={onLyricSeekPress}
 							/>
 						</View>
-					)}
-				</View>
-			</GestureDetector>
-			<LyricOperations scrollToCurrentLrcItem={delayedScrollToCurrentLrcItem} />
+					)} */}
+			</View>
+
+			{/* <LyricOperations scrollToCurrentLrcItem={delayedScrollToCurrentLrcItem} /> */}
 		</>
 	)
 }

@@ -11,6 +11,7 @@ import myTrackPlayer, { nowLyricState } from '@/helpers/trackPlayerIndex'
 import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 import { usePlayerBackground } from '@/hooks/usePlayerBackground'
 import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
+import PersistStatus from '@/store/PersistStatus'
 import usePlayerStore from '@/store/usePlayerStore'
 import { defaultStyles } from '@/styles'
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -273,6 +274,18 @@ const PlayerScreen = () => {
 	useEffect(() => {
 		setCurrentLyricTime(position * 1000)
 	}, [position])
+	function handleLyricsFontSizeDecrease(): void {
+		const currentFontSize = PersistStatus.get('lyric.detailFontSize')
+		console.log('currentFontSize', currentFontSize)
+		PersistStatus.set('lyric.detailFontSize', currentFontSize - 1 < 0 ? 0 : currentFontSize - 1)
+		// scrollToCurrentLrcItem();
+	}
+	function handleLyricsFontSizeIncrease(): void {
+		const currentFontSize = PersistStatus.get('lyric.detailFontSize')
+		console.log('currentFontSize', currentFontSize)
+		PersistStatus.set('lyric.detailFontSize', currentFontSize + 1 > 3 ? 3 : currentFontSize + 1)
+		// scrollToCurrentLrcItem();
+	}
 	return (
 		<LinearGradient
 			style={{ flex: 1 }}
@@ -281,11 +294,42 @@ const PlayerScreen = () => {
 			<View style={styles.overlayContainer}>
 				<DismissPlayerSymbol />
 				{showLyrics ? (
-					<Animated.View style={[styles.lyricContainer, lyricsAnimatedStyle]}>
-						{/* <Pressable style={styles.artworkTouchable} onPress={handleLyricsToggle}> */}
-						<Lyric onTurnPageClick={handleLyricsToggle} />
-						{/* </Pressable> */}
-					</Animated.View>
+					<View style={{ flex: 1, marginTop: top + 40, marginBottom: bottom }}>
+						<Animated.View style={[styles.lyricContainer, lyricsAnimatedStyle]}>
+							{/* <Pressable style={styles.artworkTouchable} onPress={handleLyricsToggle}> */}
+							<Lyric onTurnPageClick={handleLyricsToggle} />
+							{/* </Pressable> */}
+						</Animated.View>
+						<View style={styles.container}>
+							<View style={styles.leftItem}>
+								<MaterialCommunityIcons
+									name="tooltip-minus-outline"
+									size={27}
+									color="white"
+									onPress={handleLyricsToggle}
+									style={{ marginBottom: 4 }}
+								/>
+							</View>
+							<View style={styles.centeredItem}>
+								<MaterialCommunityIcons
+									name="format-font-size-decrease"
+									size={30}
+									color="white"
+									onPress={handleLyricsFontSizeDecrease}
+									style={{ marginBottom: 4 }}
+								/>
+							</View>
+							<View style={styles.rightItem}>
+								<MaterialCommunityIcons
+									name="format-font-size-increase"
+									size={30}
+									color="white"
+									onPress={handleLyricsFontSizeIncrease}
+									style={{ marginBottom: 4 }}
+								/>
+							</View>
+						</View>
+					</View>
 				) : (
 					<View style={{ flex: 1, marginTop: top + 70, marginBottom: bottom }}>
 						<Animated.View style={[styles.artworkImageContainer, artworkAnimatedStyle]}>
