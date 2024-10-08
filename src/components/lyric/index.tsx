@@ -7,7 +7,7 @@ import useDelayFalsy from '@/hooks/useDelayFalsy'
 import PersistStatus from '@/store/PersistStatus'
 import delay from '@/utils/delay'
 import { musicIsPaused } from '@/utils/trackUtils'
-import { FlatList, Gesture } from 'react-native-gesture-handler'
+import { FlatList } from 'react-native-gesture-handler'
 import rpx from '../../utils/rpx'
 import LyricItemComponent from './lyricItem'
 const ITEM_HEIGHT = rpx(92)
@@ -145,7 +145,6 @@ export default function Lyric(props: IProps) {
 				viewPosition: 0.5,
 			})
 		}
-		// 音乐暂停状态不应该影响到滑动，所以不放在依赖里，但是这样写不好。。
 	}, [currentLrcItem, lyrics, draggingIndex])
 
 	useEffect(() => {
@@ -187,16 +186,6 @@ export default function Lyric(props: IProps) {
 		}
 	}
 
-	const onLyricSeekPress = async () => {
-		if (draggingIndex !== undefined) {
-			const time = lyrics[draggingIndex].time + +(meta?.offset ?? 0)
-			if (time !== undefined && !isNaN(time)) {
-				await myTrackPlayer.seekTo(time)
-				await myTrackPlayer.play()
-				setDraggingIndexImmi(undefined)
-			}
-		}
-	}
 	const handleLyricItemPress = useCallback(
 		async (index: number) => {
 			if (index >= 0 && index < lyrics.length) {
@@ -209,22 +198,6 @@ export default function Lyric(props: IProps) {
 		},
 		[lyrics, meta?.offset],
 	)
-	const tapGesture = Gesture.Tap()
-		.onStart(() => {
-			onTurnPageClick?.()
-		})
-		.runOnJS(true)
-
-	// const unlinkTapGesture = Gesture.Tap()
-	// 	.onStart(() => {
-	// 		if (currentMusicItem) {
-	// 			MediaExtra.update(currentMusicItem, {
-	// 				associatedLrc: undefined,
-	// 			})
-	// 			LyricManager.refreshLyric(false, true)
-	// 		}
-	// 	})
-	// 	.runOnJS(true)
 
 	return (
 		<>
@@ -272,13 +245,6 @@ export default function Lyric(props: IProps) {
 						renderItem={({ item, index }) => {
 							const text = item.lrc
 
-							// if (showTranslation && hasTranslation) {
-							// 	const transLrc = translationLyrics?.[index]?.lrc
-							// 	if (transLrc) {
-							// 		text += `\n${transLrc}`
-							// 	}
-							// }
-
 							return (
 								<LyricItemComponent
 									index={index}
@@ -295,42 +261,9 @@ export default function Lyric(props: IProps) {
 				) : (
 					<View style={styles.fullCenter}>
 						<Text style={[styles.white, fontSizeStyle]}>暂无歌词</Text>
-						{/* <TapGestureHandler
-								onActivated={() => {
-									showPanel('SearchLrc', {
-										musicItem: myTrackPlayer.getCurrentMusic(),
-									})
-								}}
-							>
-								<Text style={[styles.searchLyric, fontSizeStyle]}>搜索歌词</Text>
-							</TapGestureHandler> */}
 					</View>
 				)}
-				{/* {draggingIndex !== undefined && (
-						<View
-							style={[
-								styles.draggingTime,
-								layout?.height
-									? {
-											top: (layout.height - ITEM_HEIGHT) / 2,
-										}
-									: null,
-							]}
-						>
-							<DraggingTime time={(lyrics[draggingIndex]?.time ?? 0) + +(meta?.offset ?? 0)} />
-							<View style={styles.singleLine} />
-
-							<MaterialCommunityIcons
-								style={styles.playIcon}
-								sizeType="small"
-								name="play"
-								onPress={onLyricSeekPress}
-							/>
-						</View>
-					)} */}
 			</View>
-
-			{/* <LyricOperations scrollToCurrentLrcItem={delayedScrollToCurrentLrcItem} /> */}
 		</>
 	)
 }
@@ -376,23 +309,7 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	draggingTime: {
-		position: 'absolute',
-		width: '100%',
-		height: ITEM_HEIGHT,
-		top: '40%',
-		marginTop: rpx(48),
-		paddingHorizontal: rpx(18),
-		right: 0,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-	},
-	draggingTimeText: {
-		color: '#dddddd',
-		fontSize: rpx(22),
-		width: rpx(90),
-	},
+
 	singleLine: {
 		width: '67%',
 		height: 1,

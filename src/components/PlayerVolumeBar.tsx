@@ -20,8 +20,8 @@ export const PlayerVolumeBar = ({ style }: ViewProps) => {
 	const [trackColor, setTrackColor] = useState(colors.maximumTrackTintColor)
 
 	useEffect(() => {
-		VolumeManager.showNativeVolumeUI({ enabled: true })
 		const getInitialVolume = async () => {
+			await VolumeManager.showNativeVolumeUI({ enabled: true })
 			const initialVolume = await VolumeManager.getVolume()
 			setVolume(initialVolume.volume)
 			progress.value = initialVolume.volume
@@ -65,8 +65,13 @@ export const PlayerVolumeBar = ({ style }: ViewProps) => {
 							isSliding.value = false
 							setTrackColor(colors.maximumTrackTintColor)
 						}}
-						onValueChange={(value) => {
-							VolumeManager.setVolume(value)
+						onValueChange={async (value) => {
+							await VolumeManager.showNativeVolumeUI({ enabled: true })
+							await VolumeManager.setVolume(value, {
+								type: 'system', // default: "music" (Android only)
+								showUI: true, // default: false (suppress native UI volume toast for iOS & Android)
+								playSound: false, // default: false (Android only)
+							})
 						}}
 						renderBubble={() => null}
 						theme={{
