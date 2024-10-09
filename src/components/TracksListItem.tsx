@@ -73,7 +73,7 @@ export const TracksListItem = ({
 					}}
 				>
 					{/* Track title + artist */}
-					<View style={{ width: '100%' }}>
+					<View style={{ width: '80%' }}>
 						<Text
 							numberOfLines={1}
 							style={{
@@ -98,7 +98,16 @@ export const TracksListItem = ({
 							allowDelete={allowDelete}
 							onDeleteTrack={onDeleteTrack}
 						>
-							<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
+							<View
+								style={{
+									width: 100,
+									alignItems: 'center',
+									justifyContent: 'center',
+									height: 50,
+								}}
+							>
+								<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
+							</View>
 						</TrackShortcutsMenu>
 					</StopPropagation>
 				</View>
@@ -112,7 +121,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		columnGap: 14,
 		alignItems: 'center',
-		paddingRight: 20,
+		paddingRight: 0,
 	},
 	trackPlayingIconIndicator: {
 		position: 'absolute',
