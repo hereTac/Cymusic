@@ -103,10 +103,7 @@ export const TracksListItem = ({
 										flex: 1,
 										alignItems: 'flex-end',
 										justifyContent: 'center',
-
-										paddingLeft: rpx(50),
-										paddingRight: rpx(50),
-										width: '100%', // 确保宽度占满
+										paddingLeft: rpx(100),
 									}}
 								>
 									<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
