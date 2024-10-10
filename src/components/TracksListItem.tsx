@@ -1,13 +1,14 @@
 import { TrackShortcutsMenu } from '@/components/TrackShortcutsMenu'
-import { StopPropagation } from '@/components/utils/StopPropagation'
 import { unknownTrackImageUri } from '@/constants/images'
 import { colors, fontSize } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
+import rpx from '@/utils/rpx'
 import { Entypo, Ionicons } from '@expo/vector-icons'
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
 import FastImage from 'react-native-fast-image' //导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
 import LoaderKit from 'react-native-loader-kit'
 import { Track, useActiveTrack, useIsPlaying } from 'react-native-track-player'
+import { StopPropagation } from './utils/StopPropagation'
 
 export type TracksListItemProps = {
 	track: Track
@@ -63,17 +64,15 @@ export const TracksListItem = ({
 							/>
 						))}
 				</View>
-
 				<View
 					style={{
 						flex: 1,
 						flexDirection: 'row',
-						justifyContent: 'space-between',
 						alignItems: 'center',
 					}}
 				>
-					{/* Track title + artist */}
-					<View style={{ width: '80%' }}>
+					{/* 左侧 3/4 区域：歌曲信息 */}
+					<View style={{ flex: 3 }}>
 						<Text
 							numberOfLines={1}
 							style={{
@@ -83,33 +82,38 @@ export const TracksListItem = ({
 						>
 							{track.title}
 						</Text>
-
 						{track.artist && (
 							<Text numberOfLines={1} style={styles.trackArtistText}>
 								{track.artist}
 							</Text>
 						)}
 					</View>
-					{/* 阻止触摸事件冒泡到父组件。 */}
-					<StopPropagation>
-						<TrackShortcutsMenu
-							track={track}
-							isSinger={isSinger}
-							allowDelete={allowDelete}
-							onDeleteTrack={onDeleteTrack}
-						>
-							<View
-								style={{
-									width: 100,
-									alignItems: 'center',
-									justifyContent: 'center',
-									height: 50,
-								}}
+
+					{/* 右侧 1/4 区域：菜单按钮 */}
+					<View style={{ flex: 1 }}>
+						<StopPropagation>
+							<TrackShortcutsMenu
+								track={track}
+								isSinger={isSinger}
+								allowDelete={allowDelete}
+								onDeleteTrack={onDeleteTrack}
 							>
-								<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
-							</View>
-						</TrackShortcutsMenu>
-					</StopPropagation>
+								<View
+									style={{
+										flex: 1,
+										alignItems: 'flex-end',
+										justifyContent: 'center',
+
+										paddingLeft: rpx(50),
+										paddingRight: rpx(50),
+										width: '100%', // 确保宽度占满
+									}}
+								>
+									<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
+								</View>
+							</TrackShortcutsMenu>
+						</StopPropagation>
+					</View>
 				</View>
 			</View>
 		</TouchableHighlight>
@@ -144,12 +148,13 @@ const styles = StyleSheet.create({
 		...defaultStyles.text,
 		fontSize: fontSize.sm,
 		fontWeight: '600',
-		maxWidth: '90%',
+		maxWidth: '80%',
 	},
 	trackArtistText: {
 		...defaultStyles.text,
 		color: colors.textMuted,
 		fontSize: 14,
 		marginTop: 4,
+		maxWidth: '80%',
 	},
 })
