@@ -4,7 +4,7 @@ import { colors, fontSize } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
 import rpx from '@/utils/rpx'
 import { Entypo, Ionicons } from '@expo/vector-icons'
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native'
+import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image' //导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
 import LoaderKit from 'react-native-loader-kit'
 import { Track, useActiveTrack, useIsPlaying } from 'react-native-track-player'
@@ -16,6 +16,10 @@ export type TracksListItemProps = {
 	isSinger?: boolean
 	allowDelete?: boolean
 	onDeleteTrack?: (trackId: string) => void
+	isMultiSelectMode?: boolean
+	onToggleSelection?: (trackId: string) => void
+	selectedTracks?: Set<string>
+	toggleMultiSelectMode?: () => void
 }
 //类型定义描述了 TracksListItemProps 对象的结构和属性。在这个例子中，TracksListItemProps 类型包含两个属性：
 //
@@ -27,15 +31,34 @@ export const TracksListItem = ({
 	onTrackSelect: handleTrackSelect, //解构赋值：通过解构赋值从 props 对象中提取 track 和 onTrackSelect 属性，并将 onTrackSelect 重新命名为 handleTrackSelect。
 	isSinger = false,
 	allowDelete = false,
+	isMultiSelectMode = false,
+	onToggleSelection,
+	selectedTracks,
 	onDeleteTrack,
+	toggleMultiSelectMode,
 }: TracksListItemProps) => {
 	const { playing } = useIsPlaying()
 
 	const isActiveTrack = useActiveTrack()?.id === track.id
 
 	return (
-		<TouchableHighlight onPress={() => handleTrackSelect(track)}>
+		<TouchableHighlight
+			onPress={() => (isMultiSelectMode ? onToggleSelection?.(track.id) : handleTrackSelect(track))}
+			onLongPress={toggleMultiSelectMode}
+		>
 			<View style={styles.trackItemContainer}>
+				{isMultiSelectMode && (
+					<TouchableOpacity
+						onPress={() => onToggleSelection?.(track.id)}
+						style={{ marginRight: 10 }}
+					>
+						<Ionicons
+							name={selectedTracks.has(track.id) ? 'checkbox' : 'square-outline'}
+							size={24}
+							color={selectedTracks.has(track.id) ? colors.primary : 'gray'}
+						/>
+					</TouchableOpacity>
+				)}
 				<View>
 					<FastImage
 						source={{
@@ -90,27 +113,29 @@ export const TracksListItem = ({
 					</View>
 
 					{/* 右侧 1/4 区域：菜单按钮 */}
-					<View style={{ flex: 1 }}>
-						<StopPropagation>
-							<TrackShortcutsMenu
-								track={track}
-								isSinger={isSinger}
-								allowDelete={allowDelete}
-								onDeleteTrack={onDeleteTrack}
-							>
-								<View
-									style={{
-										flex: 1,
-										alignItems: 'flex-end',
-										justifyContent: 'center',
-										paddingLeft: rpx(100),
-									}}
+					{!isMultiSelectMode && (
+						<View style={{ flex: 1 }}>
+							<StopPropagation>
+								<TrackShortcutsMenu
+									track={track}
+									isSinger={isSinger}
+									allowDelete={allowDelete}
+									onDeleteTrack={onDeleteTrack}
 								>
-									<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
-								</View>
-							</TrackShortcutsMenu>
-						</StopPropagation>
-					</View>
+									<View
+										style={{
+											flex: 1,
+											alignItems: 'flex-end',
+											justifyContent: 'center',
+											paddingLeft: rpx(100),
+										}}
+									>
+										<Entypo name="dots-three-horizontal" size={18} color={colors.icon} />
+									</View>
+								</TrackShortcutsMenu>
+							</StopPropagation>
+						</View>
+					)}
 				</View>
 			</View>
 		</TouchableHighlight>

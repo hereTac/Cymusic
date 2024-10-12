@@ -15,6 +15,13 @@ type PlaylistTracksListProps = {
 	onDeleteTrack?: (trackId: string) => void
 	showImportMenu?: boolean
 	onImportTrack?: () => void
+	isMultiSelectMode?: boolean
+	selectedTracks?: Set<string>
+	toggleMultiSelectMode?: () => void
+	onToggleSelection?: (trackId: string) => void
+	onSelectAll?: () => void
+	deleteSelectedTracks?: () => void
+	exportSelectedTracks?: () => void
 }
 
 export const PlaylistTracksList = ({
@@ -24,6 +31,13 @@ export const PlaylistTracksList = ({
 	onDeleteTrack,
 	showImportMenu = false,
 	onImportTrack,
+	isMultiSelectMode = false,
+	selectedTracks = new Set(),
+	onToggleSelection,
+	toggleMultiSelectMode,
+	onSelectAll,
+	deleteSelectedTracks,
+	exportSelectedTracks,
 }: PlaylistTracksListProps) => {
 	// const filteredPlaylistTracks = useMemo(() => {
 	// 	return playlist.tracks.filter(trackTitleFilter(search))
@@ -56,12 +70,21 @@ export const PlaylistTracksList = ({
 						tracks={tracks}
 						showImportMenu={showImportMenu}
 						onImportTrack={onImportTrack}
+						isMultiSelectMode={isMultiSelectMode}
+						onSelectAll={onSelectAll}
+						isAllSelected={selectedTracks.size === tracks.length}
+						deleteSelectedTracks={deleteSelectedTracks}
+						exportSelectedTracks={exportSelectedTracks}
 					/>
 				</View>
 			}
 			tracks={tracks}
 			allowDelete={allowDelete}
 			onDeleteTrack={onDeleteTrack}
+			isMultiSelectMode={isMultiSelectMode}
+			selectedTracks={selectedTracks}
+			onToggleSelection={onToggleSelection}
+			toggleMultiSelectMode={toggleMultiSelectMode}
 		/>
 	)
 }

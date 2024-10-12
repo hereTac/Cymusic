@@ -13,7 +13,7 @@ import React, { useState } from 'react'
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, View } from 'react-native'
 import { Track } from 'react-native-track-player'
 const LocalMusicScreen = () => {
-	const localTracks = importedLocalMusicStore.useValue()
+	const localTracks = importedLocalMusicStore.useValue() || []
 	const [isLoading, setIsLoading] = useState(false)
 	const playListItem = {
 		name: 'Local',
@@ -23,7 +23,57 @@ const LocalMusicScreen = () => {
 		coverImg: Image.resolveAssetSource(localImage).uri,
 		description: '在本地的歌曲',
 	}
+	const [isMultiSelectMode, setIsMultiSelectMode] = useState(false)
+	const [selectedTracks, setSelectedTracks] = useState<Set<string>>(new Set())
 
+	const toggleMultiSelectMode = () => {
+		setIsMultiSelectMode(!isMultiSelectMode)
+		setSelectedTracks(new Set())
+	}
+	const deleteSelectedTracks = () => {
+		selectedTracks.forEach((trackId) => {
+			myTrackPlayer.deleteImportedLocalMusic(trackId)
+		})
+		setSelectedTracks(new Set())
+		setIsMultiSelectMode(false)
+	}
+	const toggleSelectAll = () => {
+		if (!localTracks || !Array.isArray(localTracks)) {
+			// 如果 localTracks 未定义或不是数组，直接返回
+			return
+		}
+		if (selectedTracks.size === localTracks.length) {
+			// 如果当前所有曲目都被选中，则取消全选
+			setSelectedTracks(new Set())
+		} else {
+			// 否则，选择所有曲目
+			const allTrackIds = new Set(localTracks.map((track) => track.id))
+			setSelectedTracks(allTrackIds)
+		}
+	}
+	const toggleTrackSelection = (trackId: string) => {
+		setSelectedTracks((prevSelected) => {
+			const newSelected = new Set(prevSelected)
+			if (newSelected.has(trackId)) {
+				newSelected.delete(trackId)
+			} else {
+				newSelected.add(trackId)
+			}
+			return newSelected
+		})
+	}
+	const exportSelectedTracks = async () => {
+		if (selectedTracks.size === 0) {
+			Alert.alert('提示', '请先选择要导出的歌曲')
+			return
+		}
+		try {
+			Alert.alert('文件已保存到: 文件 App > 我的 iPhone > CyMusic > importedLocalMusic')
+		} catch (error) {
+			console.error('导出过程中出错:', error)
+			Alert.alert('错误', '导出过程中出现错误，请重试。')
+		}
+	}
 	const importLocalMusic = async () => {
 		try {
 			setIsLoading(true)
@@ -139,6 +189,13 @@ const LocalMusicScreen = () => {
 					onImportTrack={importLocalMusic}
 					allowDelete={true}
 					onDeleteTrack={deleteLocalMusic}
+					isMultiSelectMode={isMultiSelectMode}
+					selectedTracks={selectedTracks}
+					onToggleSelection={toggleTrackSelection}
+					toggleMultiSelectMode={toggleMultiSelectMode}
+					onSelectAll={toggleSelectAll}
+					deleteSelectedTracks={deleteSelectedTracks}
+					exportSelectedTracks={exportSelectedTracks}
 				/>
 			</ScrollView>
 		</View>
@@ -155,6 +212,12 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 		backgroundColor: 'rgba(0,0,0,0.5)',
 		zIndex: 1000,
+	},
+	header: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		padding: 10,
 	},
 })
 export default LocalMusicScreen

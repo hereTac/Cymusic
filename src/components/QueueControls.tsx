@@ -12,6 +12,11 @@ type QueueControlsProps = {
 	tracks: Track[]
 	showImportMenu?: boolean
 	onImportTrack?: () => void
+	isMultiSelectMode?: boolean
+	onSelectAll?: () => void
+	isAllSelected?: boolean
+	deleteSelectedTracks?: () => void
+	exportSelectedTracks?: () => void
 } & ViewProps
 
 export const QueueControls = ({
@@ -19,6 +24,11 @@ export const QueueControls = ({
 	style,
 	showImportMenu,
 	onImportTrack,
+	isMultiSelectMode = false,
+	onSelectAll,
+	isAllSelected = false,
+	deleteSelectedTracks,
+	exportSelectedTracks,
 	...viewProps
 }: QueueControlsProps) => {
 	const handlePlay = async () => {
@@ -43,29 +53,66 @@ export const QueueControls = ({
 		<View style={[{ flexDirection: 'row', columnGap: 16 }, style]} {...viewProps}>
 			{/* Play button */}
 			<View style={{ flex: 1 }}>
-				<TouchableOpacity onPress={handlePlay} activeOpacity={0.8} style={styles.button}>
-					<Ionicons name="play" size={22} color={colors.primary} />
+				{isMultiSelectMode ? (
+					<TouchableOpacity onPress={onSelectAll} activeOpacity={0.8} style={styles.button}>
+						<Ionicons
+							name={isAllSelected ? 'checkbox-outline' : 'square-outline'}
+							size={24}
+							color={colors.primary}
+						/>
+						<Text style={styles.buttonText}>{isAllSelected ? '取消' : '全选'}</Text>
+					</TouchableOpacity>
+				) : (
+					<TouchableOpacity onPress={handlePlay} activeOpacity={0.8} style={styles.button}>
+						<Ionicons name="play" size={22} color={colors.primary} />
 
-					<Text style={styles.buttonText}>播放</Text>
-				</TouchableOpacity>
+						<Text style={styles.buttonText}>播放</Text>
+					</TouchableOpacity>
+				)}
 			</View>
 
 			{/* Shuffle button */}
-			<View style={{ flex: 1 }}>
-				<TouchableOpacity onPress={handleShufflePlay} activeOpacity={0.8} style={styles.button}>
-					<Ionicons name={'shuffle-sharp'} size={24} color={colors.primary} />
+			{!isMultiSelectMode ? (
+				<View style={{ flex: 1 }}>
+					<TouchableOpacity onPress={handleShufflePlay} activeOpacity={0.8} style={styles.button}>
+						<Ionicons name={'shuffle-sharp'} size={24} color={colors.primary} />
 
-					<Text style={styles.buttonText}>随机</Text>
-				</TouchableOpacity>
-			</View>
+						<Text style={styles.buttonText}>随机</Text>
+					</TouchableOpacity>
+				</View>
+			) : (
+				<View style={{ flex: 1 }}>
+					<TouchableOpacity
+						onPress={deleteSelectedTracks}
+						activeOpacity={0.8}
+						style={styles.button}
+					>
+						<Ionicons name={'trash-outline'} size={24} color={colors.primary} />
+
+						<Text style={styles.buttonText}>删除</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 			{/* import button */}
 			{showImportMenu && (
 				<View style={{ flex: 1 }}>
-					<TouchableOpacity onPress={onImportTrack} activeOpacity={0.8} style={styles.button}>
-						<Ionicons name={'enter-outline'} size={24} color={colors.primary} />
+					{isMultiSelectMode ? (
+						<TouchableOpacity
+							onPress={exportSelectedTracks}
+							activeOpacity={0.8}
+							style={styles.button}
+						>
+							<Ionicons name={'exit-outline'} size={24} color={colors.primary} />
 
-						<Text style={styles.buttonText}>导入</Text>
-					</TouchableOpacity>
+							<Text style={styles.buttonText}>导出</Text>
+						</TouchableOpacity>
+					) : (
+						<TouchableOpacity onPress={onImportTrack} activeOpacity={0.8} style={styles.button}>
+							<Ionicons name={'enter-outline'} size={24} color={colors.primary} />
+
+							<Text style={styles.buttonText}>导入</Text>
+						</TouchableOpacity>
+					)}
 				</View>
 			)}
 		</View>
