@@ -808,6 +808,17 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		// );
 		// 5.3 插件返回的音源为source
 		let source: IPlugin.IMediaSourceResult | null = null
+		if (musicItem.url.startsWith('file://')) {
+			const isFileExit = await RNFS.exists(musicItem.url)
+			if (!isFileExit) {
+				musicItem.url = fakeAudioMp3Uri
+				logError('本地文件不存在:', musicItem.url)
+				Alert.alert('错误', '本地文件不存在，请删除并重新缓存或导入。', [
+					{ text: '确定', onPress: () => logInfo('Alert closed') },
+				])
+				return
+			}
+		}
 		const cached = await isCached(musicItem)
 		if (cached) {
 			const localPath = getLocalFilePath(musicItem)
@@ -874,7 +885,19 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 					url: resp_url,
 				}
 			} else {
+				if (musicItem.url.startsWith('file://')) {
+					const isFileExit = await RNFS.exists(musicItem.url)
+					if (!isFileExit) {
+						musicItem.url = fakeAudioMp3Uri
+						logError('本地文件不存在:', musicItem.url)
+						Alert.alert('错误', '本地文件不存在，请删除并重新缓存或导入。', [
+							{ text: '确定', onPress: () => logInfo('Alert closed') },
+						])
+						return
+					}
+				}
 				const cached = await isCached(musicItem)
+
 				if (cached) {
 					const localPath = getLocalFilePath(musicItem)
 					source = {
@@ -903,7 +926,13 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		logInfo('获取音源成功：', track)
 		// 9. 设置音源
 		await setTrackSource(track as Track)
-		if (track.url !== fakeAudioMp3Uri && !cached && autoCacheLocalStore.getValue()) {
+		// 9.1 如果需要缓存,且不是假音频,且不是本地文件
+		if (
+			track.url !== fakeAudioMp3Uri &&
+			!cached &&
+			autoCacheLocalStore.getValue() &&
+			!track.url.startsWith('file://')
+		) {
 			// 下载到缓存，延迟5秒后执行
 			logInfo('将在5秒后下载缓存:', track.url)
 			setTimeout(() => {
