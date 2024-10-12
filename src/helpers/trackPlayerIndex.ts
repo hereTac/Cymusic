@@ -1144,7 +1144,8 @@ const ensureCacheDirExists = async () => {
  * @returns 本地文件路径
  */
 const getLocalFilePath = (musicItem: IMusic.IMusicItem): string => {
-	return `${cacheDir}${musicItem.id}.mp3`
+	const format = qualityStore.getValue() === 'flac' ? 'flac' : 'mp3'
+	return `${cacheDir}${musicItem.title}-${musicItem.artist}.${format}`
 }
 
 /**
@@ -1193,6 +1194,15 @@ const clearCache = async () => {
 	const dirInfo = await FileSystem.getInfoAsync(cacheDir)
 	if (dirInfo.exists) {
 		await FileSystem.deleteAsync(cacheDir, { idempotent: true })
+		const importedLocalMusic = importedLocalMusicStore.getValue() || []
+		const updatedImportedLocalMusic = importedLocalMusic.filter((item) => {
+			if (item.url.startsWith(cacheDir)) {
+				return false
+			}
+			return true
+		})
+		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
+		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
 		logInfo('缓存已清理')
 	} else {
 		logInfo('缓存目录不存在，无需清理')
