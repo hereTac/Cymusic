@@ -14,12 +14,21 @@ import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
 import PersistStatus from '@/store/PersistStatus'
 import usePlayerStore from '@/store/usePlayerStore'
 import { defaultStyles } from '@/styles'
+import { setTimingClose } from '@/utils/timingClose'
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons'
 import { MenuView } from '@react-native-menu/menu'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
-import React, { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import {
+	ActivityIndicator,
+	Alert,
+	Share,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from 'react-native'
 import FastImage from 'react-native-fast-image'
 import Animated, {
 	Easing,
@@ -94,24 +103,7 @@ const PlayerScreen = () => {
 	const currentActiveTrack = useActiveTrack()
 
 	const { imageColors } = usePlayerBackground(currentActiveTrack?.artwork ?? unknownTrackImageUri)
-	const lineRenderer = useCallback(
-		({ lrcLine: { millisecond, content }, index, active }) => (
-			<Text
-				style={[
-					styles.lyricText,
-					{
-						color: active ? 'white' : 'gray',
-						fontWeight: active ? '700' : '500',
-						fontSize: active ? 27 : 19,
-						opacity: active ? 1 : 0.6,
-					},
-				]}
-			>
-				{content}
-			</Text>
-		),
-		[],
-	)
+
 	const handleViewArtist = (artist: string) => {
 		if (!artist.includes('未知')) {
 			getSingerMidBySingerName(artist).then((singerMid) => {
@@ -255,6 +247,9 @@ const PlayerScreen = () => {
 			console.error(error.message)
 		}
 	}
+	const handleTimingClose = (minutes: number) => {
+		setTimingClose(Date.now() + minutes * 60 * 1000)
+	}
 	const menuActions = [
 		{
 			id: 'favorite',
@@ -267,6 +262,18 @@ const PlayerScreen = () => {
 		{ id: 'playlist', title: '添加到歌单', image: 'plus.circle' },
 
 		{ id: 'share', title: '分享歌曲', image: 'square.and.arrow.up' },
+		{
+			id: 'timing',
+			title: '定时关闭',
+			image: 'timer',
+			subactions: [
+				{ id: 'timing_10', title: '10 分钟' },
+				{ id: 'timing_15', title: '15 分钟' },
+				{ id: 'timing_20', title: '20 分钟' },
+				{ id: 'timing_30', title: '30 分钟' },
+				{ id: 'timing_cus', title: '自定义' },
+			],
+		},
 	]
 	if (trackToDisplay?.platform !== 'local') {
 		menuActions.splice(4, 0, { id: 'download', title: '下载', image: 'arrow.down.circle' })
@@ -286,6 +293,31 @@ const PlayerScreen = () => {
 		PersistStatus.set('lyric.detailFontSize', currentFontSize + 1 > 3 ? 3 : currentFontSize + 1)
 		// scrollToCurrentLrcItem();
 	}
+	function setCustomTimingClose(arg0: null) {
+		Alert.prompt(
+			'设置定时关闭',
+			'请输入分钟数',
+			[
+				{
+					text: '取消',
+					style: 'cancel',
+				},
+				{
+					text: '确定',
+					onPress: (minutes) => {
+						if (minutes && !isNaN(Number(minutes))) {
+							const milliseconds = Number(minutes) * 60 * 1000
+							setTimingClose(Date.now() + milliseconds)
+						} else {
+							Alert.alert('错误', '请输入有效的分钟数')
+						}
+					},
+				},
+			],
+			'plain-text',
+		)
+	}
+
 	return (
 		<LinearGradient
 			style={{ flex: 1 }}
@@ -385,6 +417,21 @@ const PlayerScreen = () => {
 														break
 													case 'share':
 														handleShare()
+														break
+													case 'timing_10':
+														handleTimingClose(10)
+														break
+													case 'timing_15':
+														handleTimingClose(15)
+														break
+													case 'timing_20':
+														handleTimingClose(20)
+														break
+													case 'timing_30':
+														handleTimingClose(30)
+														break
+													case 'timing_cus':
+														setCustomTimingClose(null)
 														break
 												}
 											}}
