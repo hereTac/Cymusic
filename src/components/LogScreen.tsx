@@ -1,10 +1,14 @@
 import { colors, fontSize, screenPadding } from '@/constants/tokens'
 import { useLoggerHook } from '@/helpers/logger'
 import { Ionicons } from '@expo/vector-icons'
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
+	Alert,
+	Animated,
+	Clipboard,
 	FlatList,
 	Modal,
+	Pressable,
 	SafeAreaView,
 	ScrollView,
 	Share,
@@ -19,6 +23,8 @@ const LogScreen = () => {
 	const { logs, clearLogs } = useLoggerHook()
 	const [selectedLog, setSelectedLog] = useState<null | any>(null)
 
+	const [longPressedId, setLongPressedId] = useState<string | null>(null)
+	const fadeAnim = useRef(new Animated.Value(0)).current
 	const handleShare = async () => {
 		const logText = logs.map((log) => `[${log.timestamp}] [${log.level}] ${log.message}`).join('\n')
 		try {
@@ -29,15 +35,35 @@ const LogScreen = () => {
 			console.error('分享日志失败:', error)
 		}
 	}
+	const handleLongPress = (item: any) => {
+		setLongPressedId(item.id)
+		handleCopy(item)
+	}
 
+	const handleCopy = (item: any) => {
+		const logText = `[${item.timestamp}] [${item.level}] ${item.message}`
+		Clipboard.setString(logText)
+		// 可以添加一个提示，告诉用户日志已复制
+		Alert.alert('已复制', '日志内容已复制到剪贴板')
+		setLongPressedId(null)
+		Animated.timing(fadeAnim, {
+			toValue: 0,
+			duration: 500,
+			useNativeDriver: true,
+		}).start()
+	}
 	const renderItem = ({ item }: { item: any }) => (
-		<TouchableOpacity onPress={() => setSelectedLog(item)} style={styles.logItem}>
+		<Pressable
+			onPress={() => setSelectedLog(item)}
+			onLongPress={() => handleLongPress(item)}
+			style={({ pressed }) => [styles.logItem, pressed && styles.pressed]}
+		>
 			<View style={styles.logHeader}>
 				<Text style={[styles.logLevel, { color: getLogColor(item.level) }]}>{item.level}</Text>
 				<Text style={styles.logTimestamp}>{formatTimestamp(item.timestamp)}</Text>
 			</View>
 			<Text style={styles.logMessage}>{item.message}</Text>
-		</TouchableOpacity>
+		</Pressable>
 	)
 
 	const formatTimestamp = (timestamp: string) => {
@@ -261,6 +287,22 @@ const styles = StyleSheet.create({
 		color: colors.text,
 		fontSize: fontSize.base,
 		fontWeight: 'bold',
+	},
+	copyButton: {
+		position: 'absolute',
+		right: 10,
+		top: 10,
+		backgroundColor: colors.primary,
+		padding: 5,
+		borderRadius: 5,
+	},
+	copyButtonText: {
+		color: colors.text,
+		fontSize: fontSize.sm,
+	},
+	pressed: {
+		backgroundColor: 'rgba(0, 0, 0, 0.1)',
+		opacity: 0.5,
 	},
 })
 
