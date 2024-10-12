@@ -1111,9 +1111,9 @@ function getNextMusic() {
 
 	return getPlayListMusicAt(currentIndex + 1)
 }
-const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[], isAlert: boolean = true) => {
+const addImportedLocalMusic = async (musicItem: IMusic.IMusicItem[], isAlert: boolean = true) => {
 	try {
-		// console.log('addImportedLocalMusic', musicItem[0])
+		console.log('addImportedLocalMusic', musicItem[0])
 		const importedLocalMusic = importedLocalMusicStore.getValue() || []
 		const newMusicItems = musicItem.filter(
 			(newItem) => !importedLocalMusic.some((existingItem) => existingItem.id == newItem.id),
@@ -1121,6 +1121,27 @@ const addImportedLocalMusic = (musicItem: IMusic.IMusicItem[], isAlert: boolean 
 		if (newMusicItems.length === 0) {
 			// Alert.alert('提示', '所有选择的音乐已经存在，没有新的音乐被导入。')
 			return
+		}
+		// 确保目标目录存在
+		const targetDir = `${RNFS.DocumentDirectoryPath}/importedLocalMusic`
+		await ensureDirExists(targetDir)
+
+		// 移动文件并更新musicItem的url
+		for (const item of newMusicItems) {
+			if (item.url.startsWith('file://')) {
+				const originalExtension = item.url.split('.').pop() || 'mp3'
+
+				// 创建一个安全的文件名（移除或替换不允许的字符）
+				const safeTitle = item.title.replace(/[/\\?%*:|"<>]/g, '-')
+				const safeArtist = item.artist.replace(/[/\\?%*:|"<>]/g, '-')
+				const fileName = `${safeTitle}-${safeArtist}.${originalExtension}`
+				const newPath = `${targetDir}/${fileName}`
+				await FileSystem.moveAsync({
+					from: item.url,
+					to: newPath,
+				})
+				item.url = newPath
+			}
 		}
 		const updatedImportedLocalMusic = [...importedLocalMusic, ...musicItem]
 		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
@@ -1146,14 +1167,15 @@ const deleteImportedLocalMusic = (musicItemsIdToDelete: string) => {
 		})
 		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
 		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
-
+		//同时删除本地文
 		FileSystem.deleteAsync(fileUri)
-		Alert.alert('成功', '音乐删除成功', [{ text: '确定', onPress: () => {} }])
+		// Alert.alert('成功', '音乐删除成功', [{ text: '确定', onPress: () => {} }])
 	} catch (error) {
 		logError('删除本地音乐时出错:', error)
 	}
 }
 const isExistImportedLocalMusic = (musicItemName: string) => {
+	// todo 检查文件存在？
 	const importedLocalMusic = importedLocalMusicStore.getValue() || []
 	return importedLocalMusic.some((item) => item.genre === musicItemName)
 }
@@ -1164,6 +1186,15 @@ const ensureCacheDirExists = async () => {
 	const dirInfo = await FileSystem.getInfoAsync(cacheDir)
 	if (!dirInfo.exists) {
 		await FileSystem.makeDirectoryAsync(cacheDir, { intermediates: true })
+	}
+}
+/**
+ * 确保目录存在
+ */
+const ensureDirExists = async (dirPath: string) => {
+	const dirInfo = await FileSystem.getInfoAsync(dirPath)
+	if (!dirInfo.exists) {
+		await FileSystem.makeDirectoryAsync(dirPath, { intermediates: true })
 	}
 }
 
