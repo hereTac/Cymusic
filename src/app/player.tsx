@@ -17,6 +17,7 @@ import { defaultStyles } from '@/styles'
 import { setTimingClose } from '@/utils/timingClose'
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons'
 import { MenuView } from '@react-native-menu/menu'
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import React, { useEffect, useState } from 'react'
@@ -281,6 +282,17 @@ const PlayerScreen = () => {
 	useEffect(() => {
 		setCurrentLyricTime(position * 1000)
 	}, [position])
+	useEffect(() => {
+		if (showLyrics) {
+			activateKeepAwakeAsync()
+		} else {
+			deactivateKeepAwake()
+		}
+
+		return () => {
+			deactivateKeepAwake() // 清理函数，确保组件卸载时停用屏幕常亮
+		}
+	}, [showLyrics])
 	function handleLyricsFontSizeDecrease(): void {
 		const currentFontSize = PersistStatus.get('lyric.detailFontSize')
 		console.log('currentFontSize', currentFontSize)
