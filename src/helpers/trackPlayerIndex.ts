@@ -969,20 +969,18 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 	try {
 		await ensureCacheDirExists()
-		const CACHE_DIR = `${RNFS.DocumentDirectoryPath}/musicCache/`
+		const localPath = getLocalFilePath(track)
 
-		const localFilePath = `${CACHE_DIR}${track.id}.mp3`
-
-		const isCacheExist = await RNFS.exists(localFilePath)
+		const isCacheExist = await RNFS.exists(localPath)
 		if (isCacheExist) {
-			logInfo('音乐已缓存到本地:', localFilePath)
-			const newTrack = { ...track, url: `file://${localFilePath}` }
+			logInfo('音乐已缓存到本地:', localPath)
+			const newTrack = { ...track, url: `file://${localPath}` }
 			await addImportedLocalMusic([newTrack], false)
 		} else {
 			logInfo('开始下载音乐:', track.url)
 			const downloadResult = await RNFS.downloadFile({
 				fromUrl: track.url,
-				toFile: localFilePath,
+				toFile: localPath,
 				progressDivider: 1,
 				progress: (res) => {
 					const progress = res.bytesWritten / res.contentLength
@@ -991,8 +989,8 @@ const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 			}).promise
 
 			if (downloadResult.statusCode === 200) {
-				logInfo('音乐已缓存到本地:', `file://${localFilePath}`)
-				const newTrack = { ...track, url: `file://${localFilePath}` }
+				logInfo('音乐已缓存到本地:', `file://${localPath}`)
+				const newTrack = { ...track, url: `file://${localPath}` }
 				await addImportedLocalMusic([newTrack], false)
 			} else {
 				throw new Error(`下载失败，状态码: ${downloadResult.statusCode}`)
@@ -1122,25 +1120,27 @@ const addImportedLocalMusic = async (musicItem: IMusic.IMusicItem[], isAlert: bo
 			// Alert.alert('提示', '所有选择的音乐已经存在，没有新的音乐被导入。')
 			return
 		}
-		// 确保目标目录存在
-		const targetDir = `${RNFS.DocumentDirectoryPath}/importedLocalMusic`
-		await ensureDirExists(targetDir)
+		// 确保目标目录存在 isAlert只有导入本地音乐为true。所有自动缓存为false.,不需要移动文件
+		if (isAlert) {
+			const targetDir = `${RNFS.DocumentDirectoryPath}/importedLocalMusic`
+			await ensureDirExists(targetDir)
 
-		// 移动文件并更新musicItem的url
-		for (const item of newMusicItems) {
-			if (item.url.startsWith('file://')) {
-				const originalExtension = item.url.split('.').pop() || 'mp3'
+			// 移动文件并更新musicItem的url
+			for (const item of newMusicItems) {
+				if (item.url.startsWith('file://')) {
+					const originalExtension = item.url.split('.').pop() || 'mp3'
 
-				// 创建一个安全的文件名（移除或替换不允许的字符）
-				const safeTitle = item.title.replace(/[/\\?%*:|"<>]/g, '-')
-				const safeArtist = item.artist.replace(/[/\\?%*:|"<>]/g, '-')
-				const fileName = `${safeTitle}-${safeArtist}.${originalExtension}`
-				const newPath = `${targetDir}/${fileName}`
-				await FileSystem.moveAsync({
-					from: item.url,
-					to: newPath,
-				})
-				item.url = newPath
+					// 创建一个安全的文件名（移除或替换不允许的字符）
+					const safeTitle = item.title.replace(/[/\\?%*:|"<>]/g, '-')
+					const safeArtist = item.artist.replace(/[/\\?%*:|"<>]/g, '-')
+					const fileName = `${safeTitle}-${safeArtist}.${originalExtension}`
+					const newPath = `${targetDir}/${fileName}`
+					await FileSystem.moveAsync({
+						from: item.url,
+						to: newPath,
+					})
+					item.url = newPath
+				}
 			}
 		}
 		const updatedImportedLocalMusic = [...importedLocalMusic, ...musicItem]
