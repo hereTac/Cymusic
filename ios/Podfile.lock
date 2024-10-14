@@ -1220,7 +1220,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.14.1):
+  - RNGestureHandler (2.18.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1611,7 +1611,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 15c6ef51acba34c49ff03003806cf5dd6098f383
+  RNGestureHandler: 1155b1898ceddefeebf77792927360d44fe11e77
   RNReanimated: f6b02d8f5eaa2830296411d4ec3b8ef5442dd13d
   RNScreens: 17e2f657f1b09a71ec3c821368a04acbb7ebcb46
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d

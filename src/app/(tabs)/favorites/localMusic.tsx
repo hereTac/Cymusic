@@ -65,6 +65,7 @@ const LocalMusicScreen = () => {
 	const exportSelectedTracks = async () => {
 		if (selectedTracks.size === 0) {
 			Alert.alert('提示', '请先选择要导出的歌曲')
+			setIsMultiSelectMode(false)
 			return
 		}
 		try {

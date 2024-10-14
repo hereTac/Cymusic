@@ -5810,7 +5810,7 @@ lodash.throttle@^4.1.1:
   resolved "https://registry.npmjs.org/lodash.throttle/-/lodash.throttle-4.1.1.tgz"
   integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
 
-lodash@^4.17.13, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4:
+lodash@^4.17.13, lodash@^4.17.20, lodash@^4.17.4:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -7023,7 +7023,7 @@ react-native-awesome-slider@^2.5.1:
 
 react-native-background-timer@^2.4.1:
   version "2.4.1"
-  resolved "https://registry.npmjs.org/react-native-background-timer/-/react-native-background-timer-2.4.1.tgz"
+  resolved "https://registry.npmjs.org/react-native-background-timer/-/react-native-background-timer-2.4.1.tgz#a3bc1cafa8c1e3aeefd0611de120298b67978a0f"
   integrity sha512-TE4Kiy7jUyv+hugxDxitzu38sW1NqjCk4uE5IgU2WevLv7sZacaBc6PZKOShNRPGirLl1NWkaG3LDEkdb9Um5g==
 
 react-native-fast-image@^8.6.3:
@@ -7039,15 +7039,14 @@ react-native-fs@^2.20.0:
     base-64 "^0.1.0"
     utf8 "^3.0.0"
 
-react-native-gesture-handler@~2.14.0:
-  version "2.14.1"
-  resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.14.1.tgz"
-  integrity sha512-YiM1BApV4aKeuwsM6O4C2ufwewYEKk6VMXOt0YqEZFMwABBFWhXLySFZYjBSNRU2USGppJbfHP1q1DfFQpKhdA==
+react-native-gesture-handler@~2.18.0:
+  version "2.18.1"
+  resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.18.1.tgz#ec9206f34cd2f34a66c0430b2c416d31ee6dff17"
+  integrity sha512-WF2fxQ5kTaxHghlkBM4YxO86SyGWVwrSNgJ1E8z/ZtL2xD5B3bg5agvuVFfOzvceC114yq71s6E9vKPz94ZxRw==
   dependencies:
     "@egjs/hammerjs" "^2.0.17"
     hoist-non-react-statics "^3.3.0"
     invariant "^2.2.4"
-    lodash "^4.17.21"
     prop-types "^15.7.2"
 
 react-native-image-colors@^2.4.0:
