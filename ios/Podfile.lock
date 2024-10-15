@@ -91,6 +91,8 @@ PODS:
     - ExpoModulesCore
   - ExpoLinearGradient (12.7.2):
     - ExpoModulesCore
+  - ExpoLocalization (14.8.4):
+    - ExpoModulesCore
   - ExpoModulesCore (1.11.12):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1262,6 +1264,7 @@ DEPENDENCIES:
   - ExpoHead (from `../node_modules/expo-router/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
+  - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
@@ -1385,6 +1388,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-keep-awake/ios"
   ExpoLinearGradient:
     :path: "../node_modules/expo-linear-gradient/ios"
+  ExpoLocalization:
+    :path: "../node_modules/expo-localization/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
   EXSplashScreen:
@@ -1540,6 +1545,7 @@ SPEC CHECKSUMS:
   ExpoHead: 8224345e80abcf4c97b31c99805dd5a3c8d3404d
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
   ExpoLinearGradient: 4ad1449a2408e0435ac959076562b3921f2e32a1
+  ExpoLocalization: f94759e55802e4a4f8b7d7cecb450de11b888721
   ExpoModulesCore: 61dc57c6e2a35f2f84baf488146db624e03af4cd
   EXSplashScreen: 5538a51beec451bf1fcf5198e3062790e2534df3
   EXUpdatesInterface: 3e444e2093e25b7ca0999a7d8c16e8392dee70c3

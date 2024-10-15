@@ -29,6 +29,7 @@ interface IPersistConfig {
 	//已导入的本地音乐
 	'music.importedLocalMusic': IMusic.IMusicItem[]
 	'music.autoCacheLocal': boolean
+	'app.language': string
 }
 
 function set<K extends keyof IPersistConfig>(key: K, value: IPersistConfig[K] | undefined) {

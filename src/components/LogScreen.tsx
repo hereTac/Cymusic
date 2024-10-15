@@ -1,5 +1,6 @@
 import { colors, fontSize, screenPadding } from '@/constants/tokens'
-import { useLoggerHook } from '@/helpers/logger'
+import { logError, useLoggerHook } from '@/helpers/logger'
+import i18n from '@/utils/i18n'
 import { Ionicons } from '@expo/vector-icons'
 import React, { useRef, useState } from 'react'
 import {
@@ -18,7 +19,6 @@ import {
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native'
-
 const LogScreen = () => {
 	const { logs, clearLogs } = useLoggerHook()
 	const [selectedLog, setSelectedLog] = useState<null | any>(null)
@@ -32,7 +32,7 @@ const LogScreen = () => {
 				message: logText,
 			})
 		} catch (error) {
-			console.error('分享日志失败:', error)
+			logError(i18n.t('logScreen.shareError'), error)
 		}
 	}
 	const handleLongPress = (item: any) => {
@@ -44,7 +44,7 @@ const LogScreen = () => {
 		const logText = `[${item.timestamp}] [${item.level}] ${item.message}`
 		Clipboard.setString(logText)
 		// 可以添加一个提示，告诉用户日志已复制
-		Alert.alert('已复制', '日志内容已复制到剪贴板')
+		Alert.alert(i18n.t('logScreen.copy'), i18n.t('logScreen.copyMessage'))
 		setLongPressedId(null)
 		Animated.timing(fadeAnim, {
 			toValue: 0,
@@ -89,15 +89,15 @@ const LogScreen = () => {
 		<SafeAreaView style={styles.safeArea}>
 			<View style={styles.container}>
 				<View style={styles.header}>
-					<Text style={styles.title}>应用日志</Text>
+					<Text style={styles.title}>{i18n.t('logScreen.title')}</Text>
 					<View style={styles.headerButtons}>
 						<TouchableOpacity onPress={handleShare} style={styles.iconButton}>
 							<Ionicons name="share-social-outline" size={20} color={colors.text} />
-							<Text style={styles.buttonText}>分享</Text>
+							<Text style={styles.buttonText}>{i18n.t('logScreen.actions.share')}</Text>
 						</TouchableOpacity>
 						<TouchableOpacity onPress={clearLogs} style={styles.iconButton}>
 							<Ionicons name="trash-outline" size={20} color={colors.text} />
-							<Text style={styles.buttonText}>清除</Text>
+							<Text style={styles.buttonText}>{i18n.t('logScreen.actions.clear')}</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -105,7 +105,7 @@ const LogScreen = () => {
 					data={logs}
 					keyExtractor={(item, index) => index.toString()}
 					renderItem={renderItem}
-					ListEmptyComponent={<Text style={styles.emptyText}>暂无日志记录</Text>}
+					ListEmptyComponent={<Text style={styles.emptyText}>{i18n.t('logScreen.empty')}</Text>}
 					contentContainerStyle={logs.length === 0 && styles.emptyContainer}
 					style={styles.flatList}
 				/>
@@ -119,7 +119,7 @@ const LogScreen = () => {
 							{selectedLog && (
 								<View>
 									<View style={styles.modalHeader}>
-										<Text style={styles.modalTitle}>日志详情</Text>
+										<Text style={styles.modalTitle}>{i18n.t('logScreen.details.title')}</Text>
 										<TouchableOpacity onPress={() => setSelectedLog(null)}>
 											<Ionicons name="close" size={24} color={colors.text} />
 										</TouchableOpacity>
@@ -131,7 +131,7 @@ const LogScreen = () => {
 									<Text style={styles.modalMessage}>{selectedLog.message}</Text>
 									{selectedLog.details && (
 										<View style={styles.modalDetails}>
-											<Text style={styles.detailsTitle}>详细信息:</Text>
+											<Text style={styles.detailsTitle}>{i18n.t('logScreen.details.title')}</Text>
 											<Text style={styles.detailsContent}>
 												{typeof selectedLog.details === 'string'
 													? selectedLog.details

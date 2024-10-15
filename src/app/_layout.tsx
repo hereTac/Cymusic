@@ -3,17 +3,17 @@ import { colors } from '@/constants/tokens'
 import LyricManager from '@/helpers/lyricManager'
 import { useLogTrackPlayerState } from '@/hooks/useLogTrackPlayerState'
 import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
+import i18n, { setI18nConfig } from '@/utils/i18n'
 import { SplashScreen, Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import TrackPlayer from 'react-native-track-player'
-
 SplashScreen.preventAutoHideAsync()
 
 TrackPlayer.registerPlaybackService(() => playbackService)
-
+setI18nConfig()
 const App = () => {
 	const handleTrackPlayerLoaded = useCallback(() => {
 		setTimeout(SplashScreen.hideAsync, 1500)
@@ -27,6 +27,21 @@ const App = () => {
 	// myTrackPlayer.setupTrackPlayer()
 
 	LyricManager.setup()
+	const [isI18nReady, setIsI18nReady] = useState(false)
+
+	useEffect(() => {
+		const initI18n = async () => {
+			try {
+				// 确保 i18n 配置已加载
+				await setI18nConfig()
+				setIsI18nReady(true)
+			} catch (error) {
+				console.error('Failed to initialize i18n:', error)
+			}
+		}
+
+		initI18n()
+	}, [])
 
 	return (
 		<SafeAreaProvider>
@@ -70,7 +85,7 @@ const RootNavigation = () => {
 					headerStyle: {
 						backgroundColor: colors.background,
 					},
-					headerTitle: '添加到歌单',
+					headerTitle: i18n.t('addToPlaylist.title'),
 					headerTitleStyle: {
 						color: colors.text,
 					},

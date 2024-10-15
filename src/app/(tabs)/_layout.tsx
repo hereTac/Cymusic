@@ -1,11 +1,12 @@
 import { FloatingPlayer } from '@/components/FloatingPlayer'
 import { colors, fontSize } from '@/constants/tokens'
+import i18n, { nowLanguage } from '@/utils/i18n'
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { Tabs } from 'expo-router'
 import { StyleSheet } from 'react-native'
-
 const TabsNavigation = () => {
+	const language = nowLanguage.useValue()
 	return (
 		<>
 			<Tabs
@@ -39,7 +40,7 @@ const TabsNavigation = () => {
 				<Tabs.Screen
 					name="(songs)"
 					options={{
-						title: 'Songs',
+						title: i18n.t('appTab.songs'),
 						tabBarIcon: ({ color }) => (
 							<Ionicons name="musical-notes-sharp" size={24} color={color} />
 						),
@@ -48,21 +49,21 @@ const TabsNavigation = () => {
 				<Tabs.Screen
 					name="radio"
 					options={{
-						title: 'Radio',
+						title: i18n.t('appTab.radio'),
 						tabBarIcon: ({ color }) => <Ionicons name="radio" size={24} color={color} />,
 					}}
 				/>
 				<Tabs.Screen
 					name="favorites"
 					options={{
-						title: 'Favorites',
+						title: i18n.t('appTab.favorites'),
 						tabBarIcon: ({ color }) => <FontAwesome name="heart" size={20} color={color} />, //当你定义 tabBarIcon 时，React Navigation 会自动传递一些参数给你，其中包括 color、focused 和 size。这些参数会根据当前 Tab 的选中状态和主题来动态变化。
 					}}
 				/>
 				<Tabs.Screen
 					name="search"
 					options={{
-						title: 'Search',
+						title: i18n.t('appTab.search'),
 						tabBarIcon: ({ color }) => (
 							<MaterialCommunityIcons name="text-search" size={26} color={color} />
 						),

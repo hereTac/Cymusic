@@ -1,31 +1,28 @@
-import { PlaylistsList } from '@/components/PlaylistsList'
+import { RadioList } from '@/components/RadioList'
 import { screenPadding } from '@/constants/tokens'
-import { playlistNameFilter, trackTitleFilter } from '@/helpers/filter'
+import { playlistNameFilter } from '@/helpers/filter'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { usePlaylists } from '@/store/library'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useRouter } from 'expo-router'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { ScrollView, View } from 'react-native'
-import { getTopListDetail, getTopLists } from '@/helpers/userApi/getMusicSource'
-import { Track } from 'react-native-track-player'
-import { RadioList } from '@/components/RadioList'
-
 const RadiolistsScreen = () => {
 	const router = useRouter()
 
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in Radio',
+			placeholder: i18n.t('find.inRadio'),
 		},
 	})
 
-	const { playlists,setPlayList } = usePlaylists()
+	const { playlists, setPlayList } = usePlaylists()
 	const filteredPlayLists = useMemo(() => {
 		if (!search) return playlists
 		return playlists.filter(playlistNameFilter(search))
-	}, [search,playlists])
+	}, [search, playlists])
 
 	const handlePlaylistPress = (playlist: Playlist) => {
 		router.push(`/(tabs)/radio/${playlist.title}`)

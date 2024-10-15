@@ -1,10 +1,11 @@
 import { StackScreenWithSearchBar } from '@/constants/layout'
 import { colors } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
+import i18n, { nowLanguage } from '@/utils/i18n'
 import { Stack } from 'expo-router'
 import { View } from 'react-native'
-
 const PlaylistsScreenLayout = () => {
+	const language = nowLanguage.useValue()
 	return (
 		<View style={defaultStyles.container}>
 			<Stack>
@@ -12,7 +13,7 @@ const PlaylistsScreenLayout = () => {
 					name="index"
 					options={{
 						...StackScreenWithSearchBar,
-						headerTitle: 'Search',
+						headerTitle: i18n.t('appTab.search'),
 					}}
 				/>
 

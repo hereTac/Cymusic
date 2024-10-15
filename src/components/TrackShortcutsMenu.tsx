@@ -3,6 +3,7 @@ import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
 import { useFavorites } from '@/store/library'
 import { isInPlayList } from '@/store/playList'
 import { useQueue } from '@/store/queue'
+import i18n from '@/utils/i18n'
 import { MenuAction, MenuView } from '@react-native-menu/menu'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { PropsWithChildren, useCallback, useMemo, useState } from 'react'
@@ -69,7 +70,7 @@ export const TrackShortcutsMenu = ({
 			return [
 				{
 					id: 'view-single-artist',
-					title: '查看歌手',
+					title: i18n.t('menu.showArtist'),
 					image: 'person',
 				},
 			]
@@ -77,7 +78,7 @@ export const TrackShortcutsMenu = ({
 			return [
 				{
 					id: 'view-artists',
-					title: '查看歌手',
+					title: i18n.t('menu.showArtist'),
 					image: 'person',
 					subactions: artists.map((artist) => ({
 						id: `view-artist-${artist}`,
@@ -141,17 +142,19 @@ export const TrackShortcutsMenu = ({
 			actions={[
 				{
 					id: isInPlaylist ? 'remove-from-playlist' : 'add-to-playlist',
-					title: isInPlaylist ? '从播放列表移除' : '添加到播放列表',
+					title: isInPlaylist
+						? i18n.t('menu.removeFromPlayingList')
+						: i18n.t('menu.addToPlayingList'),
 					image: isInPlaylist ? 'minus' : 'plus',
 				},
 				{
 					id: isFavorite ? 'remove-from-favorites' : 'add-to-favorites',
-					title: isFavorite ? '从喜爱移除' : '添加到喜爱',
+					title: isFavorite ? i18n.t('menu.removeFromFavorites') : i18n.t('menu.addToFavorites'),
 					image: isFavorite ? 'heart.fill' : 'heart',
 				},
 				{
 					id: 'add-to-storedPlayList',
-					title: '添加到歌单',
+					title: i18n.t('menu.addToPlaylist'),
 					image: 'text.badge.plus',
 				},
 				...(isSinger ? [] : (artistActions as MenuAction[])),
@@ -159,7 +162,7 @@ export const TrackShortcutsMenu = ({
 					? [
 							{
 								id: 'delete-track',
-								title: '删除',
+								title: i18n.t('menu.delete'),
 								image: 'trash',
 								attributes: {
 									destructive: true,

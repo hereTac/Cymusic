@@ -5,6 +5,7 @@ import { playListsStore } from '@/helpers/trackPlayerIndex'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { router } from 'expo-router'
 import { useMemo } from 'react'
 import { Image, ScrollView, View } from 'react-native'
@@ -12,7 +13,7 @@ import { Image, ScrollView, View } from 'react-native'
 const FavoritesScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in favorites',
+			placeholder: i18n.t('find.inFavorites'),
 		},
 	})
 
@@ -20,18 +21,18 @@ const FavoritesScreen = () => {
 		name: 'Favorites',
 		id: 'favorites',
 		tracks: [],
-		title: '喜欢的歌曲',
+		title: i18n.t('appTab.favoritesSongs'),
 		coverImg: 'https://y.qq.com/mediastyle/global/img/cover_like.png?max_age=2592000',
-		description: '喜欢的歌曲',
+		description: i18n.t('appTab.favoritesSongs'),
 	}
 
 	const localPlayListItem = {
 		name: 'Local',
 		id: 'local',
 		tracks: [],
-		title: '本地/缓存的歌曲',
+		title: i18n.t('appTab.localOrCachedSongs'),
 		coverImg: Image.resolveAssetSource(localImage).uri,
-		description: '在本地的歌曲',
+		description: i18n.t('appTab.localOrCachedSongs'),
 	}
 	const storedPlayLists = playListsStore.useValue() || []
 	const playLists = [favoritePlayListItem, localPlayListItem, ...storedPlayLists]

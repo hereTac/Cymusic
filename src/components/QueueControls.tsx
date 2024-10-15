@@ -2,6 +2,7 @@ import { colors } from '@/constants/tokens'
 import myTrackPlayer, { MusicRepeatMode, repeatModeStore } from '@/helpers/trackPlayerIndex'
 import { setPlayList } from '@/store/playList'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { Ionicons } from '@expo/vector-icons'
 import shuffle from 'lodash.shuffle'
 import { StyleSheet, Text, View, ViewProps } from 'react-native'
@@ -60,13 +61,15 @@ export const QueueControls = ({
 							size={24}
 							color={colors.primary}
 						/>
-						<Text style={styles.buttonText}>{isAllSelected ? '取消' : '全选'}</Text>
+						<Text style={styles.buttonText}>
+							{isAllSelected ? i18n.t('playButton.cancel') : i18n.t('playButton.selectAll')}
+						</Text>
 					</TouchableOpacity>
 				) : (
 					<TouchableOpacity onPress={handlePlay} activeOpacity={0.8} style={styles.button}>
 						<Ionicons name="play" size={22} color={colors.primary} />
 
-						<Text style={styles.buttonText}>播放</Text>
+						<Text style={styles.buttonText}>{i18n.t('playButton.play')}</Text>
 					</TouchableOpacity>
 				)}
 			</View>
@@ -77,7 +80,7 @@ export const QueueControls = ({
 					<TouchableOpacity onPress={handleShufflePlay} activeOpacity={0.8} style={styles.button}>
 						<Ionicons name={'shuffle-sharp'} size={24} color={colors.primary} />
 
-						<Text style={styles.buttonText}>随机</Text>
+						<Text style={styles.buttonText}>{i18n.t('playButton.shuffle')}</Text>
 					</TouchableOpacity>
 				</View>
 			) : (
@@ -89,7 +92,7 @@ export const QueueControls = ({
 					>
 						<Ionicons name={'trash-outline'} size={24} color={colors.primary} />
 
-						<Text style={styles.buttonText}>删除</Text>
+						<Text style={styles.buttonText}>{i18n.t('playButton.delete')}</Text>
 					</TouchableOpacity>
 				</View>
 			)}
@@ -104,13 +107,13 @@ export const QueueControls = ({
 						>
 							<Ionicons name={'exit-outline'} size={24} color={colors.primary} />
 
-							<Text style={styles.buttonText}>导出</Text>
+							<Text style={styles.buttonText}>{i18n.t('playButton.out')}</Text>
 						</TouchableOpacity>
 					) : (
 						<TouchableOpacity onPress={onImportTrack} activeOpacity={0.8} style={styles.button}>
 							<Ionicons name={'enter-outline'} size={24} color={colors.primary} />
 
-							<Text style={styles.buttonText}>导入</Text>
+							<Text style={styles.buttonText}>{i18n.t('playButton.import')}</Text>
 						</TouchableOpacity>
 					)}
 				</View>

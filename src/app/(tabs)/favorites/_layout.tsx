@@ -2,10 +2,11 @@ import AddPlayListButton from '@/components/AddPlayListButton'
 import { StackScreenWithSearchBar } from '@/constants/layout'
 import { colors } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
+import i18n, { nowLanguage } from '@/utils/i18n'
 import { Stack } from 'expo-router'
 import { View } from 'react-native'
-
 const FavoritesScreenLayout = () => {
+	const language = nowLanguage.useValue()
 	return (
 		<View style={defaultStyles.container}>
 			<Stack>
@@ -13,7 +14,7 @@ const FavoritesScreenLayout = () => {
 					name="index"
 					options={{
 						...StackScreenWithSearchBar,
-						headerTitle: 'Favorites',
+						headerTitle: i18n.t('appTab.favorites'),
 						headerRight: () => <AddPlayListButton />,
 					}}
 				/>

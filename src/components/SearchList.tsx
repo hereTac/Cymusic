@@ -1,20 +1,11 @@
 import { TracksListItem } from '@/components/TracksListItem'
 import { unknownTrackImageUri } from '@/constants/images'
-import { useQueue } from '@/store/queue'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { utilsStyles } from '@/styles'
-import { useRef } from 'react'
+import i18n from '@/utils/i18n'
 import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
-import TrackPlayer, { Track } from 'react-native-track-player'
-import { QueueControls } from './QueueControls'
-
-import api_ikun from '@/components/utils/musicSdk/tx/api-ikun'
-import myTrackPlayer, { qualityStore } from '@/helpers/trackPlayerIndex'
-import { myGetMusicUrl } from '@/helpers/userApi/getMusicSource'
-import { setPlayList } from '@/store/playList'
-
-
-
+import { Track } from 'react-native-track-player'
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
 	//以及所有来自 FlatListProps 的属性，且这些属性都是可选的。
@@ -32,28 +23,24 @@ export const SearchList = ({
 	hideQueueControls = false,
 	...flatlistProps
 }: TracksListProps) => {
-
 	const handleTrackSelect = async (selectedTrack: Track) => {
+		// if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
+		// const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
+		// selectedTrack.url = res.url
+		// }
 
-	// if(selectedTrack.url=='Unknown'||selectedTrack.url.includes('fake')) {
-	// const res = await myGetMusicUrl(selectedTrack, qualityStore.getValue())
-	// selectedTrack.url = res.url
-	// }
-
-	await myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
-
+		await myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
 	}
 
 	return (
 		<FlatList
 			data={tracks}
 			contentContainerStyle={{ paddingTop: 10, paddingBottom: 128 }}
-
 			ListFooterComponent={ItemDivider}
 			ItemSeparatorComponent={ItemDivider}
 			ListEmptyComponent={
 				<View>
-					<Text style={utilsStyles.emptyContentText}>Search for songs</Text>
+					<Text style={utilsStyles.emptyContentText}>{i18n.t('find.inSearch')}</Text>
 
 					<FastImage
 						source={{ uri: unknownTrackImageUri, priority: FastImage.priority.normal }}

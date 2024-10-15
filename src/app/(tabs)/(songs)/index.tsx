@@ -5,13 +5,13 @@ import { generateTracksListId } from '@/helpers/miscellaneous'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { useTracks } from '@/store/library'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useMemo } from 'react'
 import { ScrollView, View } from 'react-native'
-
 const SongsScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in songs',
+			placeholder: i18n.t('find.inSongs'),
 		},
 	})
 

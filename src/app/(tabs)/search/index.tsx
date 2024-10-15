@@ -3,18 +3,18 @@ import { screenPadding } from '@/constants/tokens'
 import searchAll from '@/helpers/searchAll'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import { Track } from 'react-native-track-player'
-
 const SearchlistsScreen = () => {
 	const router = useRouter()
 	const [searchResults, setSearchResults] = useState<Track[]>([])
 
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find Something',
+			placeholder: i18n.t('find.inSearch'),
 		},
 	})
 

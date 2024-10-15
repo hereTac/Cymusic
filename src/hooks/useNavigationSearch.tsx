@@ -1,44 +1,45 @@
 import { colors } from '@/constants/tokens'
+import { nowLanguage } from '@/utils/i18n'
 import { useNavigation } from 'expo-router'
-import { useLayoutEffect, useState } from 'react'
+import { debounce } from 'lodash'
+import { useCallback, useLayoutEffect, useState } from 'react'
 import { SearchBarProps } from 'react-native-screens'
-import { useCallback } from 'react';
-import { debounce } from 'lodash';
 
 const defaultSearchOptions: SearchBarProps = {
 	tintColor: colors.primary,
 	hideWhenScrolling: false,
-}//在 TypeScript 中，冒号 : 用于声明变量的类型
+} //在 TypeScript 中，冒号 : 用于声明变量的类型
 
 export const useNavigationSearch = ({
-    searchBarOptions,
+	searchBarOptions,
 }: {
-    searchBarOptions?: SearchBarProps
+	searchBarOptions?: SearchBarProps
 }) => {
-    const [search, setSearch] = useState('')
+	const [search, setSearch] = useState('')
 
-    const navigation = useNavigation()
+	const navigation = useNavigation()
+	const language = nowLanguage.useValue()
 
-    const debouncedSetSearch = useCallback(
-        debounce((text) => {
-            setSearch(text)
-        }, 300),
-        []
-    );
+	const debouncedSetSearch = useCallback(
+		debounce((text) => {
+			setSearch(text)
+		}, 300),
+		[],
+	)
 
-    const handleOnChangeText: SearchBarProps['onChangeText'] = ({ nativeEvent: { text } }) => {
-        debouncedSetSearch(text);
-    }
+	const handleOnChangeText: SearchBarProps['onChangeText'] = ({ nativeEvent: { text } }) => {
+		debouncedSetSearch(text)
+	}
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerSearchBarOptions: {
-                ...defaultSearchOptions,
-                ...searchBarOptions,
-                onChangeText: handleOnChangeText,
-            },
-        })
-    }, [navigation, searchBarOptions])
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			headerSearchBarOptions: {
+				...defaultSearchOptions,
+				...searchBarOptions,
+				onChangeText: handleOnChangeText,
+			},
+		})
+	}, [navigation, searchBarOptions])
 
-    return search
+	return search
 }

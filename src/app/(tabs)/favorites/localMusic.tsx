@@ -7,6 +7,7 @@ import myTrackPlayer, { importedLocalMusicStore } from '@/helpers/trackPlayerInd
 import { Playlist } from '@/helpers/types'
 import { searchMusicInfoByName } from '@/helpers/userApi/getMusicSource'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import MusicInfo from '@/utils/musicInfo'
 import * as DocumentPicker from 'expo-document-picker'
 import React, { useState } from 'react'
@@ -19,9 +20,9 @@ const LocalMusicScreen = () => {
 		name: 'Local',
 		id: 'local',
 		tracks: [],
-		title: '本地/缓存的歌曲',
+		title: i18n.t('appTab.localOrCachedSongs'),
 		coverImg: Image.resolveAssetSource(localImage).uri,
-		description: '在本地的歌曲',
+		description: i18n.t('appTab.localOrCachedSongs'),
 	}
 	const [isMultiSelectMode, setIsMultiSelectMode] = useState(false)
 	const [selectedTracks, setSelectedTracks] = useState<Set<string>>(new Set())

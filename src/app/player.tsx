@@ -14,6 +14,7 @@ import { useTrackPlayerFavorite } from '@/hooks/useTrackPlayerFavorite'
 import PersistStatus from '@/store/PersistStatus'
 import usePlayerStore from '@/store/usePlayerStore'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { setTimingClose } from '@/utils/timingClose'
 import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons'
 import { MenuView } from '@react-native-menu/menu'
@@ -136,7 +137,7 @@ const PlayerScreen = () => {
 			// 使用 MenuView 显示歌手选择菜单
 			return (
 				<MenuView
-					title="选择歌手"
+					title={i18n.t('player.selectArtist')}
 					onPressAction={({ nativeEvent }) => {
 						handleViewArtist(nativeEvent.event)
 					}}
@@ -254,30 +255,34 @@ const PlayerScreen = () => {
 	const menuActions = [
 		{
 			id: 'favorite',
-			title: isFavorite ? '取消喜欢' : '喜欢',
+			title: isFavorite ? i18n.t('player.like') : i18n.t('player.like'),
 			titleColor: isFavorite ? colors.primary : undefined,
 			image: isFavorite ? 'heart.fill' : 'heart',
 		},
-		{ id: 'album', title: '显示专辑', image: 'music.note.list' },
-		{ id: 'lyrics', title: '查看歌词', image: 'text.quote' },
-		{ id: 'playlist', title: '添加到歌单', image: 'plus.circle' },
+		{ id: 'album', title: i18n.t('player.showAlbum'), image: 'music.note.list' },
+		{ id: 'lyrics', title: i18n.t('player.showLyrics'), image: 'text.quote' },
+		{ id: 'playlist', title: i18n.t('player.addToPlaylist'), image: 'plus.circle' },
 
-		{ id: 'share', title: '分享歌曲', image: 'square.and.arrow.up' },
+		{ id: 'share', title: i18n.t('player.share'), image: 'square.and.arrow.up' },
 		{
 			id: 'timing',
-			title: '定时关闭',
+			title: i18n.t('player.closeAfter'),
 			image: 'timer',
 			subactions: [
-				{ id: 'timing_10', title: '10 分钟' },
-				{ id: 'timing_15', title: '15 分钟' },
-				{ id: 'timing_20', title: '20 分钟' },
-				{ id: 'timing_30', title: '30 分钟' },
-				{ id: 'timing_cus', title: '自定义' },
+				{ id: 'timing_10', title: '10 ' + i18n.t('player.minutes') },
+				{ id: 'timing_15', title: '15 ' + i18n.t('player.minutes') },
+				{ id: 'timing_20', title: '20 ' + i18n.t('player.minutes') },
+				{ id: 'timing_30', title: '30 ' + i18n.t('player.minutes') },
+				{ id: 'timing_cus', title: i18n.t('player.custom') },
 			],
 		},
 	]
 	if (trackToDisplay?.platform !== 'local') {
-		menuActions.splice(4, 0, { id: 'download', title: '下载', image: 'arrow.down.circle' })
+		menuActions.splice(4, 0, {
+			id: 'download',
+			title: i18n.t('player.download'),
+			image: 'arrow.down.circle',
+		})
 	}
 	useEffect(() => {
 		setCurrentLyricTime(position * 1000)
@@ -307,21 +312,21 @@ const PlayerScreen = () => {
 	}
 	function setCustomTimingClose(arg0: null) {
 		Alert.prompt(
-			'设置定时关闭',
-			'请输入分钟数',
+			i18n.t('player.setTimingClose'),
+			i18n.t('player.inputMinutes'),
 			[
 				{
-					text: '取消',
+					text: i18n.t('player.cancel'),
 					style: 'cancel',
 				},
 				{
-					text: '确定',
+					text: i18n.t('player.confirm'),
 					onPress: (minutes) => {
 						if (minutes && !isNaN(Number(minutes))) {
 							const milliseconds = Number(minutes) * 60 * 1000
 							setTimingClose(Date.now() + milliseconds)
 						} else {
-							Alert.alert('错误', '请输入有效的分钟数')
+							Alert.alert(i18n.t('player.error.title'), i18n.t('player.error.minutesErrorMessage'))
 						}
 					},
 				},
@@ -409,7 +414,7 @@ const PlayerScreen = () => {
 
 										{/* Favorite button icon */}
 										<MenuView
-											title="歌曲选项"
+											title={i18n.t('player.songOptions')}
 											onPressAction={({ nativeEvent }) => {
 												switch (nativeEvent.event) {
 													case 'favorite':

@@ -8,6 +8,7 @@ import myTrackPlayer, {
 	nowApiState,
 	useCurrentQuality,
 } from '@/helpers/trackPlayerIndex'
+import i18n, { changeLanguage, nowLanguage } from '@/utils/i18n'
 import { MenuView } from '@react-native-menu/menu'
 import { Buffer } from 'buffer'
 import Constants from 'expo-constants'
@@ -30,6 +31,7 @@ import RNFS from 'react-native-fs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
 const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本'
+
 // eslint-disable-next-line react/prop-types
 const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
 	const handlePressAction = async (id: string) => {
@@ -81,14 +83,20 @@ const MusicSourceMenu = ({ isDelete, onSelectSource }) => {
 			onPressAction={({ nativeEvent: { event } }) => handlePressAction(event)}
 			actions={sources.map((source) => ({
 				id: source.id,
-				title: isDelete ? `删除 ${source.title}` : source.title,
+				title: isDelete
+					? `${i18n.t('settings.actions.delete.delete')} ${source.title}`
+					: source.title,
 				state: isDelete ? 'off' : selectedApi && selectedApi.id === source.id ? 'on' : 'off',
 				attributes: isDelete ? { destructive: true } : undefined,
 			}))}
 		>
 			<TouchableOpacity style={[styles.menuTrigger]}>
 				<Text style={[styles.menuTriggerText]}>
-					{isDelete ? '选择删除' : selectedApi ? selectedApi.name : '选择音源'}
+					{isDelete
+						? i18n.t('settings.actions.delete.selectDelete')
+						: selectedApi
+							? selectedApi.name
+							: i18n.t('settings.items.selectSource')}
 				</Text>
 			</TouchableOpacity>
 		</MenuView>
@@ -218,42 +226,57 @@ const SettingModal = () => {
 	const [isQualitySelectorVisible, setIsQualitySelectorVisible] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
 	const apiState = nowApiState.useValue()
+	const language = nowLanguage.useValue()
 	const autoCacheLocal = autoCacheLocalStore.useValue()
 	const settingsData = [
 		{
-			title: '应用信息',
+			title: i18n.t('settings.sections.appInfo'),
 			data: [
 				{ id: '1', title: 'CyMusic', type: 'link', icon: require('@/assets/144.png') },
-				{ id: '2', title: '版本号', type: 'value', value: CURRENT_VERSION },
-				{ id: '3', title: '检查更新', type: 'value' },
-				{ id: '5', title: '项目链接', type: 'value', value: '' },
-				{ id: '9', title: '清空缓存', type: 'value', value: '' },
-				{ id: '13', title: '查看日志', type: 'link' },
+				{ id: '2', title: i18n.t('settings.items.version'), type: 'value', value: CURRENT_VERSION },
+				{ id: '3', title: i18n.t('settings.items.checkUpdate'), type: 'value' },
+				{ id: '5', title: i18n.t('settings.items.projectLink'), type: 'value', value: '' },
+				{ id: '9', title: i18n.t('settings.items.clearCache'), type: 'value', value: '' },
+				{ id: '13', title: i18n.t('settings.items.viewLogs'), type: 'link' },
+				{
+					id: '15',
+					title: i18n.t('settings.items.changeLanguage'),
+					type: 'value',
+					value: '',
+				},
 			],
 		},
 		{
-			title: '音频设置',
+			title: i18n.t('settings.sections.audioSettings'),
 			data: [
-				{ id: '6', title: '清空待播清单', type: 'link' },
+				{ id: '6', title: i18n.t('settings.items.clearPlaylist'), type: 'link' },
 				{
 					id: '14',
-					title: '自动缓存歌曲到本地',
+					title: i18n.t('settings.items.autoCacheLocal'),
 					type: 'value',
 				},
 			],
 		},
 		{
-			title: '自定义音源',
+			title: i18n.t('settings.sections.customSource'),
 			data: [
-				{ id: '11', title: '切换音源', type: 'custom' },
-				{ id: '7', title: '音源状态', type: 'value', value: apiState },
-				{ id: '12', title: '删除音源', type: 'value', value: '' },
-				{ id: '8', title: '导入音源', type: 'value' },
+				{ id: '11', title: i18n.t('settings.items.switchSource'), type: 'custom' },
+				{
+					id: '7',
+					title: i18n.t('settings.items.sourceStatus'),
+					type: 'value',
+					value:
+						apiState == '正常'
+							? i18n.t('settings.items.normal')
+							: i18n.t('settings.items.exception'),
+				},
+				{ id: '12', title: i18n.t('settings.items.deleteSource'), type: 'value', value: '' },
+				{ id: '8', title: i18n.t('settings.items.importSource'), type: 'value' },
 			],
 		},
 		{
-			title: '音质选择',
-			data: [{ id: '10', title: '当前音质', type: 'value' }],
+			title: i18n.t('settings.sections.qualitySelection'),
+			data: [{ id: '10', title: i18n.t('settings.items.currentQuality'), type: 'value' }],
 		},
 	]
 	const importMusicSourceMenu = (
@@ -269,12 +292,12 @@ const SettingModal = () => {
 				}
 			}}
 			actions={[
-				{ id: 'file', title: '从文件导入' },
-				{ id: 'url', title: '从URL导入' },
+				{ id: 'file', title: i18n.t('settings.actions.import.fromFile') },
+				{ id: 'url', title: i18n.t('settings.actions.import.fromUrl') },
 			]}
 		>
 			<TouchableOpacity style={styles.menuTrigger}>
-				<Text style={styles.menuTriggerText}>导入音源</Text>
+				<Text style={styles.menuTriggerText}>{i18n.t('settings.actions.import.title')}</Text>
 			</TouchableOpacity>
 		</MenuView>
 	)
@@ -291,14 +314,16 @@ const SettingModal = () => {
 				}
 			}}
 			actions={[
-				{ id: 'on', title: '是' },
-				{ id: 'off', title: '否' },
+				{ id: 'on', title: i18n.t('settings.actions.autoCacheLocal.yes') },
+				{ id: 'off', title: i18n.t('settings.actions.autoCacheLocal.no') },
 			]}
 		>
 			<TouchableOpacity style={styles.menuTrigger}>
 				<Text style={styles.menuTriggerText}>
 					{/* 此处加空格为了增大点击区域 */}
-					{autoCacheLocal == true ? '               是' : '               否'}
+					{autoCacheLocal == true
+						? '             ' + i18n.t('settings.actions.autoCacheLocal.yes')
+						: '             ' + i18n.t('settings.actions.autoCacheLocal.no')}
 				</Text>
 			</TouchableOpacity>
 		</MenuView>
@@ -314,9 +339,15 @@ const SettingModal = () => {
 	const handleClearCache = async () => {
 		try {
 			await myTrackPlayer.clearCache()
-			Alert.alert('成功', '缓存已清理')
+			Alert.alert(
+				i18n.t('settings.actions.clearCache.success'),
+				i18n.t('settings.actions.clearCache.message'),
+			)
 		} catch (error) {
-			Alert.alert('失败', '缓存清理失败')
+			Alert.alert(
+				i18n.t('settings.actions.clearCache.failure'),
+				i18n.t('settings.actions.clearCache.message'),
+			)
 			console.error(error)
 		}
 	}
@@ -327,6 +358,28 @@ const SettingModal = () => {
 		// 这里你需要实现切换音源的逻辑
 		// 例如：myTrackPlayer.setMusicApiAsSelectedById(sourceId);
 	}
+	const changeLanguageMenu = (
+		<MenuView
+			onPressAction={({ nativeEvent: { event } }) => {
+				switch (event) {
+					case 'zh':
+						changeLanguage('zh')
+						break
+					case 'en':
+						changeLanguage('en')
+						break
+				}
+			}}
+			actions={[
+				{ id: 'zh', title: '中文' },
+				{ id: 'en', title: 'English' },
+			]}
+		>
+			<TouchableOpacity style={styles.menuTrigger}>
+				<Text style={styles.menuTriggerText}>{language == 'zh' ? '中文' : 'English'}</Text>
+			</TouchableOpacity>
+		</MenuView>
+	)
 
 	const handleDeleteSource = (sourceId) => {
 		myTrackPlayer.deleteMusicApiById(sourceId)
@@ -353,16 +406,33 @@ const SettingModal = () => {
 			logInfo(CURRENT_VERSION + 'CURRENT_VERSIONCURRENT_VERSION' + latestVersion)
 
 			if (latestVersion !== CURRENT_VERSION) {
-				Alert.alert('新版本可用', `发现新版本 ${latestVersion}，请更新。`, [
-					{ text: '确定', onPress: () => Linking.openURL(data.html_url) },
-					{ text: '取消', onPress: () => {}, style: 'cancel' },
-				])
+				Alert.alert(
+					i18n.t('settings.actions.checkUpdate.available'),
+					`${i18n.t('settings.actions.checkUpdate.message')} ${latestVersion}`,
+					[
+						{
+							text: i18n.t('settings.actions.checkUpdate.ok'),
+							onPress: () => Linking.openURL(data.html_url),
+						},
+						{
+							text: i18n.t('settings.actions.checkUpdate.cancel'),
+							onPress: () => {},
+							style: 'cancel',
+						},
+					],
+				)
 			} else {
-				Alert.alert('已是最新版本', '当前已是最新版本。')
+				Alert.alert(
+					i18n.t('settings.actions.checkUpdate.notAvailable'),
+					i18n.t('settings.actions.checkUpdate.notAvailableMessage'),
+				)
 			}
 		} catch (error) {
-			logError('检查更新失败', error)
-			Alert.alert('检查更新失败', '无法检查更新，请稍后再试。')
+			logError(i18n.t('settings.actions.checkUpdate.error'), error)
+			Alert.alert(
+				i18n.t('settings.actions.checkUpdate.error'),
+				i18n.t('settings.actions.checkUpdate.errorMessage'),
+			)
 		} finally {
 			setIsLoading(false)
 		}
@@ -377,28 +447,35 @@ const SettingModal = () => {
 					index === sectionData.length - 1 && styles.lastItem,
 				]}
 				onPress={() => {
-					if (item.title === '查看日志') {
+					if (item.title === i18n.t('settings.items.viewLogs')) {
 						router.push('/(modals)/logScreen')
 					}
-					if (item.title === '项目链接') {
+					if (item.title === i18n.t('settings.items.projectLink')) {
 						Linking.openURL('https://github.com/gyc-12/music-player-master').catch((err) =>
 							logError("Couldn't load page", err),
 						)
-					} else if (item.title === '当前音质') {
+					} else if (item.title === i18n.t('settings.items.currentQuality')) {
 						setIsQualitySelectorVisible(true)
 					} else if (item.type === 'link') {
-						if (item.title === '清空待播清单') {
-							Alert.alert('清空待播清单', '确定要清空待播清单吗？', [
-								{ text: '取消', style: 'cancel' },
-								{ text: '确定', onPress: () => myTrackPlayer.clearToBePlayed() },
-							])
-						} else if (item.title === '导入音源') {
+						if (item.title === i18n.t('settings.items.clearPlaylist')) {
+							Alert.alert(
+								i18n.t('settings.actions.clearPlaylist.title'),
+								i18n.t('settings.actions.clearPlaylist.message'),
+								[
+									{ text: i18n.t('settings.actions.clearPlaylist.cancel'), style: 'cancel' },
+									{
+										text: i18n.t('settings.actions.clearPlaylist.confirm'),
+										onPress: () => myTrackPlayer.clearToBePlayed(),
+									},
+								],
+							)
+						} else if (item.title === i18n.t('settings.items.importSource')) {
 							// importMusicSourceFromFile()
 						}
 						// logInfo(`Navigate to ${item.title}`)
-					} else if (item.title === '检查更新') {
+					} else if (item.title === i18n.t('settings.items.checkUpdate')) {
 						checkForUpdates()
-					} else if (item.title === '清空缓存') {
+					} else if (item.title === i18n.t('settings.items.clearCache')) {
 						handleClearCache()
 					}
 				}}
@@ -415,20 +492,20 @@ const SettingModal = () => {
 						/>
 					)}
 					{item.type === 'value' && <Text style={styles.itemValue}>{item.value}</Text>}
-					{item.title === '当前音质' && (
+					{item.title === i18n.t('settings.items.currentQuality') && (
 						<MusicQualityMenu currentQuality={currentQuality} onSelectQuality={setCurrentQuality} />
 					)}
-					{item.title === '切换音源' && (
+					{item.title === i18n.t('settings.items.switchSource') && (
 						<MusicSourceMenu isDelete={false} onSelectSource={handleSelectSource} />
 					)}
-					{item.title === '删除音源' && (
+					{item.title === i18n.t('settings.items.deleteSource') && (
 						<MusicSourceMenu isDelete={true} onSelectSource={handleDeleteSource} />
 					)}
-					{item.title === '导入音源' && importMusicSourceMenu}
-					{(item.type === 'link' || item.title === '项目链接') && !item.icon && (
-						<Text style={styles.arrowRight}>{'>'}</Text>
-					)}
-					{item.title === '自动缓存歌曲到本地' && toggleAutoCacheLocalMenu}
+					{item.title === i18n.t('settings.items.importSource') && importMusicSourceMenu}
+					{(item.type === 'link' || item.title === i18n.t('settings.items.projectLink')) &&
+						!item.icon && <Text style={styles.arrowRight}>{'>'}</Text>}
+					{item.title === i18n.t('settings.items.autoCacheLocal') && toggleAutoCacheLocalMenu}
+					{item.title === i18n.t('settings.items.changeLanguage') && changeLanguageMenu}
 				</View>
 			</TouchableOpacity>
 			{index !== sectionData.length - 1 && <View style={styles.separator} />}
@@ -442,7 +519,7 @@ const SettingModal = () => {
 	return (
 		<View style={styles.container}>
 			<DismissPlayerSymbol />
-			<Text style={styles.header}>设置</Text>
+			<Text style={styles.header}>{i18n.t('settings.title')}</Text>
 			<ScrollView style={styles.scrollView}>
 				{settingsData.map((section, index) => (
 					<View key={index} style={styles.section}>

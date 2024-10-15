@@ -34,7 +34,7 @@ import { Alert, Image } from 'react-native'
 import { myGetLyric } from '@/helpers/userApi/getMusicSource'
 
 import { fakeAudioMp3Uri } from '@/constants/images'
-import { useLibraryStore } from '@/store/library'
+import { nowLanguage } from '@/utils/i18n'
 import { logError, logInfo } from './logger'
 
 /** 当前播放 */
@@ -56,6 +56,7 @@ export const nowApiState = new GlobalState<string>('正常')
 export const autoCacheLocalStore = new GlobalState<boolean>(true)
 /** 已导入的本地音乐 */
 export const importedLocalMusicStore = new GlobalState<IMusic.IMusicItem[] | []>(null)
+
 export function useCurrentQuality() {
 	const currentQuality = qualityStore.useValue()
 	const setCurrentQuality = (newQuality: IMusic.IQualityKey) => {
@@ -63,7 +64,7 @@ export function useCurrentQuality() {
 	}
 	return [currentQuality, setCurrentQuality] as const
 }
-const setNowLyric = useLibraryStore.getState().setNowLyric
+// const setNowLyric = useLibraryStore.getState().setNowLyric
 export const nowLyricState = new GlobalState<string>(null)
 
 let currentIndex = -1
@@ -98,7 +99,8 @@ async function setupTrackPlayer() {
 	const selectedMusicApi = PersistStatus.get('music.selectedMusicApi')
 	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
 	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') ?? true
-	// console.log('autoCacheLocal', autoCacheLocal, PersistStatus.get('music.autoCacheLocal'))
+	const language = PersistStatus.get('app.language') ?? 'zh'
+
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -129,7 +131,9 @@ async function setupTrackPlayer() {
 	if (autoCacheLocal == true || autoCacheLocal == false) {
 		autoCacheLocalStore.setValue(autoCacheLocal)
 	}
-
+	if (language) {
+		nowLanguage.setValue(language)
+	}
 	if (!hasSetupListener) {
 		ReactNativeTrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (evt) => {
 			if (evt.index === 1 && evt.lastIndex === 0 && evt.track?.$ === internalFakeSoundKey) {
