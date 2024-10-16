@@ -13,6 +13,7 @@ const setupPlayer = async () => {
 			Capability.SkipToNext,
 			Capability.SkipToPrevious,
 			Capability.Stop,
+			Capability.SeekTo,
 		],
 		progressUpdateEventInterval: 1,
 	})
