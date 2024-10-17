@@ -59,7 +59,7 @@ const headers = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36",
     Cookie: "uin=",
 };
-async function searchBase(query, page, type) {
+async function searchBase(query, page, type, pageSize) {
     const res = (await (0, axios.default)({
         url: "https://u.y.qq.com/cgi-bin/musicu.fcg",
         method: "POST",
@@ -84,8 +84,8 @@ async function searchBase(query, page, type) {
         data: res.req_1.data.body[searchTypeMap[type]].list,
     };
 }
-export async function searchMusic(query, page) {
-    const songs = await searchBase(query, page, 0);
+export async function searchMusic(query, page, pageSize) {
+    const songs = await searchBase(query, page, 0, pageSize);
     return {
         isEnd: songs.isEnd,
         data: songs.data.map(formatMusicItem),
@@ -121,7 +121,7 @@ async function searchMusicSheet(query, page) {
         })),
     };
 }
-export  async function searchLyric(query, page) {
+export async function searchLyric(query, page) {
     const songs = await searchBase(query, page, 7);
     return {
         isEnd: songs.isEnd,
@@ -440,8 +440,8 @@ const qualityLevels = {
     high: "320k",
     super: "320k",
 };
- export async function getMediaSource(musicItem, quality) {
-       console.log(`https://render.niuma666bet.buzz/url/tx/${musicItem.id}/${quality}`)
+export async function getMediaSource(musicItem, quality) {
+    console.log(`https://render.niuma666bet.buzz/url/tx/${musicItem.id}/${quality}`)
     const res = (
         await axios.default.get(`https://render.niuma666bet.buzz/url/tx/${musicItem.id}/${quality}`, {
             headers: {
@@ -449,7 +449,7 @@ const qualityLevels = {
             },
         })
     ).data;
-        console.log(res)
+    console.log(res)
     return {
         url: res.url,
     };

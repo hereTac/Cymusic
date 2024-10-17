@@ -23,7 +23,7 @@ export const useNavigationSearch = ({
 	const debouncedSetSearch = useCallback(
 		debounce((text) => {
 			setSearch(text)
-		}, 300),
+		}, 400),
 		[],
 	)
 
