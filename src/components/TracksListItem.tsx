@@ -4,6 +4,7 @@ import { colors, fontSize } from '@/constants/tokens'
 import { defaultStyles } from '@/styles'
 import rpx from '@/utils/rpx'
 import { Entypo, Ionicons } from '@expo/vector-icons'
+import { memo } from 'react'
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image' //导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
 import LoaderKit from 'react-native-loader-kit'
@@ -26,9 +27,10 @@ export type TracksListItemProps = {
 // track: 一个 Track 类型的对象。
 // onTrackSelect: 一个函数，该函数接受一个 Track 类型的参数，没有返回值。
 // 这个定义通常用于为组件的 props 提供类型检查和自动完成提示，确保在使用组件时传递的 props 符合预期的类型。
-export const TracksListItem = ({
+
+const TracksListItem = ({
 	track,
-	onTrackSelect: handleTrackSelect, //解构赋值：通过解构赋值从 props 对象中提取 track 和 onTrackSelect 属性，并将 onTrackSelect 重新命名为 handleTrackSelect。
+	onTrackSelect: handleTrackSelect,
 	isSinger = false,
 	allowDelete = false,
 	isMultiSelectMode = false,
@@ -141,7 +143,7 @@ export const TracksListItem = ({
 		</TouchableHighlight>
 	)
 }
-
+export default memo(TracksListItem)
 const styles = StyleSheet.create({
 	trackItemContainer: {
 		flexDirection: 'row',

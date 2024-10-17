@@ -15,6 +15,7 @@ const RadiolistsScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
 			placeholder: i18n.t('find.inRadio'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 

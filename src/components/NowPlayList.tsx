@@ -1,4 +1,3 @@
-import { TracksListItem } from '@/components/TracksListItem'
 import { unknownTrackImageUri } from '@/constants/images'
 import { colors } from '@/constants/tokens'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
@@ -8,6 +7,7 @@ import { FlatList, FlatListProps, StyleSheet, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Track, useActiveTrack } from 'react-native-track-player'
+import TracksListItem from './TracksListItem'
 
 export type TracksListProps = Partial<FlatListProps<Track>> & {
 	id: string
@@ -126,7 +126,7 @@ export const NowPlayList = React.memo(
 
 const styles = StyleSheet.create({
 	contentContainer: {
-		paddingTop: 40,
+		paddingTop: 60,
 		paddingBottom: 128,
 	},
 	itemDivider: {

@@ -96,10 +96,13 @@
 	},
 	"find": {
 		"inRadio": "在电台中搜索",
-		"inSearch": "在线搜歌",
+		"inSearch": "在线搜索歌曲或歌手",
 		"inSongs": "在歌曲中搜索",
 		"inFavorites": "在收藏中搜索",
-		"noResults": "没有找到结果"
+		"noResults": "没有找到结果",
+		"noMoreResults": "没有更多结果",
+		"cancel": "取消",
+		"inPlaylist": "在歌单中搜索"
 	},
 	"playButton": {
 		"play": "播放",

@@ -1,9 +1,9 @@
-import { TracksListItem } from '@/components/TracksListItem'
+import TracksListItem from '@/components/TracksListItem'
 import { unknownTrackImageUri } from '@/constants/images'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { useQueue } from '@/store/queue'
 import { utilsStyles } from '@/styles'
-import { useRef } from 'react'
+import React, { useCallback, useMemo, useRef } from 'react'
 import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { Track } from 'react-native-track-player'
@@ -21,66 +21,58 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 	onToggleSelection?: (trackId: string) => void
 	toggleMultiSelectMode?: () => void
 }
-
-const ItemDivider = () => (
+const ItemDivider = React.memo(() => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
-)
-export const TracksList = ({
-	id,
-	tracks,
-	hideQueueControls = false,
-	isSinger = false,
-	allowDelete = false,
-	isMultiSelectMode = false,
-	onDeleteTrack,
-	selectedTracks = new Set(),
-	onToggleSelection,
-	toggleMultiSelectMode,
-	...flatlistProps
-}: TracksListProps) => {
-	const queueOffset = useRef(0)
-	const { activeQueueId, setActiveQueueId } = useQueue()
+))
 
-	const handleTrackSelect = async (selectedTrack: Track) => {
-		const isChangingQueue = id !== activeQueueId
-		//
-		if (isChangingQueue) {
-			await myTrackPlayer.playWithReplacePlayList(
-				selectedTrack as IMusic.IMusicItem,
-				tracks as IMusic.IMusicItem[],
-			)
+const EmptyListComponent = React.memo(() => (
+	<View>
+		<Text style={utilsStyles.emptyContentText}>No songs found</Text>
+		<FastImage
+			source={{ uri: unknownTrackImageUri, priority: FastImage.priority.normal }}
+			style={utilsStyles.emptyContentImage}
+		/>
+	</View>
+))
 
-			setActiveQueueId(id)
-		} else {
-			await myTrackPlayer.playWithReplacePlayList(
-				selectedTrack as IMusic.IMusicItem,
-				tracks as IMusic.IMusicItem[],
-			)
-		}
-	}
+export const TracksList = React.memo(
+	({
+		id,
+		tracks,
+		hideQueueControls = false,
+		isSinger = false,
+		allowDelete = false,
+		isMultiSelectMode = false,
+		onDeleteTrack,
+		selectedTracks = new Set(),
+		onToggleSelection,
+		toggleMultiSelectMode,
+		...flatlistProps
+	}: TracksListProps) => {
+		const queueOffset = useRef(0)
+		const { activeQueueId, setActiveQueueId } = useQueue()
 
-	return (
-		<FlatList
-			data={tracks}
-			contentContainerStyle={{ paddingTop: 10, paddingBottom: 128 }}
-			ListHeaderComponent={
-				!hideQueueControls ? (
-					<QueueControls tracks={tracks} style={{ paddingBottom: 20 }} />
-				) : undefined
-			}
-			ListFooterComponent={ItemDivider}
-			ItemSeparatorComponent={ItemDivider}
-			ListEmptyComponent={
-				<View>
-					<Text style={utilsStyles.emptyContentText}>No songs found</Text>
+		const handleTrackSelect = useCallback(
+			async (selectedTrack: Track) => {
+				const isChangingQueue = id !== activeQueueId
+				if (isChangingQueue) {
+					await myTrackPlayer.playWithReplacePlayList(
+						selectedTrack as IMusic.IMusicItem,
+						tracks as IMusic.IMusicItem[],
+					)
+					setActiveQueueId(id)
+				} else {
+					await myTrackPlayer.playWithReplacePlayList(
+						selectedTrack as IMusic.IMusicItem,
+						tracks as IMusic.IMusicItem[],
+					)
+				}
+			},
+			[id, activeQueueId, tracks, setActiveQueueId],
+		)
 
-					<FastImage
-						source={{ uri: unknownTrackImageUri, priority: FastImage.priority.normal }}
-						style={utilsStyles.emptyContentImage}
-					/>
-				</View>
-			}
-			renderItem={({ item: track }) => (
+		const renderItem = useCallback(
+			({ item: track }) => (
 				<TracksListItem
 					track={track}
 					onTrackSelect={handleTrackSelect}
@@ -91,9 +83,40 @@ export const TracksList = ({
 					onToggleSelection={onToggleSelection}
 					selectedTracks={selectedTracks}
 					toggleMultiSelectMode={toggleMultiSelectMode}
-				/> //将 track 和 handleTrackSelect 作为 props 传递给它。
-			)}
-			{...flatlistProps}
-		/>
-	)
-}
+				/>
+			),
+			[
+				handleTrackSelect,
+				isSinger,
+				allowDelete,
+				onDeleteTrack,
+				isMultiSelectMode,
+				onToggleSelection,
+				selectedTracks,
+				toggleMultiSelectMode,
+			],
+		)
+
+		const ListHeaderComponent = useMemo(
+			() =>
+				!hideQueueControls ? (
+					<QueueControls tracks={tracks} style={{ paddingBottom: 20 }} />
+				) : undefined,
+			[hideQueueControls, tracks],
+		)
+
+		return (
+			<FlatList
+				data={tracks}
+				contentContainerStyle={{ paddingTop: 10, paddingBottom: 128 }}
+				ListHeaderComponent={ListHeaderComponent}
+				ListFooterComponent={ItemDivider}
+				ItemSeparatorComponent={ItemDivider}
+				ListEmptyComponent={EmptyListComponent}
+				renderItem={renderItem}
+				keyExtractor={useCallback((item: Track) => item.id, [])}
+				{...flatlistProps}
+			/>
+		)
+	},
+)

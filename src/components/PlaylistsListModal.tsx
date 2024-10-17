@@ -4,6 +4,7 @@ import { playListsStore } from '@/helpers/trackPlayerIndex'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { utilsStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useMemo } from 'react'
 import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
@@ -21,7 +22,8 @@ export const PlaylistsListModal = ({
 }: PlaylistsListProps) => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in playlist',
+			placeholder: i18n.t('find.inPlaylist'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 	const favoritePlayListItem = useMemo(

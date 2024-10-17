@@ -5,17 +5,18 @@ import { generateTracksListId } from '@/helpers/miscellaneous'
 import { Artist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { defaultStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { QueueControls } from './QueueControls'
 import { TracksList } from './TracksList'
-
 export const ArtistTracksList = ({ artist }: { artist: Artist }) => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
 			hideWhenScrolling: true,
-			placeholder: 'Find in songs',
+			placeholder: i18n.t('find.inSongs'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 

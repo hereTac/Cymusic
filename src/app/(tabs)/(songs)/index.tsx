@@ -12,6 +12,7 @@ const SongsScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
 			placeholder: i18n.t('find.inSongs'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 

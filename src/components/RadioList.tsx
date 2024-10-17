@@ -1,14 +1,12 @@
-import { PlaylistListItem } from '@/components/PlaylistListItem'
+import { RadioListItem } from '@/components/RadioListItem'
 import { unknownTrackImageUri } from '@/constants/images'
-import { playlistNameFilter } from '@/helpers/filter'
 import { Playlist } from '@/helpers/types'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { utilsStyles } from '@/styles'
+import i18n from '@/utils/i18n'
 import { useMemo } from 'react'
 import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
-import { RadioListItem } from '@/components/RadioListItem'
-
 type PlaylistsListProps = {
 	playlists: Playlist[]
 	onPlaylistPress: (playlist: Playlist) => void
@@ -25,7 +23,8 @@ export const RadioList = ({
 }: PlaylistsListProps) => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
-			placeholder: 'Find in playlist',
+			placeholder: i18n.t('find.inPlaylist'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 

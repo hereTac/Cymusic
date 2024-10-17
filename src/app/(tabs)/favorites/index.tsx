@@ -14,6 +14,7 @@ const FavoritesScreen = () => {
 	const search = useNavigationSearch({
 		searchBarOptions: {
 			placeholder: i18n.t('find.inFavorites'),
+			cancelButtonText: i18n.t('find.cancel'),
 		},
 	})
 
