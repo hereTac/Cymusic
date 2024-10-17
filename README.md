@@ -11,9 +11,9 @@ RN新手，代码质量一般，请见谅。
 
 代码未内置源。可以导入自定义源，注意导入的音乐源的安全可靠性。仅供学习交流使用，请勿用于商业用途，如有侵权请联系删除。
 
-自定义源示例参考：https://github.com/gyc-12/CyMusic-ImportMusicApi-Example
+自定义源示例参考：<https://github.com/gyc-12/CyMusic-ImportMusicApi-Example>
 
-tg频道：https://t.me/gyc_123
+tg频道：<https://t.me/gyc_123>
 
 ## TODO
 
@@ -27,9 +27,9 @@ tg频道：https://t.me/gyc_123
 - [x] feat：在线链接导入音源功能
 - [x] feat：增加日志系统
 - [x] feat：歌词滑动、字体大小调整
-- [ ] feat：搜索结果翻页
+- [x] feat：搜索结果翻页
 - [ ] feat：网易云歌单
-- [ ] feat：歌单、下载歌曲导出功能
+- [x] feat：歌单、下载歌曲导出功能
 - [x] feat：多选功能
 - [ ] feat：歌词不同步调整
 - [x] feat：定时关闭
@@ -48,13 +48,13 @@ tg频道：https://t.me/gyc_123
 - Expo Router：基于文件系统的路由解决方案
 - AsyncStorage：本地数据存储库
 
-## 基于：
+## 基于
 
-https://github.com/CodeWithGionatha-Labs/music-player
+<https://github.com/CodeWithGionatha-Labs/music-player>
 
-https://github.com/lyswhut/lx-music-mobile
+<https://github.com/lyswhut/lx-music-mobile>
 
-https://github.com/maotoumao/MusicFree
+<https://github.com/maotoumao/MusicFree>
 
 # Screenshots
 
