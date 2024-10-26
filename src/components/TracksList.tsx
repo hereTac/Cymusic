@@ -3,10 +3,11 @@ import { unknownTrackImageUri } from '@/constants/images'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { useQueue } from '@/store/queue'
 import { utilsStyles } from '@/styles'
+import { router } from 'expo-router'
 import React, { useCallback, useMemo, useRef } from 'react'
 import { FlatList, FlatListProps, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
-import { Track } from 'react-native-track-player'
+import { Track, useActiveTrack } from 'react-native-track-player'
 import { QueueControls } from './QueueControls'
 export type TracksListProps = Partial<FlatListProps<Track>> & {
 	//以及所有来自 FlatListProps 的属性，且这些属性都是可选的。
@@ -51,24 +52,33 @@ export const TracksList = React.memo(
 	}: TracksListProps) => {
 		const queueOffset = useRef(0)
 		const { activeQueueId, setActiveQueueId } = useQueue()
-
+		const activeTrack = useActiveTrack()
 		const handleTrackSelect = useCallback(
 			async (selectedTrack: Track) => {
 				const isChangingQueue = id !== activeQueueId
+				console.log('isChangingQueue', isChangingQueue)
 				if (isChangingQueue) {
-					await myTrackPlayer.playWithReplacePlayList(
-						selectedTrack as IMusic.IMusicItem,
-						tracks as IMusic.IMusicItem[],
-					)
-					setActiveQueueId(id)
+					if (selectedTrack.id === activeTrack?.id) {
+						router.navigate('/player')
+					} else {
+						await myTrackPlayer.playWithReplacePlayList(
+							selectedTrack as IMusic.IMusicItem,
+							tracks as IMusic.IMusicItem[],
+						)
+						setActiveQueueId(id)
+					}
 				} else {
-					await myTrackPlayer.playWithReplacePlayList(
-						selectedTrack as IMusic.IMusicItem,
-						tracks as IMusic.IMusicItem[],
-					)
+					if (selectedTrack.id === activeTrack?.id) {
+						router.navigate('/player')
+					} else {
+						await myTrackPlayer.playWithReplacePlayList(
+							selectedTrack as IMusic.IMusicItem,
+							tracks as IMusic.IMusicItem[],
+						)
+					}
 				}
 			},
-			[id, activeQueueId, tracks, setActiveQueueId],
+			[id, activeQueueId, tracks, setActiveQueueId, activeTrack],
 		)
 
 		const renderItem = useCallback(
