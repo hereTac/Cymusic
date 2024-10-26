@@ -7,6 +7,7 @@ import { unknownTrackImageUri } from '@/constants/images'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { utilsStyles } from '@/styles'
 import i18n from '@/utils/i18n'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import TracksListItem from './TracksListItem'
 
 export type SearchListProps = {
@@ -73,29 +74,32 @@ export const SearchList: React.FC<SearchListProps> = ({
 			onLoadMore()
 		}
 	}, [hasMore, isLoading, tracks.length, onLoadMore])
+	const insets = useSafeAreaInsets()
 
 	return (
-		<FlatList
-			data={tracks}
-			contentContainerStyle={{
-				paddingTop: 110, // 增加顶部 padding
-				paddingBottom: 128,
-				flexGrow: 1, // 这将允许内容在少于一屏时也能填满整个屏幕
-				justifyContent: tracks.length === 0 ? 'center' : 'flex-start', // 当没有结果时，居中显示 EmptyComponent
-			}}
-			ItemSeparatorComponent={ItemDivider}
-			ListEmptyComponent={!isLoading ? EmptyComponent : null}
-			renderItem={renderItem}
-			keyExtractor={keyExtractor}
-			onEndReached={handleEndReached}
-			onEndReachedThreshold={0.1}
-			ListFooterComponent={<FooterComponent isLoading={isLoading} hasMore={hasMore} />}
-			removeClippedSubviews={true}
-			maxToRenderPerBatch={10}
-			updateCellsBatchingPeriod={50}
-			initialNumToRender={10}
-			windowSize={21}
-		/>
+		<SafeAreaView style={{ flex: 1 }}>
+			<FlatList
+				data={tracks}
+				contentContainerStyle={{
+					paddingTop: insets.top + 10, // 动态设置顶部 padding
+					paddingBottom: 128 + insets.bottom,
+					flexGrow: 1, // 这将允许内容在少于一屏时也能填满整个屏幕
+					justifyContent: tracks.length === 0 ? 'center' : 'flex-start', // 当没有结果时，居中显示 EmptyComponent
+				}}
+				ItemSeparatorComponent={ItemDivider}
+				ListEmptyComponent={!isLoading ? EmptyComponent : null}
+				renderItem={renderItem}
+				keyExtractor={keyExtractor}
+				onEndReached={handleEndReached}
+				onEndReachedThreshold={0.1}
+				ListFooterComponent={<FooterComponent isLoading={isLoading} hasMore={hasMore} />}
+				removeClippedSubviews={true}
+				maxToRenderPerBatch={10}
+				updateCellsBatchingPeriod={50}
+				initialNumToRender={10}
+				windowSize={21}
+			/>
+		</SafeAreaView>
 	)
 }
 
