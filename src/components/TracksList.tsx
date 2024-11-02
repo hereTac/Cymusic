@@ -56,7 +56,6 @@ export const TracksList = React.memo(
 		const handleTrackSelect = useCallback(
 			async (selectedTrack: Track) => {
 				const isChangingQueue = id !== activeQueueId
-				console.log('isChangingQueue', isChangingQueue)
 				if (isChangingQueue) {
 					if (selectedTrack.id === activeTrack?.id) {
 						router.navigate('/player')
