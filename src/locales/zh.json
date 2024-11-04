@@ -84,7 +84,7 @@
 	"appTab": {
 		"songs": "音乐",
 		"search": "搜索",
-		"radio": "电台",
+		"radio": "广播",
 		"favorites": "收藏",
 		"favoritesSongs": "喜欢的歌曲",
 		"localOrCachedSongs": "本地/缓存的歌曲"
@@ -95,7 +95,7 @@
 		"import": "导入"
 	},
 	"find": {
-		"inRadio": "在电台中搜索",
+		"inRadio": "在广播中搜索",
 		"inSearch": "在线搜索歌曲或歌手",
 		"inSongs": "在歌曲中搜索",
 		"inFavorites": "在收藏中搜索",
