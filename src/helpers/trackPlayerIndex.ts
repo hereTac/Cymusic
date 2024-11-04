@@ -29,7 +29,7 @@ import {
 } from '@/store/playList'
 import { createMediaIndexMap } from '@/utils/mediaIndexMap'
 import { musicIsPaused } from '@/utils/trackUtils'
-import { Alert, Image } from 'react-native'
+import { Alert, AppState, Image } from 'react-native'
 
 import { myGetLyric } from '@/helpers/userApi/getMusicSource'
 
@@ -817,9 +817,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 			if (!isFileExit) {
 				musicItem.url = fakeAudioMp3Uri
 				logError('本地文件不存在:', musicItem.url)
-				Alert.alert('错误', '本地文件不存在，请删除并重新缓存或导入。', [
-					{ text: '确定', onPress: () => logInfo('Alert closed') },
-				])
+				showErrorMessage('本地文件不存在，请删除并重新缓存或导入。')
 				return
 			}
 		}
@@ -871,15 +869,12 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 						// todo 异常自动尝试其他源
 						nowApiState.setValue('异常')
 						logError('获取音乐 URL 失败:', error)
-						if (error.message === '请求超时') {
-							Alert.alert('错误', '获取音乐超时，请稍后重试。', [
-								{ text: '确定', onPress: () => logInfo('Timeout alert closed') },
-							])
-						} else {
-							Alert.alert('错误', '获取音乐失败，请稍后重试。', [
-								{ text: '确定', onPress: () => logInfo('Error alert closed') },
-							])
-						}
+						const errorMessage =
+							error.message === '请求超时'
+								? '获取音乐超时，请稍后重试。'
+								: '获取音乐失败，请稍后重试。'
+
+						showErrorMessage(errorMessage)
 						resp_url = fakeAudioMp3Uri // 使用假的音频 URL 作为后备
 					}
 				}
@@ -894,9 +889,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 					if (!isFileExit) {
 						musicItem.url = fakeAudioMp3Uri
 						logError('本地文件不存在:', musicItem.url)
-						Alert.alert('错误', '本地文件不存在，请删除并重新缓存或导入。', [
-							{ text: '确定', onPress: () => logInfo('Alert closed') },
-						])
+						showErrorMessage('本地文件不存在，请删除并重新缓存或导入。')
 						return
 					}
 				}
@@ -1275,6 +1268,12 @@ const clearCache = async () => {
 const toggleAutoCacheLocal = (bool: boolean) => {
 	PersistStatus.set('music.autoCacheLocal', bool)
 	autoCacheLocalStore.setValue(bool)
+}
+const showErrorMessage = (message: string) => {
+	// 只在应用在前台时显示 Alert
+	if (AppState.currentState === 'active') {
+		Alert.alert('错误', message, [{ text: '确定', onPress: () => {} }])
+	}
 }
 const myTrackPlayer = {
 	setupTrackPlayer,
