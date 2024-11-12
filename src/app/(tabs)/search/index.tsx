@@ -6,7 +6,7 @@ import i18n from '@/utils/i18n'
 import { useRouter } from 'expo-router'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View } from 'react-native'
+import { SafeAreaView } from 'react-native'
 import { Track } from 'react-native-track-player'
 
 const SearchlistsScreen = () => {
@@ -94,7 +94,7 @@ const SearchlistsScreen = () => {
 	}, [isLoading, hasMore, page, fetchSearchResults, search])
 
 	return (
-		<View style={defaultStyles.container}>
+		<SafeAreaView style={defaultStyles.container}>
 			<SearchList
 				tracks={searchResults}
 				id={'search'}
@@ -102,7 +102,7 @@ const SearchlistsScreen = () => {
 				hasMore={hasMore}
 				isLoading={isLoading}
 			/>
-		</View>
+		</SafeAreaView>
 	)
 }
 

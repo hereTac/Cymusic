@@ -1,13 +1,14 @@
+import { unknownTrackImageUri } from '@/constants/images'
+import { screenPadding } from '@/constants/tokens'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import { defaultStyles, utilsStyles } from '@/styles'
+import i18n from '@/utils/i18n'
+
 import React, { memo, useCallback } from 'react'
 import { ActivityIndicator, FlatList, Text, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Track } from 'react-native-track-player'
-
-import { unknownTrackImageUri } from '@/constants/images'
-import myTrackPlayer from '@/helpers/trackPlayerIndex'
-import { utilsStyles } from '@/styles'
-import i18n from '@/utils/i18n'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import TracksListItem from './TracksListItem'
 
 export type SearchListProps = {
@@ -77,14 +78,15 @@ export const SearchList: React.FC<SearchListProps> = ({
 	const insets = useSafeAreaInsets()
 
 	return (
-		<SafeAreaView style={{ flex: 1 }}>
+		<View style={[defaultStyles.container]}>
 			<FlatList
 				data={tracks}
 				contentContainerStyle={{
-					paddingTop: insets.top + 10, // 动态设置顶部 padding
+					paddingTop: 20, // 动态设置顶部 padding
 					paddingBottom: 128 + insets.bottom,
 					flexGrow: 1, // 这将允许内容在少于一屏时也能填满整个屏幕
 					justifyContent: tracks.length === 0 ? 'center' : 'flex-start', // 当没有结果时，居中显示 EmptyComponent
+					paddingHorizontal: screenPadding.horizontal,
 				}}
 				ItemSeparatorComponent={ItemDivider}
 				ListEmptyComponent={!isLoading ? EmptyComponent : null}
@@ -99,7 +101,7 @@ export const SearchList: React.FC<SearchListProps> = ({
 				initialNumToRender={10}
 				windowSize={21}
 			/>
-		</SafeAreaView>
+		</View>
 	)
 }
 

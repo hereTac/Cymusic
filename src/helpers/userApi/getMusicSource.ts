@@ -7,7 +7,10 @@ import { getSingerInfo } from '@/helpers/userApi/qq-music-api'
 import axios from 'axios'
 import { Alert } from 'react-native'
 import { logError, logInfo } from '../logger'
-import { DEV_URL_PREFIX, KW_URL } from './third_party_url'
+const { DEV_URL_PREFIX, KW_URL } = {
+	DEV_URL_PREFIX: 'https://dev.music.ximalaya.com/api/v1/track/url',
+	KW_URL: 'https://www.kuwo.cn/api/v1/www/music/playUrl',
+}
 
 const withTimeout = (promise, ms) => {
 	const timeout = new Promise((_, reject) =>
