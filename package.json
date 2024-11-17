@@ -47,6 +47,7 @@
 		"react-native-safe-area-context": "4.8.2",
 		"react-native-screens": "~3.29.0",
 		"react-native-simple-crypto": "^0.2.15",
+		"react-native-toast-message": "^2.2.1",
 		"react-native-track-player": "^4.1.1",
 		"react-native-volume-manager": "^1.10.0",
 		"ts-pattern": "^5.0.8",

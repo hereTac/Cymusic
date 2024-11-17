@@ -9,6 +9,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useState } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 import TrackPlayer from 'react-native-track-player'
 SplashScreen.preventAutoHideAsync()
 
@@ -42,12 +43,63 @@ const App = () => {
 
 		initI18n()
 	}, [])
-
+	const toastConfig = {
+		/*
+	  Overwrite 'success' type,
+	  by modifying the existing `BaseToast` component
+	*/
+		success: (props) => (
+			<BaseToast
+				{...props}
+				style={{ borderLeftColor: 'rgb(252,87,59)', backgroundColor: 'rgb(251,231,227)' }}
+				contentContainerStyle={{ paddingHorizontal: 15 }}
+				text1Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+				text2Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+			/>
+		),
+		/*
+	  Overwrite 'error' type,
+	  by modifying the existing `ErrorToast` component
+	*/
+		error: (props) => (
+			<ErrorToast
+				{...props}
+				style={{ borderLeftColor: 'rgb(252,87,59)', backgroundColor: 'rgb(251,231,227)' }}
+				contentContainerStyle={{ paddingHorizontal: 15 }}
+				text1Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+				text2Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+			/>
+		),
+		/*
+	  Or create a completely new type - `tomatoToast`,
+	  building the layout from scratch.
+  
+	  I can consume any custom `props` I want.
+	  They will be passed when calling the `show` method (see below)
+	*/
+	}
 	return (
 		<SafeAreaProvider>
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<RootNavigation />
 				<StatusBar style="auto" />
+				<Toast config={toastConfig} />
 			</GestureHandlerRootView>
 		</SafeAreaProvider>
 	)

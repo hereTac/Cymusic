@@ -35,6 +35,7 @@ import { myGetLyric } from '@/helpers/userApi/getMusicSource'
 
 import { fakeAudioMp3Uri } from '@/constants/images'
 import { nowLanguage } from '@/utils/i18n'
+import { showToast } from '@/utils/utils'
 import { logError, logInfo } from './logger'
 
 /** 当前播放 */
@@ -840,9 +841,10 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 				// logInfo(nowMusicApi)
 
 				if (nowMusicApi == null) {
-					Alert.alert('错误', '获取音乐失败，请先导入音源。', [
-						{ text: '确定', onPress: () => logInfo('Alert closed') },
-					])
+					showToast('错误', '获取音乐失败，请先导入音源。', 'success')
+					// Alert.alert('错误', '获取音乐失败，请先导入音源。', [
+					//     { text: '确定', onPress: () => logInfo('Alert closed') },
+					// ])
 					return
 				} else {
 					try {
@@ -873,8 +875,8 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 							error.message === '请求超时'
 								? '获取音乐超时，请稍后重试。'
 								: '获取音乐失败，请稍后重试。'
-
-						showErrorMessage(errorMessage)
+						showToast(errorMessage, '', 'error')
+						// showErrorMessage(errorMessage)
 						resp_url = fakeAudioMp3Uri // 使用假的音频 URL 作为后备
 					}
 				}
@@ -1144,7 +1146,7 @@ const addImportedLocalMusic = async (musicItem: IMusic.IMusicItem[], isAlert: bo
 		importedLocalMusicStore.setValue(updatedImportedLocalMusic)
 		PersistStatus.set('music.importedLocalMusic', updatedImportedLocalMusic)
 		if (isAlert) {
-			Alert.alert('成功', '音乐导入成功', [
+			Alert.alert('成功', '音乐导入成功,请手动选择', [
 				{ text: '确定', onPress: () => logInfo('Add alert closed') },
 			])
 		}
@@ -1272,7 +1274,8 @@ const toggleAutoCacheLocal = (bool: boolean) => {
 const showErrorMessage = (message: string) => {
 	// 只在应用在前台时显示 Alert
 	if (AppState.currentState === 'active') {
-		Alert.alert('错误', message, [{ text: '确定', onPress: () => {} }])
+		showToast('错误', message, 'error')
+		// Alert.alert('错误', message, [{ text: '确定', onPress: () => {} }])
 	}
 }
 const myTrackPlayer = {

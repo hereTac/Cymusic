@@ -9,6 +9,7 @@ import myTrackPlayer, {
 	useCurrentQuality,
 } from '@/helpers/trackPlayerIndex'
 import i18n, { changeLanguage, nowLanguage } from '@/utils/i18n'
+import { showToast } from '@/utils/utils'
 import { MenuView } from '@react-native-menu/menu'
 import { Buffer } from 'buffer'
 import Constants from 'expo-constants'
@@ -29,6 +30,7 @@ import {
 } from 'react-native'
 import RNFS from 'react-native-fs'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
 const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本'
 
@@ -437,6 +439,7 @@ const SettingModal = () => {
 			setIsLoading(false)
 		}
 	}
+
 	const renderItem = (item, index, sectionData) => (
 		<View key={item.id}>
 			<TouchableOpacity
@@ -471,6 +474,8 @@ const SettingModal = () => {
 							)
 						} else if (item.title === i18n.t('settings.items.importSource')) {
 							// importMusicSourceFromFile()
+						} else if (item.title === 'CyMusic') {
+							showToast('CyMusic', 'success')
 						}
 						// logInfo(`Navigate to ${item.title}`)
 					} else if (item.title === i18n.t('settings.items.checkUpdate')) {
@@ -516,6 +521,50 @@ const SettingModal = () => {
 			<ActivityIndicator size="large" color={colors.loading} />
 		</View>
 	)
+	/*
+  1. Create the config
+*/
+	const toastConfig = {
+		/*
+	  Overwrite 'success' type,
+	  by modifying the existing `BaseToast` component
+	*/
+		success: (props) => (
+			<BaseToast
+				{...props}
+				style={{ borderLeftColor: 'rgb(252,87,59)', backgroundColor: 'rgb(251,231,227)' }}
+				contentContainerStyle={{ paddingHorizontal: 15 }}
+				text1Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+			/>
+		),
+		/*
+	  Overwrite 'error' type,
+	  by modifying the existing `ErrorToast` component
+	*/
+		error: (props) => (
+			<ErrorToast
+				{...props}
+				style={{ borderLeftColor: 'rgb(252,87,59)', backgroundColor: 'rgb(251,231,227)' }}
+				contentContainerStyle={{ paddingHorizontal: 15 }}
+				text1Style={{
+					fontSize: 15,
+					fontWeight: '400',
+					color: 'rgb(252,87,59)',
+				}}
+			/>
+		),
+		/*
+	  Or create a completely new type - `tomatoToast`,
+	  building the layout from scratch.
+  
+	  I can consume any custom `props` I want.
+	  They will be passed when calling the `show` method (see below)
+	*/
+	}
 	return (
 		<View style={styles.container}>
 			<DismissPlayerSymbol />
@@ -529,6 +578,7 @@ const SettingModal = () => {
 				))}
 			</ScrollView>
 			{isLoading && <GlobalLoading />}
+			<Toast config={toastConfig} />
 		</View>
 	)
 }
