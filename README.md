@@ -31,7 +31,10 @@ tg频道：<https://t.me/gyc_123>
 - [ ] feat：网易云歌单
 - [x] feat：歌单、下载歌曲导出功能
 - [x] feat：多选功能
+- [ ] feat：Toast 提示
 - [ ] feat：歌词不同步调整
+- [ ] feat：显示已缓存标识
+- [ ] feat：设置首页列表加载歌曲数量
 - [x] feat：定时关闭
 - [x] feat：歌词界面保持手机亮屏
 - [ ] docs：文档

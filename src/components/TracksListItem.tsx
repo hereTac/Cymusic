@@ -1,10 +1,12 @@
 import { TrackShortcutsMenu } from '@/components/TrackShortcutsMenu'
 import { unknownTrackImageUri } from '@/constants/images'
 import { colors, fontSize } from '@/constants/tokens'
+import myTrackPlayer from '@/helpers/trackPlayerIndex'
+import PersistStatus from '@/store/PersistStatus'
 import { defaultStyles } from '@/styles'
 import rpx from '@/utils/rpx'
 import { Entypo, Ionicons } from '@expo/vector-icons'
-import { memo } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image' //导入默认导出时，不需要使用大括号 {}，并且可以使用任意名称来引用导入的值。
 import LoaderKit from 'react-native-loader-kit'
@@ -42,7 +44,22 @@ const TracksListItem = ({
 	const { playing } = useIsPlaying()
 
 	const isActiveTrack = useActiveTrack()?.id === track.id
+	// 添加缓存状态检查
+	const [isCached, setIsCached] = useState(false)
+	const isCachedIconVisible = PersistStatus.get('music.isCachedIconVisible') ?? true
+	useEffect(() => {
+		// 检查歌曲是否已缓存
+		const checkCache = async () => {
+			try {
+				const cached = await myTrackPlayer.isCached(track as IMusic.IMusicItem)
 
+				setIsCached(cached)
+			} catch (error) {
+				console.error('检查缓存状态失败:', error)
+			}
+		}
+		checkCache()
+	}, [track])
 	return (
 		<TouchableHighlight
 			onPress={() => (isMultiSelectMode ? onToggleSelection?.(track.id) : handleTrackSelect(track))}
@@ -105,6 +122,11 @@ const TracksListItem = ({
 								color: isActiveTrack ? colors.primary : colors.text,
 							}}
 						>
+							{isCached && isCachedIconVisible && (
+								<>
+									<Ionicons name="cloud-done-outline" size={12} style={{ marginRight: 8 }} />{' '}
+								</>
+							)}
 							{track.title}
 						</Text>
 						{track.artist && (
