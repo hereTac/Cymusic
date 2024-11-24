@@ -30,6 +30,7 @@ interface IPersistConfig {
 	'music.importedLocalMusic': IMusic.IMusicItem[]
 	'music.autoCacheLocal': boolean
 	'app.language': string
+	'music.isCachedIconVisible': boolean
 }
 
 function set<K extends keyof IPersistConfig>(key: K, value: IPersistConfig[K] | undefined) {

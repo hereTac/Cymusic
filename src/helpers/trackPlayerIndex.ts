@@ -55,6 +55,8 @@ export const musicApiSelectedStore = new GlobalState<IMusic.MusicApi>(null)
 export const nowApiState = new GlobalState<string>('正常')
 /** 是否自动缓存本地 */
 export const autoCacheLocalStore = new GlobalState<boolean>(true)
+/** 是否显示已缓存图标 */
+export const isCachedIconVisibleStore = new GlobalState<boolean>(true)
 /** 已导入的本地音乐 */
 export const importedLocalMusicStore = new GlobalState<IMusic.IMusicItem[] | []>(null)
 
@@ -101,7 +103,7 @@ async function setupTrackPlayer() {
 	const importedLocalMusic = PersistStatus.get('music.importedLocalMusic')
 	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') ?? true
 	const language = PersistStatus.get('app.language') ?? 'zh'
-
+	const isCachedIconVisible = PersistStatus.get('music.isCachedIconVisible') ?? true
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -131,6 +133,9 @@ async function setupTrackPlayer() {
 	}
 	if (autoCacheLocal == true || autoCacheLocal == false) {
 		autoCacheLocalStore.setValue(autoCacheLocal)
+	}
+	if (isCachedIconVisible == true || isCachedIconVisible == false) {
+		isCachedIconVisibleStore.setValue(isCachedIconVisible)
 	}
 	if (language) {
 		nowLanguage.setValue(language)
@@ -795,11 +800,6 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		//reset的时机？
 		//await ReactNativeTrackPlayer.reset();
 
-		// 4.1 刷新歌词信息
-		const lyc = await myGetLyric(musicItem)
-		// console.debug(lyc.lyric);
-		nowLyricState.setValue(lyc.lyric)
-
 		// 5. 获取音源
 		let track: IMusic.IMusicItem
 
@@ -818,7 +818,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 			if (!isFileExit) {
 				musicItem.url = fakeAudioMp3Uri
 				logError('本地文件不存在:', musicItem.url)
-				showErrorMessage('本地文件不存在，请删除并重新缓存或导入。')
+				showToast('错误', '本地文件不存在，请删除并重新缓存或导入。', 'error')
 				return
 			}
 		}
@@ -841,7 +841,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 				// logInfo(nowMusicApi)
 
 				if (nowMusicApi == null) {
-					showToast('错误', '获取音乐失败，请先导入音源。', 'success')
+					showToast('错误', '获取音乐失败，请先导入音源。', 'error')
 					// Alert.alert('错误', '获取音乐失败，请先导入音源。', [
 					//     { text: '确定', onPress: () => logInfo('Alert closed') },
 					// ])
@@ -891,7 +891,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 					if (!isFileExit) {
 						musicItem.url = fakeAudioMp3Uri
 						logError('本地文件不存在:', musicItem.url)
-						showErrorMessage('本地文件不存在，请删除并重新缓存或导入。')
+						showToast('错误', '本地文件不存在，请删除并重新缓存或导入。', 'error')
 						return
 					}
 				}
@@ -925,6 +925,10 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		logInfo('获取音源成功：', track)
 		// 9. 设置音源
 		await setTrackSource(track as Track)
+		// 4.1 刷新歌词信息
+		const lyc = await myGetLyric(musicItem)
+		// console.debug(lyc.lyric);
+		nowLyricState.setValue(lyc.lyric)
 		// 9.1 如果需要缓存,且不是假音频,且不是本地文件
 		if (
 			track.url !== fakeAudioMp3Uri &&
@@ -1271,6 +1275,10 @@ const toggleAutoCacheLocal = (bool: boolean) => {
 	PersistStatus.set('music.autoCacheLocal', bool)
 	autoCacheLocalStore.setValue(bool)
 }
+const toggleIsCachedIconVisible = (bool: boolean) => {
+	PersistStatus.set('music.isCachedIconVisible', bool)
+	isCachedIconVisibleStore.setValue(bool)
+}
 const showErrorMessage = (message: string) => {
 	// 只在应用在前台时显示 Alert
 	if (AppState.currentState === 'active') {
@@ -1327,6 +1335,8 @@ const myTrackPlayer = {
 	clearCache,
 	toggleAutoCacheLocal,
 	cacheAndImportMusic,
+	isCached,
+	toggleIsCachedIconVisible,
 }
 
 export default myTrackPlayer

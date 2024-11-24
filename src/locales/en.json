@@ -24,7 +24,8 @@
 			"currentQuality": "Current Quality",
 			"changeLanguage": "Change Language",
 			"normal": "Normal",
-			"exception": "Exception"
+			"exception": "Exception",
+			"isCachedIconVisible": "isCachedIconVisible"
 		},
 		"actions": {
 			"import": {
@@ -33,6 +34,10 @@
 				"fromUrl": "Import from URL"
 			},
 			"autoCacheLocal": {
+				"yes": "Yes",
+				"no": "No"
+			},
+			"isCachedIconVisible": {
 				"yes": "Yes",
 				"no": "No"
 			},

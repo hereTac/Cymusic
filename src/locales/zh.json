@@ -24,7 +24,8 @@
 			"currentQuality": "当前音质",
 			"changeLanguage": "切换语言",
 			"normal": "正常",
-			"exception": "异常"
+			"exception": "异常",
+			"isCachedIconVisible": "是否显示已缓存图标"
 		},
 		"actions": {
 			"import": {
@@ -33,6 +34,10 @@
 				"fromUrl": "从URL导入"
 			},
 			"autoCacheLocal": {
+				"yes": "是",
+				"no": "否"
+			},
+			"isCachedIconVisible": {
 				"yes": "是",
 				"no": "否"
 			},

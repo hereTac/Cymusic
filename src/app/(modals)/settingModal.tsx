@@ -3,6 +3,7 @@ import { colors } from '@/constants/tokens'
 import { logError, logInfo } from '@/helpers/logger'
 import myTrackPlayer, {
 	autoCacheLocalStore,
+	isCachedIconVisibleStore,
 	musicApiSelectedStore,
 	musicApiStore,
 	nowApiState,
@@ -230,6 +231,7 @@ const SettingModal = () => {
 	const apiState = nowApiState.useValue()
 	const language = nowLanguage.useValue()
 	const autoCacheLocal = autoCacheLocalStore.useValue()
+	const isCachedIconVisible = isCachedIconVisibleStore.useValue()
 	const settingsData = [
 		{
 			title: i18n.t('settings.sections.appInfo'),
@@ -246,6 +248,7 @@ const SettingModal = () => {
 					type: 'value',
 					value: '',
 				},
+				{ id: '16', title: i18n.t('settings.items.isCachedIconVisible'), type: 'value', value: '' },
 			],
 		},
 		{
@@ -326,6 +329,33 @@ const SettingModal = () => {
 					{autoCacheLocal == true
 						? '             ' + i18n.t('settings.actions.autoCacheLocal.yes')
 						: '             ' + i18n.t('settings.actions.autoCacheLocal.no')}
+				</Text>
+			</TouchableOpacity>
+		</MenuView>
+	)
+	const toggleIsCachedIconVisibleMenu = (
+		<MenuView
+			onPressAction={({ nativeEvent: { event } }) => {
+				switch (event) {
+					case 'on':
+						myTrackPlayer.toggleIsCachedIconVisible(true)
+						break
+					case 'off':
+						myTrackPlayer.toggleIsCachedIconVisible(false)
+						break
+				}
+			}}
+			actions={[
+				{ id: 'on', title: i18n.t('settings.actions.isCachedIconVisible.yes') },
+				{ id: 'off', title: i18n.t('settings.actions.isCachedIconVisible.no') },
+			]}
+		>
+			<TouchableOpacity style={styles.menuTrigger}>
+				<Text style={styles.menuTriggerText}>
+					{/* 此处加空格为了增大点击区域 */}
+					{isCachedIconVisible == true
+						? '             ' + i18n.t('settings.actions.isCachedIconVisible.yes')
+						: '             ' + i18n.t('settings.actions.isCachedIconVisible.no')}
 				</Text>
 			</TouchableOpacity>
 		</MenuView>
@@ -511,6 +541,8 @@ const SettingModal = () => {
 						!item.icon && <Text style={styles.arrowRight}>{'>'}</Text>}
 					{item.title === i18n.t('settings.items.autoCacheLocal') && toggleAutoCacheLocalMenu}
 					{item.title === i18n.t('settings.items.changeLanguage') && changeLanguageMenu}
+					{item.title === i18n.t('settings.items.isCachedIconVisible') &&
+						toggleIsCachedIconVisibleMenu}
 				</View>
 			</TouchableOpacity>
 			{index !== sectionData.length - 1 && <View style={styles.separator} />}
