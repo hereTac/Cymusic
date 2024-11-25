@@ -25,7 +25,8 @@
 			"changeLanguage": "Change Language",
 			"normal": "Normal",
 			"exception": "Exception",
-			"isCachedIconVisible": "isCachedIconVisible"
+			"isCachedIconVisible": "isCachedIconVisible",
+			"songsNumsToLoad": "Songs Nums to Load"
 		},
 		"actions": {
 			"import": {

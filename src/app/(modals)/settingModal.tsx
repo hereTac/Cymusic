@@ -7,8 +7,10 @@ import myTrackPlayer, {
 	musicApiSelectedStore,
 	musicApiStore,
 	nowApiState,
+	songsNumsToLoadStore,
 	useCurrentQuality,
 } from '@/helpers/trackPlayerIndex'
+import PersistStatus from '@/store/PersistStatus'
 import i18n, { changeLanguage, nowLanguage } from '@/utils/i18n'
 import { showToast } from '@/utils/utils'
 import { MenuView } from '@react-native-menu/menu'
@@ -232,6 +234,7 @@ const SettingModal = () => {
 	const language = nowLanguage.useValue()
 	const autoCacheLocal = autoCacheLocalStore.useValue()
 	const isCachedIconVisible = isCachedIconVisibleStore.useValue()
+	const songsNumsToLoad = songsNumsToLoadStore.useValue()
 	const settingsData = [
 		{
 			title: i18n.t('settings.sections.appInfo'),
@@ -249,6 +252,12 @@ const SettingModal = () => {
 					value: '',
 				},
 				{ id: '16', title: i18n.t('settings.items.isCachedIconVisible'), type: 'value', value: '' },
+				// {
+				// 	id: '17',
+				// 	title: i18n.t('settings.items.songsNumsToLoad'),
+				// 	type: 'value',
+				// 	value: '',
+				// },
 			],
 		},
 		{
@@ -357,6 +366,23 @@ const SettingModal = () => {
 						? '             ' + i18n.t('settings.actions.isCachedIconVisible.yes')
 						: '             ' + i18n.t('settings.actions.isCachedIconVisible.no')}
 				</Text>
+			</TouchableOpacity>
+		</MenuView>
+	)
+	const toggleSongsNumsToLoadMenu = (
+		<MenuView
+			onPressAction={({ nativeEvent: { event } }) => {
+				PersistStatus.set('music.songsNumsToLoad', parseInt(event))
+				songsNumsToLoadStore.setValue(parseInt(event))
+			}}
+			actions={[
+				{ id: '100', title: '100' },
+				{ id: '200', title: '200' },
+				{ id: '300', title: '300' },
+			]}
+		>
+			<TouchableOpacity style={styles.menuTrigger}>
+				<Text style={styles.menuTriggerText}>{'             ' + songsNumsToLoad}</Text>
 			</TouchableOpacity>
 		</MenuView>
 	)
@@ -543,6 +569,7 @@ const SettingModal = () => {
 					{item.title === i18n.t('settings.items.changeLanguage') && changeLanguageMenu}
 					{item.title === i18n.t('settings.items.isCachedIconVisible') &&
 						toggleIsCachedIconVisibleMenu}
+					{item.title === i18n.t('settings.items.songsNumsToLoad') && toggleSongsNumsToLoadMenu}
 				</View>
 			</TouchableOpacity>
 			{index !== sectionData.length - 1 && <View style={styles.separator} />}

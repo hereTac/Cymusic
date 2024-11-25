@@ -31,6 +31,7 @@ interface IPersistConfig {
 	'music.autoCacheLocal': boolean
 	'app.language': string
 	'music.isCachedIconVisible': boolean
+	'music.songsNumsToLoad': number
 }
 
 function set<K extends keyof IPersistConfig>(key: K, value: IPersistConfig[K] | undefined) {

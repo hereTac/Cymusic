@@ -25,7 +25,8 @@
 			"changeLanguage": "切换语言",
 			"normal": "正常",
 			"exception": "异常",
-			"isCachedIconVisible": "是否显示已缓存图标"
+			"isCachedIconVisible": "是否显示已缓存图标",
+			"songsNumsToLoad": "首页加载歌曲数量"
 		},
 		"actions": {
 			"import": {

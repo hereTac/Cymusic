@@ -57,6 +57,8 @@ export const nowApiState = new GlobalState<string>('正常')
 export const autoCacheLocalStore = new GlobalState<boolean>(true)
 /** 是否显示已缓存图标 */
 export const isCachedIconVisibleStore = new GlobalState<boolean>(true)
+/** 首页加载歌曲数量 */
+export const songsNumsToLoadStore = new GlobalState<number>(100)
 /** 已导入的本地音乐 */
 export const importedLocalMusicStore = new GlobalState<IMusic.IMusicItem[] | []>(null)
 
@@ -104,6 +106,7 @@ async function setupTrackPlayer() {
 	const autoCacheLocal = PersistStatus.get('music.autoCacheLocal') ?? true
 	const language = PersistStatus.get('app.language') ?? 'zh'
 	const isCachedIconVisible = PersistStatus.get('music.isCachedIconVisible') ?? true
+	const songsNumsToLoad = PersistStatus.get('music.songsNumsToLoad') ?? 100
 	// 状态恢复
 	if (rate) {
 		await ReactNativeTrackPlayer.setRate(+rate)
@@ -139,6 +142,9 @@ async function setupTrackPlayer() {
 	}
 	if (language) {
 		nowLanguage.setValue(language)
+	}
+	if (songsNumsToLoad) {
+		songsNumsToLoadStore.setValue(songsNumsToLoad)
 	}
 	if (!hasSetupListener) {
 		ReactNativeTrackPlayer.addEventListener(Event.PlaybackActiveTrackChanged, async (evt) => {
@@ -1248,6 +1254,7 @@ const downloadToCache = async (musicItem: IMusic.IMusicItem): Promise<string> =>
 		}
 	} catch (error) {
 		logError('下载音频文件时出错:', error)
+		throw error
 	}
 }
 /**
