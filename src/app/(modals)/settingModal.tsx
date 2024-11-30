@@ -398,13 +398,13 @@ const SettingModal = () => {
 		try {
 			await myTrackPlayer.clearCache()
 			Alert.alert(
-				i18n.t('settings.actions.clearCache.success'),
-				i18n.t('settings.actions.clearCache.message'),
+				i18n.t('settings.actions.cache.success'),
+				i18n.t('settings.actions.cache.successMessage'),
 			)
 		} catch (error) {
 			Alert.alert(
-				i18n.t('settings.actions.clearCache.failure'),
-				i18n.t('settings.actions.clearCache.message'),
+				i18n.t('settings.actions.cache.error'),
+				i18n.t('settings.actions.cache.errorMessage'),
 			)
 			console.error(error)
 		}
