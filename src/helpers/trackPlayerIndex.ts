@@ -822,7 +822,6 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		if (musicItem.url.startsWith('file://')) {
 			const isFileExit = await RNFS.exists(musicItem.url)
 			if (!isFileExit) {
-				musicItem.url = fakeAudioMp3Uri
 				logError('本地文件不存在:', musicItem.url)
 				showToast('错误', '本地文件不存在，请删除并重新缓存或导入。', 'error')
 				return
@@ -938,6 +937,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		// 9.1 如果需要缓存,且不是假音频,且不是本地文件
 		if (
 			track.url !== fakeAudioMp3Uri &&
+			!track.url.includes('fake') &&
 			!cached &&
 			autoCacheLocalStore.getValue() &&
 			!track.url.startsWith('file://')
@@ -979,7 +979,7 @@ const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 	try {
 		await ensureCacheDirExists()
 		const localPath = getLocalFilePath(track)
-
+		console.log('localPath:', localPath)
 		const isCacheExist = await RNFS.exists(localPath)
 		if (isCacheExist) {
 			logInfo('音乐已缓存到本地:', localPath)
@@ -998,8 +998,8 @@ const cacheAndImportMusic = async (track: IMusic.IMusicItem) => {
 			}).promise
 
 			if (downloadResult.statusCode === 200) {
-				logInfo('音乐已缓存到本地:', `file://${localPath}`)
-				const newTrack = { ...track, url: `file://${localPath}` }
+				logInfo('音乐已缓存到本地:', `${localPath}`)
+				const newTrack = { ...track, url: `${localPath}` }
 				await addImportedLocalMusic([newTrack], false)
 			} else {
 				throw new Error(`下载失败，状态码: ${downloadResult.statusCode}`)
