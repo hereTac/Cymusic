@@ -841,7 +841,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 		if (!source) {
 			if ((!source && musicItem.url == 'Unknown') || musicItem.url.includes('fake')) {
 				logInfo('没有url')
-				let resp_url = fakeAudioMp3Uri
+				let resp_url = null
 				const nowMusicApi = musicApiSelectedStore.getValue()
 				// logInfo(nowMusicApi)
 
@@ -856,30 +856,48 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 						const timeoutPromise = new Promise((_, reject) => {
 							setTimeout(() => reject(new Error('请求超时')), 5000)
 						})
-						resp_url = await Promise.race([
-							nowMusicApi.getMusicUrl(
-								musicItem.title,
-								musicItem.artist,
-								musicItem.id,
-								qualityStore.getValue(),
-							),
-							timeoutPromise,
-						])
-						if (resp_url == null) {
+						// 定义音质降级顺序
+						const qualityOrder: IMusic.IQualityKey[] = ['flac', '320k', '128k']
+						let currentQualityIndex = qualityOrder.indexOf(qualityStore.getValue())
+
+						// 尝试不同音质，直到获取到可用的URL或尝试完所有音质
+						while (currentQualityIndex < qualityOrder.length && !resp_url) {
+							const currentQuality = qualityOrder[currentQualityIndex]
+							try {
+								resp_url = await Promise.race([
+									nowMusicApi.getMusicUrl(
+										musicItem.title,
+										musicItem.artist,
+										musicItem.id,
+										currentQuality,
+									),
+									timeoutPromise,
+								])
+								// 如果当前音质不是原始请求的音质，显示提示
+								if (resp_url && currentQuality !== qualityStore.getValue()) {
+									showToast('提示', `已自动切换至${currentQuality}音质`, 'info')
+									// 更新当前音质设置
+									setQuality(currentQuality)
+								}
+								logInfo(`成功获取${currentQuality}音质的音乐URL:`, resp_url)
+							} catch (error) {
+								currentQualityIndex++
+							}
+						}
+						if (!resp_url) {
 							nowApiState.setValue('异常')
-							throw new Error('获取音乐url为null，请稍后重试。')
+							throw new Error('无法获取任何音质的音乐，请稍后重试。')
 						} else {
-							logInfo('获取音乐 URL 成功:', resp_url)
+							logInfo('最终的音乐 URL:', resp_url)
 							nowApiState.setValue('正常')
 						}
 					} catch (error) {
-						// todo 异常自动尝试其他源
 						nowApiState.setValue('异常')
 						logError('获取音乐 URL 失败:', error)
 						const errorMessage =
 							error.message === '请求超时'
 								? '获取音乐超时，请稍后重试。'
-								: '获取音乐失败，请稍后重试。'
+								: error.message || '获取音乐失败，请稍后重试。'
 						showToast(errorMessage, '', 'error')
 						// showErrorMessage(errorMessage)
 						resp_url = fakeAudioMp3Uri // 使用假的音频 URL 作为后备
