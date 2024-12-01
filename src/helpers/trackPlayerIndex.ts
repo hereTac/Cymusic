@@ -873,6 +873,11 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 									),
 									timeoutPromise,
 								])
+								if (!resp_url || resp_url == '') {
+									logInfo(`${currentQuality}音质无可用链接，尝试下一个音质`)
+									currentQualityIndex++
+									continue
+								}
 								// 如果当前音质不是原始请求的音质，显示提示
 								if (resp_url && currentQuality !== qualityStore.getValue()) {
 									showToast('提示', `已自动切换至${currentQuality}音质`, 'info')
@@ -881,6 +886,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 								}
 								logInfo(`成功获取${currentQuality}音质的音乐URL:`, resp_url)
 							} catch (error) {
+								logInfo(`${currentQuality}音质无可用链接(catch),尝试下一个音质`)
 								currentQualityIndex++
 							}
 						}
