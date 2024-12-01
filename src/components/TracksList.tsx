@@ -21,6 +21,7 @@ export type TracksListProps = Partial<FlatListProps<Track>> & {
 	selectedTracks?: Set<string>
 	onToggleSelection?: (trackId: string) => void
 	toggleMultiSelectMode?: () => void
+	numsToPlay?: number
 }
 const ItemDivider = React.memo(() => (
 	<View style={{ ...utilsStyles.itemSeparator, marginVertical: 9, marginLeft: 60 }} />
@@ -48,6 +49,7 @@ export const TracksList = React.memo(
 		selectedTracks = new Set(),
 		onToggleSelection,
 		toggleMultiSelectMode,
+		numsToPlay,
 		...flatlistProps
 	}: TracksListProps) => {
 		const queueOffset = useRef(0)
@@ -62,7 +64,7 @@ export const TracksList = React.memo(
 					} else {
 						await myTrackPlayer.playWithReplacePlayList(
 							selectedTrack as IMusic.IMusicItem,
-							tracks as IMusic.IMusicItem[],
+							(numsToPlay ? tracks.slice(0, numsToPlay) : tracks) as IMusic.IMusicItem[],
 						)
 						setActiveQueueId(id)
 					}
@@ -109,9 +111,12 @@ export const TracksList = React.memo(
 		const ListHeaderComponent = useMemo(
 			() =>
 				!hideQueueControls ? (
-					<QueueControls tracks={tracks} style={{ paddingBottom: 20 }} />
+					<QueueControls
+						tracks={numsToPlay ? tracks.slice(0, numsToPlay) : tracks}
+						style={{ paddingBottom: 20 }}
+					/>
 				) : undefined,
-			[hideQueueControls, tracks],
+			[hideQueueControls, tracks, numsToPlay],
 		)
 
 		return (

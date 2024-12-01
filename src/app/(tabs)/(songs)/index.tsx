@@ -2,6 +2,7 @@ import { TracksList } from '@/components/TracksList'
 import { screenPadding } from '@/constants/tokens'
 import { trackTitleFilter } from '@/helpers/filter'
 import { generateTracksListId } from '@/helpers/miscellaneous'
+import { songsNumsToLoadStore } from '@/helpers/trackPlayerIndex'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import { useLibraryStore, useTracks, useTracksLoading } from '@/store/library'
 import { defaultStyles } from '@/styles'
@@ -17,7 +18,7 @@ const SongsScreen = () => {
 	})
 
 	const tracks = useTracks()
-
+	const songsNumsToLoad = songsNumsToLoadStore.useValue()
 	const isLoading = useTracksLoading() // 添加加载状态
 	const { fetchTracks } = useLibraryStore()
 	const filteredTracks = useMemo(() => {
@@ -56,6 +57,7 @@ const SongsScreen = () => {
 					id={generateTracksListId('songs', search)}
 					tracks={filteredTracks}
 					scrollEnabled={false}
+					numsToPlay={songsNumsToLoad}
 				/>
 				{/* {isLoading && tracks.length > 0 && (
 					<View

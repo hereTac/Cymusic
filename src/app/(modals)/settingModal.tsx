@@ -252,12 +252,12 @@ const SettingModal = () => {
 					value: '',
 				},
 				{ id: '16', title: i18n.t('settings.items.isCachedIconVisible'), type: 'value', value: '' },
-				// {
-				// 	id: '17',
-				// 	title: i18n.t('settings.items.songsNumsToLoad'),
-				// 	type: 'value',
-				// 	value: '',
-				// },
+				{
+					id: '17',
+					title: i18n.t('settings.items.songsNumsToLoad'),
+					type: 'value',
+					value: '',
+				},
 			],
 		},
 		{
