@@ -713,3 +713,73 @@ function editDistance(s1, s2) {
 	}
 	return costs[s2.length]
 }
+const searchTypeMap = {
+	0: 'song',
+	2: 'album',
+	1: 'singer',
+	3: 'songlist',
+	7: 'song',
+	12: 'mv',
+}
+
+const searchHeaders = {
+	referer: 'https://y.qq.com',
+	'user-agent':
+		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+	Cookie: 'uin=',
+}
+
+interface ArtistItem {
+	singerName: string
+	singerID: string
+	singerMID: string
+	singerPic: string
+	songNum: number
+}
+
+function formatArtistItem(item: ArtistItem) {
+	return {
+		name: item.singerName,
+		id: item.singerID,
+		singerMID: item.singerMID,
+		avatar: item.singerPic,
+		worksNum: item.songNum,
+	}
+}
+
+async function searchBase(query: string, page: number, type: number, pageSize?: number) {
+	const res = (
+		await axios({
+			url: 'https://u.y.qq.com/cgi-bin/musicu.fcg',
+			method: 'POST',
+			data: {
+				req_1: {
+					method: 'DoSearchForQQMusicDesktop',
+					module: 'music.search.SearchCgiService',
+					param: {
+						num_per_page: pageSize,
+						page_num: page,
+						query: query,
+						search_type: type,
+					},
+				},
+			},
+			headers: headers,
+			xsrfCookieName: 'XSRF-TOKEN',
+			withCredentials: true,
+		})
+	).data
+
+	return {
+		isEnd: res.req_1.data.meta.sum <= page * (pageSize || 20),
+		data: res.req_1.data.body[searchTypeMap[type]].list,
+	}
+}
+
+export async function searchArtist(query: string, page: number) {
+	const artists = await searchBase(query, page, 1)
+	return {
+		isEnd: artists.isEnd,
+		data: artists.data.map(formatArtistItem),
+	}
+}

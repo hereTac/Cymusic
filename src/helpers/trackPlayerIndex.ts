@@ -881,6 +881,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 									),
 									timeoutPromise,
 								])
+								logInfo(`音源返回:${resp_url}`)
 								if (!resp_url || resp_url == '') {
 									logInfo(`${currentQuality}音质无可用链接，尝试下一个音质`)
 									currentQualityIndex++
@@ -895,6 +896,7 @@ const play = async (musicItem?: IMusic.IMusicItem | null, forcePlay?: boolean) =
 								logInfo(`成功获取${currentQuality}音质的音乐URL:`, resp_url)
 							} catch (error) {
 								logInfo(`${currentQuality}音质无可用链接(catch),尝试下一个音质`)
+								logError(`(catch error):`, error)
 								currentQualityIndex++
 							}
 						}

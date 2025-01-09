@@ -1,11 +1,13 @@
 import { unknownTrackImageUri } from '@/constants/images'
-import { screenPadding } from '@/constants/tokens'
+import { colors, screenPadding } from '@/constants/tokens'
 import myTrackPlayer from '@/helpers/trackPlayerIndex'
 import { defaultStyles, utilsStyles } from '@/styles'
 import i18n from '@/utils/i18n'
 
+import { getSingerMidBySingerName } from '@/helpers/userApi/getMusicSource'
+import { router } from 'expo-router'
 import React, { memo, useCallback } from 'react'
-import { ActivityIndicator, FlatList, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import FastImage from 'react-native-fast-image'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Track } from 'react-native-track-player'
@@ -50,6 +52,24 @@ const FooterComponent = memo(({ isLoading, hasMore }: { isLoading: boolean; hasM
 	}
 	return null
 })
+
+const styles = StyleSheet.create({
+	artistItem: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	artistAvatar: {
+		width: 50,
+		height: 50,
+		borderRadius: 5,
+		marginRight: 13,
+	},
+	artistName: {
+		fontSize: 16,
+		color: colors.text,
+	},
+})
+
 export const SearchList: React.FC<SearchListProps> = ({
 	tracks,
 	onLoadMore,
@@ -57,11 +77,36 @@ export const SearchList: React.FC<SearchListProps> = ({
 	isLoading,
 }) => {
 	const handleTrackSelect = useCallback(async (selectedTrack: Track) => {
+		if (selectedTrack.isArtist) {
+			// TODO: Navigate to artist page
+			console.log('Navigate to artist:', selectedTrack)
+			if (!selectedTrack.artist.includes('未知')) {
+				getSingerMidBySingerName(selectedTrack.artist).then((singerMid) => {
+					if (singerMid) {
+						router.navigate(`/(modals)/${singerMid}`)
+					} else {
+						console.log('没有匹配到歌手')
+					}
+				})
+			}
+			return
+		}
 		await myTrackPlayer.play(selectedTrack as IMusic.IMusicItem)
 	}, [])
 
 	const renderItem = useCallback(
 		({ item: track }: { item: Track }) => {
+			if (track.isArtist) {
+				return (
+					<TouchableOpacity style={styles.artistItem} onPress={() => handleTrackSelect(track)}>
+						<FastImage
+							source={{ uri: track.artwork || unknownTrackImageUri }}
+							style={styles.artistAvatar}
+						/>
+						<Text style={styles.artistName}>{track.title}</Text>
+					</TouchableOpacity>
+				)
+			}
 			return <TracksListItem track={track} onTrackSelect={handleTrackSelect} />
 		},
 		[handleTrackSelect],

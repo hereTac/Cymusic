@@ -107,7 +107,9 @@
 		"noResults": "No results found",
 		"noMoreResults": "No more results",
 		"cancel": "Cancel",
-		"inPlaylist": "Find in Playlist"
+		"inPlaylist": "Find in Playlist",
+		"songs": "Songs",
+		"artists": "Artists"
 	},
 	"playButton": {
 		"play": "Play",

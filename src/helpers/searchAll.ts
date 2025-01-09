@@ -1,18 +1,36 @@
 // helpers/searchAll.ts
 
-import { searchMusic } from '@/helpers/userApi/xiaoqiu'
+import { searchArtist, searchMusic } from '@/helpers/userApi/xiaoqiu'
 import { Track } from 'react-native-track-player'
 
 const PAGE_SIZE = 20
 
+type SearchType = 'songs' | 'artists'
+
 const searchAll = async (
 	searchText: string,
 	page: number = 1,
+	type: SearchType = 'songs',
 ): Promise<{ data: Track[]; hasMore: boolean }> => {
-	console.log('search text+++', searchText, 'page:', page)
-	const result = await searchMusic(searchText, page, PAGE_SIZE)
+	console.log('search text+++', searchText, 'page:', page, 'type:', type)
 
-	// console.log(result.data)
+	let result
+	if (type === 'songs') {
+		console.log('search song')
+		result = await searchMusic(searchText, page, PAGE_SIZE)
+	} else {
+		console.log('search artist')
+		result = await searchArtist(searchText, page)
+		// console.log('search result', result)
+		// Transform artist results to Track format
+		result.data = result.data.map((artist) => ({
+			id: artist.id,
+			title: artist.name,
+			artist: artist.name,
+			artwork: artist.avatar,
+			isArtist: true,
+		})) as Track[]
+	}
 
 	const hasMore = result.data.length === PAGE_SIZE
 

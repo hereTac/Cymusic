@@ -108,7 +108,9 @@
 		"noResults": "没有找到结果",
 		"noMoreResults": "没有更多结果",
 		"cancel": "取消",
-		"inPlaylist": "在歌单中搜索"
+		"inPlaylist": "在歌单中搜索",
+		"songs": "歌曲",
+		"artists": "歌手"
 	},
 	"playButton": {
 		"play": "播放",
