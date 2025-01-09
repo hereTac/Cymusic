@@ -624,11 +624,19 @@ const addMusicApi = (musicApi: IMusic.MusicApi) => {
 				{ text: '取消', onPress: () => {}, style: 'cancel' },
 			])
 		} else {
-			// 如果是新添加的音源，默认设置 isSelected 为 false
+			// 如果是新添加的音源，默认设置 isSelected 为 false 。如果音源为空，则自动选择
 			const newMusicApi = musicApi
+			console.log('nowMusicApiList', nowMusicApiList)
 			const updatedMusicApiList = [...nowMusicApiList, newMusicApi]
-			musicApiStore.setValue(updatedMusicApiList)
-			PersistStatus.set('music.musicApi', updatedMusicApiList)
+			if (!nowMusicApiList.length) {
+				logInfo('音源为空，自动选择')
+				musicApiStore.setValue(updatedMusicApiList)
+				PersistStatus.set('music.musicApi', updatedMusicApiList)
+				setMusicApiAsSelectedById(newMusicApi.id)
+			} else {
+				musicApiStore.setValue(updatedMusicApiList)
+				PersistStatus.set('music.musicApi', updatedMusicApiList)
+			}
 			logInfo('音源导入成功')
 			Alert.alert('成功', '音源导入成功', [
 				{ text: '确定', onPress: () => logInfo('Add alert closed') },
