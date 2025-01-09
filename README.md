@@ -40,11 +40,11 @@ tg频道：<https://t.me/gyc_123>
 - [x] feat：定时关闭
 - [x] feat：歌词界面保持手机亮屏
 - [ ] feat：音源文件分享到应用
-- [ ] fix：音源文件导入更新逻辑
+- [x] fix：音源文件导入更新逻辑，如果第一次导入，则自动选择
 - [ ] docs：文档
 - [ ] 修复：flac 格式音乐快进后歌词不同步问题
 - [x] fix：进入后台后的一些Alert处理
-- [ ] fix：导入歌单输入栏遮挡 #85
+- [x] fix：导入歌单输入栏被键盘遮挡 #85
 - [ ] fix: [#91](https://github.com/gyc-12/music-player-master/issues/91) APP启动图片不适配不同屏幕的机子
 - [ ] feat: 搜索歌手和歌曲分開 [#95](https://github.com/gyc-12/music-player-master/issues/95)
 - [ ] （待添加更多任务）

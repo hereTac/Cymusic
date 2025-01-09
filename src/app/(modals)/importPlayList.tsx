@@ -12,6 +12,9 @@ import React, { useRef, useState } from 'react'
 import {
 	ActivityIndicator,
 	Image,
+	KeyboardAvoidingView,
+	Platform,
+	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -112,111 +115,122 @@ const ImportPlayList = () => {
 	return (
 		<SafeAreaView style={[styles.modalContainer, { paddingTop: headerHeight }]}>
 			<DismissPlayerSymbol />
-			<Text style={styles.header}>导入/创建歌单</Text>
+			<KeyboardAvoidingView
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+				style={{ flex: 1 }}
+			>
+				<ScrollView
+					showsVerticalScrollIndicator={false}
+					contentContainerStyle={{ flexGrow: 1 }}
+					keyboardShouldPersistTaps="handled"
+				>
+					<Text style={styles.header}>导入/创建歌单</Text>
 
-			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>创建新歌单</Text>
-				<View style={styles.createPlaylistCard}>
-					<View style={styles.createPlaylistContainer}>
-						<View style={styles.coverContainer}>
-							<TouchableOpacity onPress={pickImage} style={styles.coverPicker}>
-								{coverImage ? (
-									<Image source={{ uri: coverImage }} style={styles.coverImage} />
-								) : (
-									<View style={styles.coverPlaceholder}>
-										<Ionicons name="image-outline" size={24} color={colors.primary} />
-										<Text style={styles.coverText}>选择封面</Text>
+					<View style={styles.section}>
+						<Text style={styles.sectionTitle}>创建新歌单</Text>
+						<View style={styles.createPlaylistCard}>
+							<View style={styles.createPlaylistContainer}>
+								<View style={styles.coverContainer}>
+									<TouchableOpacity onPress={pickImage} style={styles.coverPicker}>
+										{coverImage ? (
+											<Image source={{ uri: coverImage }} style={styles.coverImage} />
+										) : (
+											<View style={styles.coverPlaceholder}>
+												<Ionicons name="image-outline" size={24} color={colors.primary} />
+												<Text style={styles.coverText}>选择封面</Text>
+											</View>
+										)}
+									</TouchableOpacity>
+								</View>
+
+								<View style={styles.playlistInfoContainer}>
+									<View style={[styles.inputContainer, { marginBottom: 0 }]}>
+										<TextInput
+											ref={nameInputRef}
+											style={styles.input}
+											value={customName}
+											onChangeText={setCustomName}
+											placeholder="输入歌单名称"
+											placeholderTextColor="#999"
+											autoCapitalize="none"
+											autoCorrect={false}
+											keyboardType="default"
+											returnKeyType="done"
+											blurOnSubmit={true}
+											onSubmitEditing={() => nameInputRef.current?.blur()}
+											enablesReturnKeyAutomatically={true}
+											clearButtonMode="while-editing"
+										/>
 									</View>
+								</View>
+							</View>
+
+							<TouchableOpacity
+								onPress={handleCreatePlaylist}
+								activeOpacity={0.8}
+								style={styles.button}
+								disabled={isLoading}
+							>
+								{isLoading ? (
+									<ActivityIndicator color="#fff" />
+								) : (
+									<>
+										<Ionicons name="add-circle-outline" size={24} color={colors.primary} />
+										<Text style={styles.buttonText}>创建歌单</Text>
+									</>
 								)}
 							</TouchableOpacity>
 						</View>
+					</View>
 
-						<View style={styles.playlistInfoContainer}>
-							<View style={[styles.inputContainer, { marginBottom: 0 }]}>
+					<View style={styles.divider} />
+
+					<View style={styles.section}>
+						<Text style={styles.sectionTitle}>导入已有歌单</Text>
+						<View style={styles.createPlaylistCard}>
+							<View style={styles.importContainer}>
 								<TextInput
-									ref={nameInputRef}
+									ref={urlInputRef}
 									style={styles.input}
-									value={customName}
-									onChangeText={setCustomName}
-									placeholder="输入歌单名称"
+									value={playlistUrl}
+									onChangeText={setPlaylistUrl}
+									placeholder='🔗输入企鹅音乐歌单链接要有"id="字样'
 									placeholderTextColor="#999"
 									autoCapitalize="none"
 									autoCorrect={false}
-									keyboardType="default"
+									keyboardType="url"
 									returnKeyType="done"
 									blurOnSubmit={true}
-									onSubmitEditing={() => nameInputRef.current?.blur()}
+									onSubmitEditing={() => urlInputRef.current?.blur()}
 									enablesReturnKeyAutomatically={true}
 									clearButtonMode="while-editing"
 								/>
 							</View>
+
+							<TouchableOpacity
+								onPress={handleImport}
+								activeOpacity={0.8}
+								style={styles.button}
+								disabled={isLoading}
+							>
+								{isLoading ? (
+									<ActivityIndicator color="#fff" />
+								) : (
+									<>
+										<Ionicons name="cloud-download-outline" size={24} color={colors.primary} />
+										<Text style={styles.buttonText}>导入歌单</Text>
+									</>
+								)}
+							</TouchableOpacity>
 						</View>
 					</View>
 
-					<TouchableOpacity
-						onPress={handleCreatePlaylist}
-						activeOpacity={0.8}
-						style={styles.button}
-						disabled={isLoading}
-					>
-						{isLoading ? (
-							<ActivityIndicator color="#fff" />
-						) : (
-							<>
-								<Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-								<Text style={styles.buttonText}>创建歌单</Text>
-							</>
-						)}
-					</TouchableOpacity>
-				</View>
-			</View>
-
-			<View style={styles.divider} />
-
-			<View style={styles.section}>
-				<Text style={styles.sectionTitle}>导入已有歌单</Text>
-				<View style={styles.createPlaylistCard}>
-					<View style={styles.importContainer}>
-						<TextInput
-							ref={urlInputRef}
-							style={styles.input}
-							value={playlistUrl}
-							onChangeText={setPlaylistUrl}
-							placeholder='🔗输入企鹅音乐歌单链接要有"id="字样'
-							placeholderTextColor="#999"
-							autoCapitalize="none"
-							autoCorrect={false}
-							keyboardType="url"
-							returnKeyType="done"
-							blurOnSubmit={true}
-							onSubmitEditing={() => urlInputRef.current?.blur()}
-							enablesReturnKeyAutomatically={true}
-							clearButtonMode="while-editing"
-						/>
-					</View>
-
-					<TouchableOpacity
-						onPress={handleImport}
-						activeOpacity={0.8}
-						style={styles.button}
-						disabled={isLoading}
-					>
-						{isLoading ? (
-							<ActivityIndicator color="#fff" />
-						) : (
-							<>
-								<Ionicons name="cloud-download-outline" size={24} color={colors.primary} />
-								<Text style={styles.buttonText}>导入歌单</Text>
-							</>
-						)}
-					</TouchableOpacity>
-				</View>
-			</View>
-
-			{error && <Text style={styles.error}>{error}</Text>}
-			{playlistData && (
-				<Text style={styles.successText}>导入成功! 歌单名称: {playlistData.name}</Text>
-			)}
+					{error && <Text style={styles.error}>{error}</Text>}
+					{playlistData && (
+						<Text style={styles.successText}>导入成功! 歌单名称: {playlistData.name}</Text>
+					)}
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)
 }
