@@ -4,7 +4,8 @@ import LyricManager from '@/helpers/lyricManager'
 import { useLogTrackPlayerState } from '@/hooks/useLogTrackPlayerState'
 import { useSetupTrackPlayer } from '@/hooks/useSetupTrackPlayer'
 import i18n, { setI18nConfig } from '@/utils/i18n'
-import { SplashScreen, Stack } from 'expo-router'
+import { router, SplashScreen, Stack } from 'expo-router'
+import { ShareIntentProvider, useShareIntentContext } from 'expo-share-intent'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useState } from 'react'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -29,7 +30,16 @@ const App = () => {
 
 	LyricManager.setup()
 	const [isI18nReady, setIsI18nReady] = useState(false)
+	const { hasShareIntent } = useShareIntentContext()
 
+	useEffect(() => {
+		if (hasShareIntent) {
+			// we want to handle share intent event in a specific page
+			console.log('[expo-router-index111] redirect to ShareIntent screen')
+			console.log('[expo-router-index111] hasShareIntent', hasShareIntent)
+			// router.push('/(modals)/settingModal')
+		}
+	}, [hasShareIntent])
 	useEffect(() => {
 		const initI18n = async () => {
 			try {
@@ -95,13 +105,25 @@ const App = () => {
 	*/
 	}
 	return (
-		<SafeAreaProvider>
-			<GestureHandlerRootView style={{ flex: 1 }}>
-				<RootNavigation />
-				<StatusBar style="auto" />
-				<Toast config={toastConfig} />
-			</GestureHandlerRootView>
-		</SafeAreaProvider>
+		<ShareIntentProvider
+			options={{
+				debug: true,
+				resetOnBackground: true,
+				onResetShareIntent: () =>
+					// used when app going in background and when the reset button is pressed
+					router.replace({
+						pathname: '/',
+					}),
+			}}
+		>
+			<SafeAreaProvider>
+				<GestureHandlerRootView style={{ flex: 1 }}>
+					<RootNavigation />
+					<StatusBar style="auto" />
+					<Toast config={toastConfig} />
+				</GestureHandlerRootView>
+			</SafeAreaProvider>
+		</ShareIntentProvider>
 	)
 }
 

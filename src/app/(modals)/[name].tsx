@@ -1,17 +1,22 @@
 import { SingerTracksList } from '@/components/SingerTracksList'
 import { colors, screenPadding } from '@/constants/tokens'
+import { logInfo } from '@/helpers/logger'
 import { getAlbumSongList, getSingerDetail } from '@/helpers/userApi/getMusicSource'
 import { defaultStyles } from '@/styles'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, usePathname } from 'expo-router'
 import React, { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, View } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Track } from 'react-native-track-player'
+import ShareIntent from './shareintent'
 // 专辑页面or歌手页面
 const SingerListScreen = () => {
+	const pathname = usePathname()
+	logInfo('pathname', pathname)
+
 	const { name: playlistName, album } = useLocalSearchParams<{ name: string; album?: string }>()
 	const isAlbum = !!album
-	console.log('album', album)
+	logInfo('album', album)
 
 	const [singerListDetail, setSingerListDetail] = useState<{ musicList: Track[] } | null>(null)
 	const [loading, setLoading] = useState(true)
@@ -33,6 +38,12 @@ const SingerListScreen = () => {
 		}
 		fetchSingerListDetail()
 	}, [])
+
+	if (pathname.includes('cymusic')) {
+		return <ShareIntent></ShareIntent>
+	}
+
+	console.log('album', album)
 
 	if (loading) {
 		return (

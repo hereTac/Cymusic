@@ -5,7 +5,8 @@
 	"scripts": {
 		"android": "expo run:android",
 		"ios": "expo run:ios",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"postinstall": "patch-package"
 	},
 	"dependencies": {
 		"@react-native-async-storage/async-storage": "^1.23.1",
@@ -25,11 +26,13 @@
 		"expo-localization": "~14.8.4",
 		"expo-music-info-2": "^2.0.0",
 		"expo-router": "~3.4.8",
+		"expo-share-intent": "^1.9.0",
 		"expo-status-bar": "~1.11.1",
 		"i18n-js": "^4.4.3",
 		"iconv-lite": "^0.6.3",
 		"immer": "^10.1.1",
 		"lodash.shuffle": "^4.2.0",
+		"patch-package": "^8.0.0",
 		"react": "18.2.0",
 		"react-native": "0.73.6",
 		"react-native-awesome-slider": "^2.5.1",

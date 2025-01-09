@@ -4,6 +4,7 @@ import i18n, { nowLanguage } from '@/utils/i18n'
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { BlurView } from 'expo-blur'
 import { Tabs } from 'expo-router'
+import React from 'react'
 import { StyleSheet } from 'react-native'
 const TabsNavigation = () => {
 	const language = nowLanguage.useValue()
