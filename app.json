@@ -16,7 +16,7 @@
 		"ios": {
 			"supportsTablet": true,
 			"bundleIdentifier": "com.music.player.gyc",
-			"usesIcloudStorage": true,
+			"usesIcloudStorage": false,
 			"infoPlist": {
 				"UIBackgroundModes": ["audio"],
 				"UIFileSharingEnabled": true,
@@ -49,7 +49,9 @@
 				"expo-share-intent",
 				{
 					"iosActivationRules": {
-						"NSExtensionActivationSupportsFileWithMaxCount": 1
+						"NSExtensionActivationSupportsFileWithMaxCount": 1,
+						"NSExtensionActivationSupportsWebURLWithMaxCount": 1,
+						"NSExtensionActivationSupportsText": 1
 					}
 				}
 			]
