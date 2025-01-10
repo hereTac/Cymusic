@@ -2,18 +2,30 @@ import { SearchList } from '@/components/SearchList'
 import { colors } from '@/constants/tokens'
 import searchAll from '@/helpers/searchAll'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
-import { defaultStyles } from '@/styles'
 import i18n from '@/utils/i18n'
 import { useRouter } from 'expo-router'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Animated, Dimensions, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import {
+	Animated,
+	Dimensions,
+	Platform,
+	Pressable,
+	SafeAreaView,
+	StyleSheet,
+	Text,
+	View,
+} from 'react-native'
 import { Track } from 'react-native-track-player'
 
 type SearchType = 'songs' | 'artists'
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window')
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 const SEGMENT_WIDTH = (SCREEN_WIDTH - 32 - 4) / 2 // 32 for padding, 4 for container padding
+const SEARCH_OFFSET = Platform.select({
+	ios: SCREEN_HEIGHT * 0.11, // 约11%的屏幕高度
+	android: 0,
+})
 
 const SearchlistsScreen = () => {
 	const router = useRouter()
@@ -24,11 +36,30 @@ const SearchlistsScreen = () => {
 	const searchRequestRef = useRef(0)
 	const [searchType, setSearchType] = useState<SearchType>('songs')
 	const slideAnim = useRef(new Animated.Value(0)).current
+	const contentOffsetAnim = useRef(new Animated.Value(0)).current
+	const [searchBarFocused, setSearchBarFocused] = useState(false)
 
 	const search = useNavigationSearch({
 		searchBarOptions: {
 			placeholder: i18n.t('find.inSearch'),
 			cancelButtonText: i18n.t('find.cancel'),
+		},
+		onFocus: () => {
+			Animated.spring(contentOffsetAnim, {
+				toValue: -SEARCH_OFFSET,
+				useNativeDriver: true,
+				tension: 100,
+				friction: 10,
+			}).start()
+			setSearchBarFocused(true)
+		},
+		onCancel: () => {
+			Animated.spring(contentOffsetAnim, {
+				toValue: 0,
+				useNativeDriver: true,
+				tension: 100,
+				friction: 10,
+			}).start()
 		},
 	})
 
@@ -113,54 +144,79 @@ const SearchlistsScreen = () => {
 	}
 
 	return (
-		<SafeAreaView style={defaultStyles.container}>
-			<View style={styles.segmentedControlContainer}>
-				<View style={styles.segmentedControl}>
-					<Animated.View
-						style={[
-							styles.activeSegment,
-							{
-								position: 'absolute',
-								width: SEGMENT_WIDTH,
-								transform: [{ translateX: slideAnim }],
-							},
-						]}
-					/>
-					<Pressable
-						style={[styles.segment, { borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }]}
-						onPress={() => handleSearchTypeChange('songs')}
-					>
-						<Text style={[styles.segmentText, searchType === 'songs' && styles.activeSegmentText]}>
-							{i18n.t('find.songs')}
-						</Text>
-					</Pressable>
-					<Pressable
-						style={[styles.segment, { borderTopRightRadius: 8, borderBottomRightRadius: 8 }]}
-						onPress={() => handleSearchTypeChange('artists')}
-					>
-						<Text
-							style={[styles.segmentText, searchType === 'artists' && styles.activeSegmentText]}
+		<SafeAreaView style={styles.safeArea}>
+			<Animated.View
+				style={[
+					styles.contentContainer,
+					{
+						transform: [{ translateY: contentOffsetAnim }],
+					},
+				]}
+			>
+				<View style={styles.segmentedControlContainer}>
+					<View style={styles.segmentedControl}>
+						<Animated.View
+							style={[
+								styles.activeSegment,
+								{
+									position: 'absolute',
+									width: SEGMENT_WIDTH,
+									transform: [{ translateX: slideAnim }],
+								},
+							]}
+						/>
+						<Pressable
+							style={[styles.segment, { borderTopLeftRadius: 8, borderBottomLeftRadius: 8 }]}
+							onPress={() => handleSearchTypeChange('songs')}
 						>
-							{i18n.t('find.artists')}
-						</Text>
-					</Pressable>
+							<Text
+								style={[styles.segmentText, searchType === 'songs' && styles.activeSegmentText]}
+							>
+								{i18n.t('find.songs')}
+							</Text>
+						</Pressable>
+						<Pressable
+							style={[styles.segment, { borderTopRightRadius: 8, borderBottomRightRadius: 8 }]}
+							onPress={() => handleSearchTypeChange('artists')}
+						>
+							<Text
+								style={[styles.segmentText, searchType === 'artists' && styles.activeSegmentText]}
+							>
+								{i18n.t('find.artists')}
+							</Text>
+						</Pressable>
+					</View>
 				</View>
-			</View>
-			<SearchList
-				tracks={searchResults}
-				id={'search'}
-				onLoadMore={handleLoadMore}
-				hasMore={hasMore}
-				isLoading={isLoading}
-			/>
+				<SearchList
+					tracks={searchResults}
+					id={'search'}
+					onLoadMore={handleLoadMore}
+					hasMore={hasMore}
+					isLoading={isLoading}
+				/>
+			</Animated.View>
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		backgroundColor: colors.background,
+	},
+	safeArea: {
+		flex: 1,
+		backgroundColor: colors.background,
+	},
+	contentContainer: {
+		flex: 1,
+		backgroundColor: colors.background,
+		paddingTop: 8,
+	},
 	segmentedControlContainer: {
 		paddingHorizontal: 16,
-		paddingVertical: 8,
+		marginTop: 0,
+		paddingBottom: 4,
 	},
 	segmentedControl: {
 		flexDirection: 'row',

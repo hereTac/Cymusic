@@ -8,12 +8,18 @@ import { SearchBarProps } from 'react-native-screens'
 const defaultSearchOptions: SearchBarProps = {
 	tintColor: colors.primary,
 	hideWhenScrolling: false,
-} //在 TypeScript 中，冒号 : 用于声明变量的类型
+}
 
 export const useNavigationSearch = ({
 	searchBarOptions,
+	onFocus,
+	onBlur,
+	onCancel,
 }: {
 	searchBarOptions?: SearchBarProps
+	onFocus?: () => void
+	onBlur?: () => void
+	onCancel?: () => void
 }) => {
 	const [search, setSearch] = useState('')
 
@@ -37,9 +43,15 @@ export const useNavigationSearch = ({
 				...defaultSearchOptions,
 				...searchBarOptions,
 				onChangeText: handleOnChangeText,
+				onFocus: onFocus,
+				onBlur: onBlur,
+				onCancelButtonPress: (e) => {
+					onCancel?.()
+					searchBarOptions?.onCancelButtonPress?.(e)
+				},
 			},
 		})
-	}, [navigation, searchBarOptions])
+	}, [navigation, searchBarOptions, onFocus, onBlur, onCancel])
 
 	return search
 }
