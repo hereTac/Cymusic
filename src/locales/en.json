@@ -51,6 +51,7 @@
 			"checkUpdate": {
 				"checking": "Checking for updates",
 				"available": "New version available",
+				"message": "New version available",
 				"notAvailable": "Already the latest version",
 				"notAvailableMessage": "Current is already the latest version",
 				"error": "Update check failed",

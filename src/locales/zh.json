@@ -51,6 +51,7 @@
 			"checkUpdate": {
 				"checking": "检查更新中",
 				"available": "发现新版本",
+				"message": "发现新版本",
 				"notAvailable": "已是最新版本",
 				"notAvailableMessage": "当前已是最新版本，无需更新",
 				"error": "检查更新失败",
