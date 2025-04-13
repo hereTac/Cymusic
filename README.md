@@ -140,10 +140,4 @@ npx expo run:ios
 
 ## Star History
 
-<a href="https://star-history.com/#gyc-12/Cymusic&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date)](https://www.star-history.com/#gyc-12/Cymusic&Date)
