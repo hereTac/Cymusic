@@ -151,9 +151,16 @@ const importMusicSourceFromUrl = async () => {
 
 						// 这里需要添加处理源代码的逻辑，类似于 importMusicSourceFromFile 中的逻辑
 						// 例如：解析源代码，创建 MusicApi 对象，并添加到 myTrackPlayer
+						// 1. 创建模拟的 CommonJS 模块对象
 						const module: { exports: ModuleExports } = { exports: {} }
-						const require = () => {} // 如果文件中有其他 require 调用，你需要在这里实现
+
+						// 2. 创建模拟的 require 函数
+						const require = () => {} // 如果文件中有其他 require 调用，需要在这里实现
+
+						// 3. 将外部 JS 代码作为函数体执行
 						const moduleFunc = new Function('module', 'exports', 'require', utf8SourceCode)
+
+						// 4. 执行函数，填充 module.exports
 						moduleFunc(module, module.exports, require)
 						// const url = await module.exports.getMusicUrl('朵', '赵雷', '004IArbh3ytHgR', '128k')
 						// logInfo(url + '123123')

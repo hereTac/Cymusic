@@ -3,7 +3,6 @@ import { colors } from '@/constants/tokens'
 import searchAll from '@/helpers/searchAll'
 import { useNavigationSearch } from '@/hooks/useNavigationSearch'
 import i18n from '@/utils/i18n'
-import { useRouter } from 'expo-router'
 import debounce from 'lodash/debounce'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -28,7 +27,7 @@ const SEARCH_OFFSET = Platform.select({
 })
 
 const SearchlistsScreen = () => {
-	const router = useRouter()
+	// const router = useRouter()
 	const [searchResults, setSearchResults] = useState<Track[]>([])
 	const [page, setPage] = useState(1)
 	const [isLoading, setIsLoading] = useState(false)

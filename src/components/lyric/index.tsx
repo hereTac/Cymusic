@@ -109,20 +109,20 @@ export default function Lyric(props: IProps) {
 		}
 	}, [])
 
-	const delayedScrollToCurrentLrcItem = useMemo(() => {
-		let sto: number
+	// const delayedScrollToCurrentLrcItem = useMemo(() => {
+	// 	let sto: number
 
-		return () => {
-			if (sto) {
-				clearTimeout(sto)
-			}
-			sto = setTimeout(() => {
-				if (isMountedRef.current) {
-					scrollToCurrentLrcItem()
-				}
-			}, 200) as any
-		}
-	}, [])
+	// 	return () => {
+	// 		if (sto) {
+	// 			clearTimeout(sto)
+	// 		}
+	// 		sto = setTimeout(() => {
+	// 			if (isMountedRef.current) {
+	// 				scrollToCurrentLrcItem()
+	// 			}
+	// 		}, 200) as any
+	// 	}
+	// }, [])
 
 	useEffect(() => {
 		// 暂停且拖拽才返回

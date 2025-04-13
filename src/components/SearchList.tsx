@@ -127,10 +127,10 @@ export const SearchList: React.FC<SearchListProps> = ({
 			<FlatList
 				data={tracks}
 				contentContainerStyle={{
-					paddingTop: 20, // 动态设置顶部 padding
+					paddingTop: 60,
 					paddingBottom: 128 + insets.bottom,
-					flexGrow: 1, // 这将允许内容在少于一屏时也能填满整个屏幕
-					justifyContent: tracks.length === 0 ? 'center' : 'flex-start', // 当没有结果时，居中显示 EmptyComponent
+					flexGrow: 1,
+					justifyContent: tracks.length === 0 ? 'center' : 'flex-start',
 					paddingHorizontal: screenPadding.horizontal,
 				}}
 				ItemSeparatorComponent={ItemDivider}
@@ -145,6 +145,8 @@ export const SearchList: React.FC<SearchListProps> = ({
 				updateCellsBatchingPeriod={50}
 				initialNumToRender={10}
 				windowSize={21}
+				keyboardDismissMode="on-drag"
+				keyboardShouldPersistTaps="handled"
 			/>
 		</View>
 	)
