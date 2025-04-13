@@ -7,7 +7,7 @@ RN新手，代码质量一般，请见谅。
 支持的平台：
 
 - IOS
-  软件下载请转到：[发布页面](https://github.com/gyc-12/music-player-master/releases)<br>
+  软件下载请转到：[发布页面](https://github.com/gyc-12/Cymusic/releases)<br>
 
 代码未内置源。可以导入自定义源，注意导入的音乐源的安全可靠性。仅供学习交流使用，请勿用于商业用途，如有侵权请联系删除。
 
@@ -45,8 +45,8 @@ tg频道：<https://t.me/gyc_123>
 - [ ] 修复：flac 格式音乐快进后歌词不同步问题
 - [x] fix：进入后台后的一些Alert处理
 - [x] fix：导入歌单输入栏被键盘遮挡 #85
-- [x] fix: [#91](https://github.com/gyc-12/music-player-master/issues/91) APP启动图片不适配不同屏幕的机子
-- [x] feat: 搜索歌手和歌曲分開 [#95](https://github.com/gyc-12/music-player-master/issues/95)
+- [x] fix: [#91](https://github.com/gyc-12/Cymusic/issues/91) APP启动图片不适配不同屏幕的机子
+- [x] feat: 搜索歌手和歌曲分開 [#95](https://github.com/gyc-12/Cymusic/issues/95)
 - [ ] （待添加更多任务）
 
 ## 技术栈
@@ -140,10 +140,10 @@ npx expo run:ios
 
 ## Star History
 
-<a href="https://star-history.com/#gyc-12/music-player-master&Date">
+<a href="https://star-history.com/#gyc-12/Cymusic&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gyc-12/music-player-master&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=gyc-12/Cymusic&type=Date" />
  </picture>
 </a>

@@ -456,7 +456,7 @@ const SettingModal = () => {
 		)
 		try {
 			const result = await Promise.race([
-				fetch('https://api.github.com/repos/gyc-12/music-player-master/releases/latest'),
+				fetch('https://api.github.com/repos/gyc-12/Cymusic/releases/latest'),
 				timeoutPromise,
 			])
 			if (!(result instanceof Response)) {
@@ -517,7 +517,7 @@ const SettingModal = () => {
 						router.push('/(modals)/logScreen')
 					}
 					if (item.title === i18n.t('settings.items.projectLink')) {
-						Linking.openURL('https://github.com/gyc-12/music-player-master').catch((err) =>
+						Linking.openURL('https://github.com/gyc-12/Cymusic').catch((err) =>
 							logError("Couldn't load page", err),
 						)
 					} else if (item.title === i18n.t('settings.items.currentQuality')) {
