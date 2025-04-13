@@ -47,6 +47,7 @@ tg频道：<https://t.me/gyc_123>
 - [x] fix：导入歌单输入栏被键盘遮挡 #85
 - [x] fix: [#91](https://github.com/gyc-12/Cymusic/issues/91) APP启动图片不适配不同屏幕的机子
 - [x] feat: 搜索歌手和歌曲分開 [#95](https://github.com/gyc-12/Cymusic/issues/95)
+- [ ] feat：对导入的所有音源进行批量测试可用性
 - [ ] （待添加更多任务）
 
 ## 技术栈
