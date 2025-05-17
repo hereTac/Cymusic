@@ -12,6 +12,7 @@ import myTrackPlayer, {
 } from '@/helpers/trackPlayerIndex'
 import PersistStatus from '@/store/PersistStatus'
 import i18n, { changeLanguage, nowLanguage } from '@/utils/i18n'
+import { GlobalState } from '@/utils/stateMapper'
 import { showToast } from '@/utils/utils'
 import { MenuView } from '@react-native-menu/menu'
 import { Buffer } from 'buffer'
@@ -36,6 +37,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message'
 const QUALITY_OPTIONS = ['128k', '320k', 'flac']
 const CURRENT_VERSION = Constants.expoConfig?.version ?? '未知版本'
+
+// 将GlobalState实例移到组件外部
+const cooldownStore = new GlobalState<number>(0) // 冷却时间（秒）
+const sourceStatusStore = new GlobalState<
+	Record<string, { status: string; error?: string; url?: string }>
+>({}) // 音源状态存储
 
 // eslint-disable-next-line react/prop-types
 const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
@@ -63,6 +70,9 @@ const MusicQualityMenu = ({ currentQuality, onSelectQuality }) => {
 // eslint-disable-next-line react/prop-types
 const MusicSourceMenu = ({ isDelete, onSelectSource }) => {
 	const [sources, setSources] = useState([])
+	const [isLoading, setIsLoading] = useState(false) // 测试状态
+	const cooldown = cooldownStore.useValue() // 使用useValue获取当前值
+	const sourceStatus = sourceStatusStore.useValue() // 使用GlobalState获取音源状态
 	const selectedApi = musicApiSelectedStore.useValue()
 	const musicApis = musicApiStore.useValue()
 
@@ -78,29 +88,206 @@ const MusicSourceMenu = ({ isDelete, onSelectSource }) => {
 			setSources([]) // 如果 musicApis 不是有效数组，设置为空数组
 		}
 	}, [musicApis])
+	useEffect(() => {
+		cooldownStore.setValue(0)
+	}, [])
+	// 处理倒计时
+	useEffect(() => {
+		let timer
+		if (cooldown > 0) {
+			timer = setTimeout(() => {
+				cooldownStore.setValue(cooldown - 1)
+			}, 1000)
+		}
+		return () => clearTimeout(timer)
+	}, [cooldown])
+
+	// 测试单个音源是否可用
+	const testMusicSource = async (musicApi) => {
+		try {
+			logInfo(`开始测试音源: ${musicApi.name}, ID: ${musicApi.id}`)
+
+			// 检查musicApi.getMusicUrl是否存在且为函数
+			if (typeof musicApi.getMusicUrl !== 'function') {
+				logError(`音源 ${musicApi.name} 的 getMusicUrl 不是函数或不存在`, musicApi)
+				return { status: '异常', error: 'getMusicUrl 方法不可用' }
+			}
+
+			// 设置超时
+			const timeoutPromise = new Promise((_, reject) => {
+				setTimeout(() => reject(new Error('请求超时')), 5000)
+			})
+			logInfo(
+				`测试音源详情:`,
+				JSON.stringify({
+					name: musicApi.name,
+					id: musicApi.id,
+					author: musicApi.author,
+					version: musicApi.version,
+				}),
+			)
+
+			// 尝试获取测试歌曲URL
+			// 这里使用了固定的测试歌曲信息，可以根据实际需求修改
+			const testTitle = '稻香'
+			const testArtist = '周杰伦'
+			const testId = '004IArbh3ytHgR'
+
+			logInfo(`测试歌曲信息: ${testTitle} - ${testArtist}, ID: ${testId}`)
+
+			// 按音质降级尝试
+			const qualityOrder = ['128k']
+
+			for (const quality of qualityOrder) {
+				try {
+					logInfo(`尝试获取音源 ${musicApi.name} 的 ${quality} 音质`)
+
+					// 记录函数调用前的参数
+					logInfo(
+						`调用 getMusicUrl 参数: title=${testTitle}, artist=${testArtist}, id=${testId}, quality=${quality}`,
+					)
+
+					const resp_url = await Promise.race([
+						musicApi.getMusicUrl(testTitle, testArtist, testId, quality),
+						timeoutPromise,
+					])
+
+					// 记录返回值
+					logInfo(`音源 ${musicApi.name} 返回结果: ${resp_url}`)
+
+					if (resp_url && resp_url !== '') {
+						// 找到可用音源
+						logInfo(`音源 ${musicApi.name} 测试成功，音质: ${quality}, URL: ${resp_url}`)
+						return { status: '正常', url: resp_url }
+					} else {
+						logInfo(`音源 ${musicApi.name} 返回空URL，音质: ${quality}`)
+					}
+				} catch (err) {
+					// 继续尝试下一个音质
+					logError(`测试音源 ${musicApi.name} ${quality} 音质失败:`, err)
+					logInfo(`错误详情: ${err.message || '未知错误'}`)
+					// 尝试打印错误堆栈
+					if (err.stack) {
+						logInfo(`错误堆栈: ${err.stack}`)
+					}
+				}
+			}
+
+			// 所有音质都尝试失败
+			logInfo(`音源 ${musicApi.name} 所有音质测试均失败`)
+			return { status: '异常', error: '无法获取音乐URL' }
+		} catch (error) {
+			logError(`测试音源 ${musicApi?.name || '未知'} 时发生异常:`, error)
+			if (error.stack) {
+				logInfo(`异常错误堆栈: ${error.stack}`)
+			}
+			return {
+				status: '异常',
+				error: error.message === '请求超时' ? '请求超时' : error.message || '未知错误',
+			}
+		}
+	}
+
+	// 测试所有音源状态
+	const testAllSources = async () => {
+		if (!musicApis || !Array.isArray(musicApis) || musicApis.length === 0) {
+			logInfo('没有可用的音源可测试')
+			return
+		}
+
+		logInfo(`开始测试所有音源，共 ${musicApis.length} 个`)
+		setIsLoading(true)
+		const statusResults = { ...sourceStatus } // 复制当前状态作为基础
+
+		for (const api of musicApis) {
+			logInfo(`开始测试音源: ${api.name}`)
+			statusResults[api.id] = { status: '测试中...' }
+			sourceStatusStore.setValue({ ...statusResults }) // 更新到GlobalState
+			const reloadedApi = myTrackPlayer.reloadMusicApi(api, true)
+			const result = await testMusicSource(reloadedApi)
+			statusResults[api.id] = result
+			sourceStatusStore.setValue({ ...statusResults }) // 更新到GlobalState
+			logInfo(`音源 ${api.name} 测试结果: ${result.status}`)
+		}
+
+		logInfo('所有音源测试完成')
+		// 设置60秒冷却时间
+		cooldownStore.setValue(60)
+		setIsLoading(false)
+	}
 
 	const handlePressAction = async (id: string) => {
+		// 如果点击的是测试音源按钮，则不关闭菜单并触发测试
+		if (id === 'test_sources') {
+			// 如果在冷却中，不执行操作
+			if (cooldown > 0) return
+			testAllSources()
+			return
+		}
+		// 否则执行正常的音源选择逻辑
 		onSelectSource(id)
+	}
+
+	// 获取状态对应的图标/文本
+	const getStatusIndicator = (sourceId) => {
+		if (!sourceStatus[sourceId]) {
+			return ''
+		}
+
+		switch (sourceStatus[sourceId].status) {
+			case '正常':
+				return ' ✅'
+			case '异常':
+				return ' ❌'
+			case '测试中...':
+				return ' 🔄'
+			default:
+				return ''
+		}
+	}
+
+	// 格式化倒计时显示
+	const formatCooldown = () => {
+		const minutes = Math.floor(cooldown / 60)
+		const seconds = cooldown % 60
+		return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+	}
+
+	// 创建音源列表actions
+	const sourceActions = sources.map((source) => ({
+		id: source.id,
+		title: isDelete
+			? `${i18n.t('settings.actions.delete.delete')} ${source.title}`
+			: `${source.title}${getStatusIndicator(source.id)}`,
+		state: isDelete ? 'off' : selectedApi && selectedApi.id === source.id ? 'on' : 'off',
+		attributes: isDelete ? { destructive: true, disabled: false } : undefined,
+	}))
+
+	// 添加测试音源的按钮（仅在非删除模式下）
+	if (!isDelete) {
+		sourceActions.push({
+			id: 'test_sources',
+			title: isLoading
+				? '测试中...'
+				: cooldown > 0
+					? `请勿频繁测试 ${formatCooldown()} `
+					: i18n.t('settings.items.testSources') || '测试所有音源',
+			attributes: cooldown > 0 || isLoading ? { destructive: false, disabled: true } : undefined,
+			state: 'off',
+		})
 	}
 
 	return (
 		<MenuView
 			onPressAction={({ nativeEvent: { event } }) => handlePressAction(event)}
-			actions={sources.map((source) => ({
-				id: source.id,
-				title: isDelete
-					? `${i18n.t('settings.actions.delete.delete')} ${source.title}`
-					: source.title,
-				state: isDelete ? 'off' : selectedApi && selectedApi.id === source.id ? 'on' : 'off',
-				attributes: isDelete ? { destructive: true } : undefined,
-			}))}
+			actions={sourceActions as any}
 		>
 			<TouchableOpacity style={[styles.menuTrigger]}>
 				<Text style={[styles.menuTriggerText]}>
 					{isDelete
 						? i18n.t('settings.actions.delete.selectDelete')
 						: selectedApi
-							? selectedApi.name
+							? `${selectedApi.name}`
 							: i18n.t('settings.items.selectSource')}
 				</Text>
 			</TouchableOpacity>
@@ -418,10 +605,6 @@ const SettingModal = () => {
 	}
 	const handleSelectSource = (sourceId) => {
 		myTrackPlayer.setMusicApiAsSelectedById(sourceId)
-
-		//setCurrentSource(sourceId);
-		// 这里你需要实现切换音源的逻辑
-		// 例如：myTrackPlayer.setMusicApiAsSelectedById(sourceId);
 	}
 	const changeLanguageMenu = (
 		<MenuView

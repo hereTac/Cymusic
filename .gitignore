@@ -40,3 +40,8 @@ yarn-error.*
 expo-env.d.ts
 third_party_url.ts
 # @end expo-cli
+# SpecStory explanation file
+.specstory/
+# SpecStory explanation file
+.specstory/.what-is-this.md
+.cursorindexingignore

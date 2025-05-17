@@ -678,8 +678,8 @@ const reloadNowSelectedMusicApi = async () => {
 		throw error
 	}
 }
-const reloadMusicApi = (musicApi: IMusic.MusicApi): IMusic.MusicApi => {
-	if (!musicApi.isSelected) {
+const reloadMusicApi = (musicApi: IMusic.MusicApi, isTest: boolean = false): IMusic.MusicApi => {
+	if (!musicApi.isSelected && !isTest) {
 		return musicApi // 如果没有被选中，直接返回原始对象
 	}
 
@@ -1378,6 +1378,7 @@ const myTrackPlayer = {
 	cacheAndImportMusic,
 	isCached,
 	toggleIsCachedIconVisible,
+	reloadMusicApi,
 }
 
 export default myTrackPlayer
