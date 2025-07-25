@@ -1,0 +1,60 @@
+name: Publish iOS App Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Install dependencies
+        run: bundle install
+        working-directory: ios
+
+      - name: Install CocoaPods dependencies
+        run: bundle exec pod install
+        working-directory: ios
+
+      - name: Set up keychain and provisioning profile
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_P12_PASSWORD }}
+          provisioning-profile-base64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+
+      - name: Build IPA
+        run: |
+          xcodebuild -workspace ios/CyMusic.xcworkspace \
+            -scheme CyMusic \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive archive
+          xcodebuild -exportArchive \
+            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath ${{ github.workspace }}/build
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CyMusic.ipa
+          path: build/CyMusic.ipa
+
+      - name: Upload IPA to GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'release'
+        with:
+          files: build/CyMusic.ipa
