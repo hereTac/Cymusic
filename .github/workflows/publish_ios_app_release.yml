@@ -23,7 +23,7 @@ jobs:
       # 你可以根据需要添加证书导入步骤
 
       - name: Build IPA with Expo
-        run: npx expo run:ios --configuration Release --no-interactive
+        run: npx expo run:ios --configuration Release
 
       # 你可以根据实际生成路径调整 artifact 路径
       - name: Upload IPA artifact
