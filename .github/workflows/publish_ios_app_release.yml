@@ -22,18 +22,28 @@ jobs:
 
       # 你可以根据需要添加证书导入步骤
 
-      - name: Build IPA with Expo
-        run: npx expo run:ios --configuration Release
+      - name: Build IPA (archive)
+        run: |
+          xcodebuild -workspace ios/CyMusic.xcworkspace \
+            -scheme CyMusic \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive archive
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath ${{ github.workspace }}/build
 
-      # 你可以根据实际生成路径调整 artifact 路径
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: CyMusic.ipa
-          path: ios/build/*.ipa
+          path: build/*.ipa
 
       - name: Upload IPA to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
-          files: ios/build/*.ipa
+          files: build/*.ipa
