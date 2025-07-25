@@ -12,49 +12,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.2'
-
-      - name: Install Bundler
-        run: gem install bundler
+          node-version: '20'
 
       - name: Install dependencies
-        run: bundle install
-        working-directory: ios
+        run: yarn install
 
-      - name: Install CocoaPods dependencies
-        run: bundle exec pod install
-        working-directory: ios
+      # 你可以根据需要添加证书导入步骤
 
-      - name: Set up keychain and provisioning profile
-        uses: apple-actions/import-codesign-certs@v2
-        with:
-          p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
-          p12-password: ${{ secrets.IOS_P12_PASSWORD }}
-          provisioning-profile-base64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+      - name: Build IPA with Expo
+        run: npx expo run:ios --configuration Release --no-interactive
 
-      - name: Build IPA
-        run: |
-          xcodebuild -workspace ios/CyMusic.xcworkspace \
-            -scheme CyMusic \
-            -configuration Release \
-            -sdk iphoneos \
-            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive archive
-          xcodebuild -exportArchive \
-            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -exportPath ${{ github.workspace }}/build
-
+      # 你可以根据实际生成路径调整 artifact 路径
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: CyMusic.ipa
-          path: build/CyMusic.ipa
+          path: ios/build/*.ipa
 
       - name: Upload IPA to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
-          files: build/CyMusic.ipa
+          files: ios/build/*.ipa
