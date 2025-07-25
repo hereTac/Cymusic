@@ -476,7 +476,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "/Users/gyc/Code/Cymusic/ios/ShareExtension/ShareExtension.entitlements";
+			   CODE_SIGN_ENTITLEMENTS = "ios/ShareExtension/ShareExtension.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
