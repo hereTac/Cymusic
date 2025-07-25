@@ -476,13 +476,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-			   CODE_SIGN_ENTITLEMENTS = "ios/ShareExtension/ShareExtension.entitlements";
+			   CODE_SIGN_ENTITLEMENTS = "ShareExtension/ShareExtension.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ios/ShareExtension/ShareExtension-Info.plist";
+				INFOPLIST_FILE = "ShareExtension/ShareExtension-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "CyMusic - Share Extension";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -630,7 +630,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "ios/ShareExtension/ShareExtension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "ShareExtension/ShareExtension.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -640,7 +640,7 @@
 					"$(inherited)",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ios/ShareExtension/ShareExtension-Info.plist";
+				INFOPLIST_FILE = "ShareExtension/ShareExtension-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "CyMusic - Share Extension";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
