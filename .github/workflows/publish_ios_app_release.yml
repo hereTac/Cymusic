@@ -17,8 +17,14 @@ jobs:
         with:
           node-version: '20'
 
+
       - name: Install dependencies
         run: yarn install
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install
 
       # 你可以根据需要添加证书导入步骤
 
