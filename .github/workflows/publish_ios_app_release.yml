@@ -1,4 +1,4 @@
-name: Publish iOS App Release
+name: Build and Release iOS App
 
 on:
   workflow_dispatch:
@@ -7,40 +7,40 @@ on:
 
 jobs:
   build-ios:
+    name: Build iOS App
     runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
+          cache: yarn
 
       - name: Install dependencies
-        run: yarn install
-
-      - name: Install CocoaPods dependencies
         run: |
-          cd ios
-          pod install
+          yarn install
+          cd ios && pod install
 
-      # 你可以根据需要添加证书导入步骤
-
-      - name: Build IPA (archive)
+      - name: Build iOS app
         run: |
           xcodebuild -workspace ios/CyMusic.xcworkspace \
             -scheme CyMusic \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive archive
+            -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
+            -allowProvisioningUpdates \
+            archive
+
       - name: Export IPA
         run: |
           xcodebuild -exportArchive \
             -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
+            -exportPath ${{ github.workspace }}/build \
             -exportOptionsPlist ios/ExportOptions.plist \
-            -exportPath ${{ github.workspace }}/build
+            -allowProvisioningUpdates
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
@@ -48,7 +48,7 @@ jobs:
           name: CyMusic.ipa
           path: build/*.ipa
 
-      - name: Upload IPA to GitHub Release
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         if: github.event_name == 'release'
         with:
