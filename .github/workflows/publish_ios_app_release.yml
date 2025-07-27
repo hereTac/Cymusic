@@ -31,6 +31,9 @@ jobs:
             -configuration Release \
             -sdk iphoneos \
             -archivePath ${{ github.workspace }}/build/CyMusic.xcarchive \
+            DEVELOPMENT_TEAM=FAKEAAAAAA \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
             -allowProvisioningUpdates \
             archive
 
